@@ -1,0 +1,63 @@
+scalar UUID
+scalar DateTime
+
+type Club {
+    id: UUID!
+    name: String!
+    typeId: UUID
+    typeName: String
+    city: String!
+    address: String!
+    country: String!
+    postalCode: String
+    phoneNumber: String
+    email: String
+    latitude: Float!
+    longitude: Float!
+}
+
+type FullClub {
+    id: UUID!
+    name: String!
+    typeId: UUID
+    typeName: String
+    city: String!
+    address: String!
+    country: String!
+    phoneNumber: String
+    postalCode: String
+    email: String
+    latitude: Float!
+    longitude: Float!
+    ownerId: UUID!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    deletedAt: DateTime!
+
+}
+
+input UpdateClubInput {
+    name: String
+    typeId: UUID
+    typeName: String
+    city: String
+    address: String
+    country: String
+    phoneNumber: String
+    postalCode: String
+    email: String
+    latitude: Float
+    longitude: Float
+}
+
+type Query {
+    clubs: [Club]
+    clubById(id: UUID!): FullClub
+    clubsByOwnerId(id: UUID!): [Club]
+}
+
+type Mutation {
+    updateClub(id: UUID!, data: UpdateClubInput!, ownerId: UUID!): FullClub
+    createClub(data: UpdateClubInput!, ownerId: UUID!): FullClub
+    disableClub(id: UUID!, ownerId: UUID!): Boolean
+}
