@@ -7,7 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class ClubServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ClubServiceApplication.class, args);
+        System.out.println("POSTGRES_USER=" + System.getenv("POSTGRES_USER"));
+        SpringApplication.run(ClubServiceApplication.class, args);
 	}
 
 }

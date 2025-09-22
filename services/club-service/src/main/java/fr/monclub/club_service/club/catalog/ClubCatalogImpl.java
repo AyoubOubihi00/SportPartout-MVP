@@ -47,4 +47,16 @@ public class ClubCatalogImpl implements ClubCatalog {
     public void flush() {
         clubRepository.flush();
     }
+
+    @Override
+    public List<Club> getAllClubsBySportTypeId(UUID id) {
+        return clubRepository.findClubsByTypeId(id);
+    }
+
+    @Override
+    public List<Club> saveAll(List<Club> clubs) {
+        return  clubRepository.saveAll(clubs);
+    }
+
+
 }

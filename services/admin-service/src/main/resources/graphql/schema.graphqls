@@ -1,0 +1,16 @@
+scalar UUID
+
+type SportType {
+    id: UUID!
+    name: String!
+}
+
+type Query {
+    sportTypes: [SportType]
+    sportTypeById(id: UUID!): SportType
+}
+
+type Mutation {
+    createSportType(name: String!): SportType
+    updateSportType(id: UUID!, name: String!): SportType
+}

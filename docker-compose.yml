@@ -1,0 +1,89 @@
+version: '3.9'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "${RABBITMQ_PORT}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT}:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    networks:
+      - monclub-net
+
+  db-club:
+    image: postgres:16
+    container_name: monclub-db-club
+    env_file:
+      - ./services/club-service/.env
+    ports:
+      - "5433:5432"
+    networks:
+      - monclub-net
+    volumes:
+      - db_club_data:/var/lib/postgresql/data
+
+
+  club-service:
+    build: ./services/club-service
+    container_name: monclub-club-service
+    env_file:
+      - ./services/club-service/.env
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db-club:5432/club_db
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+        
+    depends_on:
+      - rabbitmq
+      - db-club
+    ports:
+      - "8081:8080"
+    networks:
+      - monclub-net
+
+
+  db-admin:
+    image: postgres:16
+    container_name: monclub-db-admin
+    env_file:
+      - ./services/admin-service/.env
+    ports:
+      - "5434:5432"
+    networks:
+      - monclub-net
+    volumes:
+      - db_admin_data:/var/lib/postgresql/data
+
+
+  admin-service:
+    build: ./services/admin-service
+    container_name: monclub-admin-service
+    env_file:
+      - ./services/admin-service/.env
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db-admin:5432/club_db
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+        
+    depends_on:
+      - rabbitmq
+      - db-admin
+    ports:
+      - "8082:8080"
+    networks:
+      - monclub-net
+
+
+
+networks:
+  monclub-net:
+    driver: bridge
+
+volumes:
+  db_club_data:
+  db_admin_data:

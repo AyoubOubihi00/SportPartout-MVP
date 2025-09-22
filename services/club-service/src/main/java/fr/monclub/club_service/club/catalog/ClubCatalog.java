@@ -18,4 +18,8 @@ public interface ClubCatalog {
     Club saveAndFlush(Club club);
 
     void flush();
+
+    List<Club> getAllClubsBySportTypeId(UUID id);
+
+    List<Club> saveAll(List<Club> clubs);
 }
