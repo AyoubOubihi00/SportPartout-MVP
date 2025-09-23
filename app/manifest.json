@@ -1,0 +1,12 @@
+{
+  "name": "SportPartout",
+  "icons": [
+    {
+      "src": "logo_512x512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url":"/app",
+  "display": "fullscreen"
+}
