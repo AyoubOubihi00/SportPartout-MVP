@@ -1,0 +1,56 @@
+scalar UUID
+
+enum Sport {
+    FOOTBALL
+    BASKETBALL
+    TENNIS
+    RUGBY
+    VOLLEYBALL
+}
+
+type Club {
+    id: ID!
+    name: String!
+    type: Sport!
+    city: String!
+    address: String!
+    country: String!
+    postalCode: String
+    phoneNumber: String
+    email: String
+    latitude: Float!
+    longitude: Float!
+}
+
+type ClubWithDistance {
+    id: ID!
+    name: String!
+    type: Sport!
+    city: String!
+    address: String!
+    country: String!
+    postalCode: String
+    phoneNumber: String
+    email: String
+    latitude: Float!
+    longitude: Float!
+    distanceKm: Float!
+}
+
+type LocationSuggestion {
+    label: String!
+    city: String!
+    postalCode: String
+    department: String
+    country: String!
+    latitude: Float
+    longitude: Float
+}
+
+type Query {
+    clubs: [Club!]!
+    clubsByCity(city: String!, postalCode: String): [Club!]!
+    clubsNear(latitude: Float!, longitude: Float!, radiusKm: Float!): [ClubWithDistance!]!
+    suggestLocations(term: String!): [LocationSuggestion!]!
+    locationFromCoordinates(latitude: Float!, longitude: Float!): LocationSuggestion!
+}

@@ -57,6 +57,11 @@ services:
       - monclub-net
     volumes:
       - db_admin_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL","pg_isready -U $POSTGRES_USER -d admin_db || exit 1" ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
 
 
   admin-service:
@@ -66,7 +71,7 @@ services:
       - ./services/admin-service/.env
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db-admin:5432/club_db
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db-admin:5432/admin_db
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
         
@@ -75,6 +80,44 @@ services:
       - db-admin
     ports:
       - "8082:8080"
+    networks:
+      - monclub-net
+  
+  db-findclub:
+    image: postgis/postgis:16-3.4-alpine
+    container_name: monclub-db-findclub
+    env_file:
+      - ./services/findclub-service/.env
+    ports:
+      - "5435:5432"
+    networks:
+      - monclub-net
+    volumes:
+      - db_findclub_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL","pg_isready -U $POSTGRES_USER -d findclub_db || exit 1" ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    
+  findclub-service:
+    build: ./services/findclub-service
+    container_name: monclub-findclub-service
+    env_file:
+      - ./services/findclub-service/.env
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db-findclub:5432/findclub_db
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+
+    depends_on:
+      db-findclub:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+    ports:
+      - "8083:8080"
     networks:
       - monclub-net
 
@@ -87,3 +130,4 @@ networks:
 volumes:
   db_club_data:
   db_admin_data:
+  db_findclub_data:
