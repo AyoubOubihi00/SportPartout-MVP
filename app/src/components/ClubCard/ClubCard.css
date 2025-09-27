@@ -1,6 +1,5 @@
 .club-card {
   display: flex;
-  align-items: flex-start;
   background: white;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -8,6 +7,7 @@
   margin: 12px 0;
   gap: 12px;
   font-family: sans-serif;
+  width: 350px; /* largeur fixée */
 }
 
 .club-card-image {
@@ -15,22 +15,33 @@
   height: 50px;
   background: #ddd;
   border-radius: 8px;
+  flex-shrink: 0;
+  background-color: white;
 }
 
 .club-card-info {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .club-card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-direction: row;
 }
 
-.distance {
-  font-size: 0.9rem;
-  color: #666;
+.distance-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 0.85rem;
+}
+
+.status {
+  color: green;
+  font-size: 0.75rem;
 }
 
 .sport-tag {
@@ -38,20 +49,30 @@
   padding: 2px 8px;
   border-radius: 8px;
   font-size: 0.8rem;
-  margin: 4px 0;
   display: inline-block;
+  width: fit-content;
+  margin-right: 10;
 }
 
 .notation {
-  margin: 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
   font-weight: bold;
-  color: #f39c12;
+  color: #333;
+}
+.sport-notation {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .addresse, .members {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 0.9rem;
   color: #555;
-  margin: 2px 0;
 }
 
 .actions {
@@ -61,19 +82,21 @@
 }
 
 button {
-  padding: 6px 10px;
+  flex: 1;
+  padding: 8px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
+  font-weight: bold;
 }
 
 button.join {
-  background: #000;
+  background: black;
   color: white;
 }
 
 button.details {
-  background-color: white;
-  color : #000;
-
+  background: white;
+  border: 1px solid #ccc;
+  color: black;
 }
