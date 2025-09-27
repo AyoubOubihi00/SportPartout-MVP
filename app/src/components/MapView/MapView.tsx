@@ -2,14 +2,24 @@ import { useEffect, useState, useMemo } from "react"
 import { Map, Marker } from "pigeon-maps"
 import { osm } from "pigeon-maps/providers"
 import useGeolocalisation from "../../hooks/useGeolocalisation"
+import { mapCenterService } from '../../services/mapCenterService';
 import { clubs } from "../../mock/club"
 import ClubCard from "../ClubCard"
 import Supercluster, {
-    ClusterFeature,
     PointFeature,
 } from "supercluster"
 
 export default function MapView() {
+    // Synchronise le centre de la carte avec le service
+    // Flag pour savoir si le centre a été défini manuellement
+    const [manualCenter, setManualCenter] = useState(false);
+    useEffect(() => {
+        const unsubscribe = mapCenterService.onCenterChange((newCenter) => {
+            setCenter(newCenter);
+            setManualCenter(true);
+        });
+        return unsubscribe;
+    }, []);
 
 
     // Récupération de la position de l'utilisateur
@@ -46,10 +56,10 @@ export default function MapView() {
 
     // Met à jour le centre lorsque la position de l'utilisateur change
     useEffect(() => {
-        if (userPos) {
+        if (userPos && !manualCenter) {
             setCenter(userPos)
         }
-    }, [userPos])
+    }, [userPos, manualCenter])
 
     return (
         <div style={{ width: "100vw", height: "100vh", background: "#fff", overflow: "hidden" }}>

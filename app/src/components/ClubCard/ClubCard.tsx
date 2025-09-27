@@ -1,6 +1,6 @@
 import React from "react";
 import "./ClubCard.css"
-import type  { Club } from "../../model/club";
+import type  { Club } from "../../model/Club";
 
 
 type ClubCardProps = Club & {

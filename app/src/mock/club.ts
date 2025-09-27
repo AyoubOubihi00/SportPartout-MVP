@@ -1,7 +1,6 @@
-import type { Club } from "../model/club"
+import type { Club } from "../model/Club"
 
 export const clubs: Club[] = [
-  // Clubs à Metz
   {
     id: 1,
     name: "Basketball Club Metz",
