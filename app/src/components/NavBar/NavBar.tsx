@@ -4,15 +4,25 @@ import Sheet from "@mui/joy/Sheet";
 import Box from "@mui/joy/Box";
 import IconButton from "@mui/joy/IconButton";
 import Typography from "@mui/joy/Typography";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function NavBar() {
   const [activeIndex, setActiveIndex] = useState(0);
+  const navigate = useNavigate();
+  //On ça car on doit le récupérer sur les différentes pages
+  const location = useLocation();
+
 
   const items = [
-    { icon: <Dumbbell size={28} />, label: "MON CLUB" },
-    { icon: <Map size={28} />, label: "EXPLORER" },
-    { icon: <User size={28} />, label: "MON COMPTE" },
+    { icon: <Dumbbell size={28} />, label: "MON CLUB", paths:["/random"] },
+    { icon: <Map size={28} />, label: "EXPLORER", paths:["/"] },
+    { 
+      icon: <User size={28} />, 
+      label: "MON COMPTE", 
+      paths: ["/login", "/signup", "/forgot-password", "/resetpassword", "/resetpasswordsuccess"]   },
   ];
+
+
 
   return (
     <Sheet
@@ -39,11 +49,21 @@ export default function NavBar() {
         }}
       >
         {items.map((item, index) => {
-          const active = index === activeIndex;
+        const active = item.paths.includes(location.pathname);
           return (
             <Box
               key={index}
-              onClick={() => setActiveIndex(index)}
+              onClick={
+                () => 
+                { 
+                  setActiveIndex(index);   
+                  if (item.paths && item.paths.length > 0) 
+                  {
+                    navigate(item.paths[0]); 
+                  }                
+                }
+              }
+
               sx={{
                 display: "flex",
                 flexDirection: "column",

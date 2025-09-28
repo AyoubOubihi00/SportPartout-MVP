@@ -1,23 +1,27 @@
-import MapView from "./components/MapView";
-import PWABadge from "./components/PWABadge";
-import NavBar from "./components/NavBar/NavBar";
-import { SearchFilter } from "./components/SearchFilter/SearchFilter";
-
-
+// src/App.tsx
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { LoginForm } from "./components/Connection-Subscription/LoginForm";
+import { SignupForm } from "./components/Connection-Subscription/SignupForm";
+import { ResetPassword } from "./components/Connection-Subscription/ResetPassword";
+import { ResetPasswordSuccess } from "./components/Connection-Subscription/ResetPasswordSuccess";
+import { ForgotPassword } from "./components/Connection-Subscription/forgotPassword";
+import { HomePage } from "./components/HomePage/HomePage";
 function App() {
   return (
-    <>
-    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-md px-4">
-      <SearchFilter />
-    </div>
-      <MapView />
-      <PWABadge />
-      <div className="fixed bottom-0 left-0 w-full z-50 flex justify-center">
-        <div className="w-full max-w-md">
-          <NavBar />
-        </div>
-      </div>
-    </>
+    <Router>
+ 
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginForm />} />
+        <Route path="/signup" element={<SignupForm />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/resetpassword" element={<ResetPassword />} />
+        <Route path="/resetpasswordsuccess" element={<ResetPasswordSuccess />} />
+
+      </Routes>
+
+
+    </Router>
   );
 }
 

@@ -8,21 +8,29 @@ import ClubCard from "../ClubCard"
 import ClubDetails from "../ClubDetails"
 import BottomSheet from "../BottomSheet"
 import { LocateFixed } from "lucide-react"
-import Supercluster, { PointFeature } from "supercluster"
 import { Button, Sheet, IconButton } from "@mui/joy"
 import { useTheme } from '@mui/joy/styles';
+import Supercluster, {
+    PointFeature,
+} from "supercluster"
+//import { useNavigate } from "react-router-dom";
 
 export default function MapView() {
     const theme = useTheme();
     const [manualCenter, setManualCenter] = useState(false);
+
+    //const navigate = useNavigate();
+
+
+    // Récupération de la position de l'utilisateur
+    const { userPos } = useGeolocalisation()
+    // Centre de la carte : position de l'utilisateur ou Paris par défaut
     const [center, setCenter] = useState<[number, number]>([48.8566, 2.3522])
     const [zoom, setZoom] = useState(12)
     const [bounds, setBounds] = useState<[number, number, number, number] | null>(null)
     const [selectedClub, setSelectedClub] = useState<string | null>(null)
     const [showDetails, setShowDetails] = useState(false)
 
-
-    const { userPos } = useGeolocalisation()
 
     useEffect(() => {
         const unsubscribe = mapCenterService.onCenterChange((newCenter) => {
@@ -233,8 +241,19 @@ export default function MapView() {
                 {selectedClub && !showDetails && (
                     <ClubCard
                         {...clubs.find((c) => c.id === selectedClub)!}
-                        onJoin={() => alert("Rejoindre le club")}
                         onDetails={() => setShowDetails(true)}
+                        {...clubs.find((club) => club.id === selectedClub)!}
+                            onJoin={() => { alert("Join club functionality to be implemented");
+                                /*
+                                if (!user) {
+                                    // Pas connecté → aller à la page login, et prévoir de revenir ici
+                                    navigate("/login", { state: { redirectTo: `/clubs/${selectedClub}/join` } });
+                                } else {
+                                    // Connecté → aller directement à la page rejoindre
+                                    navigate(`/clubs/${selectedClub}/join`);
+                                }
+                                    */
+                            }}
                     />
                 )}
                 {selectedClub && showDetails && (
