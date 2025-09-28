@@ -1,0 +1,58 @@
+.bottom-sheet-root {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 50;
+}
+
+.bottom-sheet-root.open {
+  pointer-events: auto;
+}
+
+.bottom-sheet {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  height: 0;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  overflow: hidden;
+  transition: height 220ms ease;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #f0f0f0;
+}
+
+.bottom-sheet.dragging {
+  transition: none;
+}
+
+.bottom-sheet-handle {
+  padding: 8px 12px 12px;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+
+.bottom-sheet-grabber {
+  width: 44px;
+  height: 5px;
+  background: #d9d9d9;
+  border-radius: 999px;
+  margin: 6px auto 8px;
+}
+
+.bottom-sheet-title {
+  text-align: center;
+  font-weight: 600;
+}
+
+.bottom-sheet-content {
+  overflow: auto;
+  padding: 0 12px 12px;
+}
+

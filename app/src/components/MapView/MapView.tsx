@@ -5,9 +5,11 @@ import useGeolocalisation from "../../hooks/useGeolocalisation"
 import { mapCenterService } from '../../services/mapCenterService';
 import { clubs } from "../../mock/club"
 import ClubCard from "../ClubCard"
+import ClubDetails from "../ClubDetails"
+import BottomSheet from "../BottomSheet"
 import { LocateFixed } from "lucide-react"
 import Supercluster, { PointFeature } from "supercluster"
-import { Button, Card, Sheet, IconButton } from "@mui/joy"
+import { Button, Sheet, IconButton } from "@mui/joy"
 import { useTheme } from '@mui/joy/styles';
 
 export default function MapView() {
@@ -16,8 +18,9 @@ export default function MapView() {
     const [center, setCenter] = useState<[number, number]>([48.8566, 2.3522])
     const [zoom, setZoom] = useState(12)
     const [bounds, setBounds] = useState<[number, number, number, number] | null>(null)
-    const [selectedClub, setSelectedClub] = useState<number | null>(null)
-    const [isCardClosing, setIsCardClosing] = useState(false)
+    const [selectedClub, setSelectedClub] = useState<string | null>(null)
+    const [showDetails, setShowDetails] = useState(false)
+
 
     const { userPos } = useGeolocalisation()
 
@@ -74,9 +77,10 @@ export default function MapView() {
                 center={center}
                 zoom={zoom}
                 onClick={() => {
-                    // trigger animated close if card open
+                    // Close any open sheet
                     if (selectedClub !== null) {
-                        setIsCardClosing(true)
+                        setShowDetails(false)
+                        setSelectedClub(null)
                     }
                 }}
                 onBoundsChanged={({ center, zoom, bounds }) => {
@@ -174,8 +178,7 @@ export default function MapView() {
                                 onClick={({ event }) => {
                                 event.stopPropagation()
                                 const newId = cluster.properties.clubId
-                                // cancel any closing and open selected club (or toggle)
-                                setIsCardClosing(false)
+                                // open selected club
                                 setSelectedClub((prev) => (prev === newId ? newId : newId))
                             }}
                         />
@@ -222,36 +225,22 @@ export default function MapView() {
                 </IconButton>
             )}
 
-            {(selectedClub !== null || isCardClosing) && (
-                <Card
-                    sx={{
-                        position: "fixed",
-                        left: 12,
-                        right: 12,
-                        bottom: "calc(env(safe-area-inset-bottom, 0px) + 12px)",
-                        zIndex: 60,
-                        maxWidth: 560,
-                        margin: "0 auto",
-                        p: 0,
-                        background: 'transparent',
-                        boxShadow: 'none',
-                        border: 'none',
-                    }}
-                    onClick={(e) => e.stopPropagation()}
-                >
+            <BottomSheet
+                open={selectedClub !== null}
+                onClose={() => { setShowDetails(false); setSelectedClub(null) }}
+                initialHeight={showDetails ? 560 : 420}
+            >
+                {selectedClub && !showDetails && (
                     <ClubCard
                         {...clubs.find((c) => c.id === selectedClub)!}
                         onJoin={() => alert("Rejoindre le club")}
-                        onDetails={() => alert("Voir les détails du club")}
-                        closing={isCardClosing}
-                        onCloseComplete={() => {
-                            setIsCardClosing(false)
-                            setSelectedClub(null)
-                        }}
-                        
+                        onDetails={() => setShowDetails(true)}
                     />
-                </Card>
-            )}
+                )}
+                {selectedClub && showDetails && (
+                    <ClubDetails club={clubs.find((c) => c.id === selectedClub)!} />
+                )}
+            </BottomSheet>
         </Sheet>
     )
 }

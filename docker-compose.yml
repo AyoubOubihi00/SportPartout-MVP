@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   rabbitmq:
     image: rabbitmq:3-management
@@ -120,8 +118,6 @@ services:
       - "8083:8080"
     networks:
       - monclub-net
-
-
 
 networks:
   monclub-net:

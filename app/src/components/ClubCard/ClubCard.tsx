@@ -22,9 +22,6 @@ type ClubCardProps = Club & {
 
 export default function ClubCard({ name, sport, distance, notation, addresse, members, onJoin, onDetails, closing, onCloseComplete }: ClubCardProps) {
   const theme = useTheme();
-  const gradientBg = theme.palette.mode === 'dark'
-    ? 'linear-gradient(135deg, #0f172a, #1e293b)'
-    : 'linear-gradient(135deg, #f8fafc, #e2e8f0)';
 
   // Animation slide up/down
   const cardRef = useRef<HTMLDivElement>(null);
@@ -75,19 +72,17 @@ export default function ClubCard({ name, sport, distance, notation, addresse, me
       sx={{
         display: 'flex',
         gap: 2,
-        background: gradientBg,
-        boxShadow: 'md',
-        borderRadius: 4,
-        p: 6,
+        bgcolor: 'background.surface',
+        background: 'transparent',
+        boxShadow: 'sm',
+        borderRadius: 12,
+        p: 3,
         minWidth: 0,
-        width: '100vw',
-        maxWidth: '100vw',
-        position: 'fixed',
-        left: 0,
-        right: 0,
-        bottom: 0,
-        zIndex: 60,
+        width: '100%',
+        maxWidth: 720,
+        mx: 'auto',
         willChange: 'transform, opacity',
+        border: '1px solid var(--joy-palette-neutral-200, #e5e7eb)'
       }}
     >
       <Box sx={{ minWidth: 60, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
