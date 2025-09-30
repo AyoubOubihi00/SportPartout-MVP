@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Input from "@mui/joy/Input";
 import Button from "@mui/joy/Button";
 import Typography from "@mui/joy/Typography";
-import { AuthLayout } from "./AuthLayout";
+import AuthLayout from "./AuthLayout";
 import { useTheme } from "@mui/joy/styles";
 
 export function LoginForm() {
@@ -12,6 +12,8 @@ export function LoginForm() {
   const navigate = useNavigate();
   const theme = useTheme();
 
+  const darkGradient = 'linear-gradient(135deg, #0f172a, #1e293b)';
+  const lightGradient = 'linear-gradient(135deg, #f8fafc, #e2e8f0)';
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValues({ ...values, [e.target.name]: e.target.value });
@@ -57,7 +59,14 @@ export function LoginForm() {
           onChange={handleChange}
           placeholder="Email"
           required
-          sx={{ mb: 2 }}
+          sx={{
+          mb: 2,
+          background: theme.palette.mode === 'dark' ? darkGradient : lightGradient,
+          color: theme.palette.mode === 'dark' ? 'white' : 'black',
+          '& input::placeholder': {
+            color: theme.palette.mode === 'dark' ? 'grey.400' : 'grey.500',
+          },
+        }}
         />
         <Input
           name="password"
@@ -66,7 +75,14 @@ export function LoginForm() {
           onChange={handleChange}
           placeholder="Mot de passe"
           required
-          sx={{ mb: 1 }}
+           sx={{
+          mb: 2,
+          background: theme.palette.mode === 'dark' ? darkGradient : lightGradient,
+          color: theme.palette.mode === 'dark' ? 'white' : 'black',
+          '& input::placeholder': {
+            color: theme.palette.mode === 'dark' ? 'grey.400' : 'grey.500',
+          },
+        }}
         />
 
         <Button

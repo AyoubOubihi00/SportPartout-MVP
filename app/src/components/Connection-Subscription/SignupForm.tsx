@@ -6,7 +6,7 @@ import Option from "@mui/joy/Option";
 import Button from "@mui/joy/Button";
 import LinearProgress from "@mui/joy/LinearProgress";
 import Typography from "@mui/joy/Typography";
-import { AuthLayout } from "./AuthLayout";
+import AuthLayout from "./AuthLayout";
 import { useTheme } from "@mui/joy";
 
 export function SignupForm() {
@@ -24,6 +24,9 @@ export function SignupForm() {
   const theme = useTheme();
 
   const minLength = 12;
+
+  const darkGradient = 'linear-gradient(135deg, #0f172a, #1e293b)';
+  const lightGradient = 'linear-gradient(135deg, #f8fafc, #e2e8f0)';
 
 
   const handleChange = (
@@ -70,39 +73,143 @@ export function SignupForm() {
       </Typography>
 
       <form onSubmit={handleSubmit}>
-        <Input name="nom" placeholder="Nom" value={values.nom} onChange={handleChange} sx={{ mb: 2 }} />
-        <Input name="prenom" placeholder="Prénom" value={values.prenom} onChange={handleChange} sx={{ mb: 2 }} />
+        <Input
+          name="nom"
+          placeholder="Nom"
+          value={values.nom}
+          onChange={handleChange}
+          required
+          error={!values.nom && message !== ""}
+          sx={{
+            mb: 2,
+            background: theme.palette.mode === 'dark' ? darkGradient : lightGradient,
+            color: theme.palette.mode === 'dark' ? 'white' : 'black',
+            '& input::placeholder': {
+              color: theme.palette.mode === 'dark' ? 'grey.400' : 'grey.500',
+            },
+          }}
+        />
+        {!values.nom && message !== "" && (
+          <Typography level="body-xs" color="danger" sx={{ mb: 1 }}>Nom obligatoire</Typography>
+        )}
+        <Input
+          name="prenom"
+          placeholder="Prénom"
+          value={values.prenom}
+          onChange={handleChange}
+          required
+          error={!values.prenom && message !== ""}
+          sx={{
+            mb: 2,
+            background: theme.palette.mode === 'dark' ? darkGradient : lightGradient,
+            color: theme.palette.mode === 'dark' ? 'white' : 'black',
+            '& input::placeholder': {
+              color: theme.palette.mode === 'dark' ? 'grey.400' : 'grey.500',
+            },
+          }}
+        />
+        {!values.prenom && message !== "" && (
+          <Typography level="body-xs" color="danger" sx={{ mb: 1 }}>Prénom obligatoire</Typography>
+        )}
         <Input
           name="birthDate"
           type="date"
           placeholder="Date de naissance"
           value={values.birthDate}
           onChange={handleChange}
-          sx={{ mb: 2 }}
+          required
+          error={
+            (!values.birthDate && message !== "") ||
+            (values.birthDate ? new Date(values.birthDate) >= new Date(new Date().toISOString().slice(0, 10)) : false)
+          }
+          sx={{
+            mb: 2,
+            background: theme.palette.mode === 'dark' ? darkGradient : lightGradient,
+            color: theme.palette.mode === 'dark' ? 'white' : 'black',
+            '& input::placeholder': {
+              color: theme.palette.mode === 'dark' ? 'grey.400' : 'grey.500',
+            },
+          }}
         />
-
+        {!values.birthDate && message !== "" && (
+          <Typography level="body-xs" color="danger" sx={{ mb: 1 }}>Champ obligatoire</Typography>
+        )}
+        {values.birthDate && new Date(values.birthDate) >= new Date(new Date().toISOString().slice(0, 10)) && (
+          <Typography level="body-xs" color="danger" sx={{ mb: 1 }}>La date de naissance doit être antérieure à aujourd'hui</Typography>
+        )}
         <Select
-          name="sexe"
-          value={values.sexe}
-          onChange={(e: any) => setValues({ ...values, sexe: e })}
+          value={values.sexe || null}
+          onChange={(_event, newValue) => setValues({ ...values, sexe: newValue || "" })}
           placeholder="Sexe"
-          sx={{ mb: 2 }}
+          sx={{
+            mb: 2,
+            background: theme.palette.mode === 'dark' ? darkGradient : lightGradient,
+            color: theme.palette.mode === 'dark' ? 'white' : 'black',
+            border: 'none',
+            boxShadow: 'none',
+            '& input::placeholder': {
+              color: theme.palette.mode === 'dark' ? 'grey.400' : 'grey.500',
+            },
+            '&:hover, &.Mui-focused': {
+              border: 'none',
+              boxShadow: 'none',
+            },
+            '& button:focus, & button:focus-visible': {
+              outline: 'none',
+              boxShadow: 'none',
+            },
+          }}
         >
           <Option value="Homme">Homme</Option>
           <Option value="Femme">Femme</Option>
           <Option value="Autre">Autre</Option>
         </Select>
-
-        <Input name="email" type="email" placeholder="Email" value={values.email} onChange={handleChange} sx={{ mb: 2 }} />
-
+        {!values.sexe && message !== "" && (
+          <Typography level="body-xs" color="danger" sx={{ mb: 1 }}>Champ obligatoire</Typography>
+        )}
+        <Input
+          name="email"
+          type="email"
+          placeholder="Email"
+          value={values.email}
+          onChange={handleChange}
+          required
+          error={(!values.email && message !== "") || (values.email ? !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email) : false)}
+          sx={{
+            mb: 2,
+            background: theme.palette.mode === 'dark' ? darkGradient : lightGradient,
+            color: theme.palette.mode === 'dark' ? 'white' : 'black',
+            '& input::placeholder': {
+              color: theme.palette.mode === 'dark' ? 'grey.400' : 'grey.500',
+            },
+          }}
+        />
+        {!values.email && message !== "" && (
+          <Typography level="body-xs" color="danger" sx={{ mb: 1 }}>Champ obligatoire</Typography>
+        )}
+        {values.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email) && (
+          <Typography level="body-xs" color="danger" sx={{ mb: 1 }}>Email non valide</Typography>
+        )}
         <Input
           name="password"
           type="password"
           placeholder="Mot de passe"
           value={values.password}
           onChange={handleChange}
-          sx={{ mb: 2 }}
+          required
+          error={values.password.length < 6 && message !== ""}
+          sx={{
+            mb: 2,
+            background: theme.palette.mode === 'dark' ? darkGradient : lightGradient,
+            color: theme.palette.mode === 'dark' ? 'white' : 'black',
+            '& input::placeholder': {
+              color: theme.palette.mode === 'dark' ? 'grey.400' : 'grey.500',
+            },
+          }}
         />
+        {values.password.length < 6 && message !== "" && (
+          <Typography level="body-xs" color="danger" sx={{ mb: 1 }}>Mot de passe trop court (min 6 caractères)</Typography>
+        )}
         <LinearProgress
           determinate
           size="sm"
@@ -115,15 +222,27 @@ export function SignupForm() {
           {values.password.length >= 6 && values.password.length < 10 && "Fort"}
           {values.password.length >= 10 && "Très fort"}
         </Typography>
-
         <Input
           name="confirmPassword"
           type="password"
           placeholder="Confirmer le mot de passe"
           value={values.confirmPassword}
           onChange={handleChange}
-          sx={{ mb: 2 }}
+          required
+          error={values.password !== values.confirmPassword && message !== ""}
+          sx={{
+            mt: 2,
+            mb: 2,
+            background: theme.palette.mode === 'dark' ? darkGradient : lightGradient,
+            color: theme.palette.mode === 'dark' ? 'white' : 'black',
+            '& input::placeholder': {
+              color: theme.palette.mode === 'dark' ? 'grey.400' : 'grey.500',
+            },
+          }}
         />
+        {values.password !== values.confirmPassword && message !== "" && (
+          <Typography level="body-xs" color="danger" sx={{ mb: 1 }}>Les mots de passe ne correspondent pas</Typography>
+        )}
 
         <Button
           type="submit"
@@ -141,12 +260,6 @@ export function SignupForm() {
           S'inscrire
         </Button>
       </form>
-
-      {message && (
-        <Typography level="body-sm" color="danger" textAlign="center" mt={2}>
-          {message}
-        </Typography>
-      )}
 
       <Typography level="body-sm" textAlign="center" sx={{ mt: 2, color: mainColor }}>
         Déjà un compte ?{" "}

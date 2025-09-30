@@ -8,7 +8,7 @@ import * as sportService from '../../services/sportService';
 import { fetchCities } from '../../services/cityApiService';
 import { mapCenterService } from '../../services/mapCenterService';
 
-export function SearchFilter() {
+export function SearchFilter({ onSportsChange }: { onSportsChange?: (sports: Sport[]) => void }) {
   const theme = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
@@ -56,7 +56,9 @@ export function SearchFilter() {
   const filteredSports = sportService.getSportsByName(searchValue).slice(0, 3);
 
   const handleSportSelect = (sport: Sport) => {
-    setSelectedSports([...selectedSports, sport]);
+    const newSports = [...selectedSports, sport];
+    setSelectedSports(newSports);
+    if (onSportsChange) onSportsChange(newSports);
     setSearchValue('');
     setIsOpen(false);
   };
@@ -70,7 +72,11 @@ export function SearchFilter() {
     }
   };
 
-  const removeSport = (id: string) => setSelectedSports(selectedSports.filter(s => s.id !== id));
+  const removeSport = (id: string) => {
+    const newSports = selectedSports.filter(s => s.id !== id);
+    setSelectedSports(newSports);
+    if (onSportsChange) onSportsChange(newSports);
+  };
   const removeCity = () => setSelectedCity(null);
 
   const darkGradient = 'linear-gradient(135deg, #0f172a, #1e293b)';

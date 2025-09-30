@@ -4,11 +4,12 @@ import { osm } from "pigeon-maps/providers"
 import useGeolocalisation from "../../hooks/useGeolocalisation"
 import { mapCenterService } from '../../services/mapCenterService';
 import { clubs } from "../../mock/club"
+import { SearchFilter } from "../SearchFilter/SearchFilter"
 import ClubCard from "../ClubCard"
 import ClubDetails from "../ClubDetails"
 import BottomSheet from "../BottomSheet"
 import { LocateFixed } from "lucide-react"
-import { Button, Sheet, IconButton } from "@mui/joy"
+import { Button, Sheet, IconButton, Box } from "@mui/joy"
 import { useTheme } from '@mui/joy/styles';
 import Supercluster, {
     PointFeature,
@@ -18,9 +19,7 @@ import Supercluster, {
 export default function MapView() {
     const theme = useTheme();
     const [manualCenter, setManualCenter] = useState(false);
-
-    //const navigate = useNavigate();
-
+    const [selectedSports, setSelectedSports] = useState<any[]>([]);
 
     // Récupération de la position de l'utilisateur
     const { userPos } = useGeolocalisation()
@@ -31,7 +30,6 @@ export default function MapView() {
     const [selectedClub, setSelectedClub] = useState<string | null>(null)
     const [showDetails, setShowDetails] = useState(false)
 
-
     useEffect(() => {
         const unsubscribe = mapCenterService.onCenterChange((newCenter) => {
             setCenter(newCenter);
@@ -40,14 +38,22 @@ export default function MapView() {
         return unsubscribe;
     }, []);
 
+    // Filtrage des clubs selon les sports sélectionnés
+    const filteredClubs = useMemo(() => {
+        if (!selectedSports || selectedSports.length === 0) return clubs;
+        return clubs.filter(club =>
+            selectedSports.some(sel => sel.name === club.sport || sel.typeName === club.sport)
+        );
+    }, [selectedSports]);
+
     const points: PointFeature<any>[] = useMemo(
         () =>
-            clubs.map((club) => ({
+            filteredClubs.map((club) => ({
                 type: "Feature" as const,
                 properties: { cluster: false, clubId: club.id, name: club.name },
                 geometry: { type: "Point" as const, coordinates: [club.position[1], club.position[0]] },
             })),
-        []
+        [filteredClubs]
     )
 
     const clusterIndex = useMemo(
@@ -80,6 +86,9 @@ export default function MapView() {
                 bgcolor: "background.body",
             }}
         >
+            <Box sx={{ position: 'absolute', top: 24, left: 0, width: '100%', zIndex: 100, px: 2 }}>
+                <SearchFilter onSportsChange={setSelectedSports} />
+            </Box>
                 <Map
                 provider={osm}
                 center={center}
@@ -199,10 +208,10 @@ export default function MapView() {
                     onClick={() => setCenter(userPos)}
                     variant="outlined"
                     color="neutral"
-                    size="md"
+                    size="lg"
                     sx={{
                         position: "fixed",
-                        top: 64,
+                        bottom: 128,
                         right: 16,
                         zIndex: 50,
                         borderRadius: 3,

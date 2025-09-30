@@ -17,9 +17,9 @@ html.dark-mode, body.dark-mode {
   flex-direction: column;
   align-items: center;
   min-width: 100%;
-  max-width: 400px;  
-  min-height: 100dvh;
-  padding: 40px 20px; /* tu peux ajuster ici ton paddingTop */
+  max-width: 400px;
+  min-height: calc(100dvh - 88px); /* 88px = hauteur estimée de la navbar */
+  padding: 10px 20px; /* tu peux ajuster ici ton paddingTop */
   box-sizing: border-box;
   background-color: inherit;
   color: inherit;

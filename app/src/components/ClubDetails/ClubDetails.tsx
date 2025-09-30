@@ -129,7 +129,14 @@ export default function ClubDetails({ club }: ClubDetailsProps) {
           >
             Itinéraire
           </MenuButton>
-          <Menu placement="bottom-end" aria-label="Choisir l'application de navigation">
+          <Menu
+            placement="bottom-end"
+            aria-label="Choisir l'application de navigation"
+            disablePortal
+            onClose={() => {
+              // Optionally, you can add logic here if you want to handle menu close events
+            }}
+          >
             <MenuItem onClick={openWaze}>
               <ListItemDecorator>
                 <img src={wazeIcon} width={20} height={20} alt="" aria-hidden="true" />

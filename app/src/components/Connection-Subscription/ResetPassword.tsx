@@ -4,7 +4,7 @@ import './CommonStyle.css';
 import Input from "@mui/joy/Input";
 import Button from "@mui/joy/Button";
 import Typography from "@mui/joy/Typography";
-import NavBar from "../NavBar/NavBar";
+import BaseLayout from "../../layouts/BaseLayout";
 import { useTheme } from "@mui/joy/styles";
 
 export function ResetPassword() {
@@ -15,7 +15,8 @@ export function ResetPassword() {
   const navigate = useNavigate();
   const theme = useTheme();
 
- 
+  const darkGradient = 'linear-gradient(135deg, #0f172a, #1e293b)';
+  const lightGradient = 'linear-gradient(135deg, #f8fafc, #e2e8f0)';
 
   const mainColor = theme.palette.mode ? "#fff" : "#000";
 
@@ -44,77 +45,84 @@ export function ResetPassword() {
   };
 
   return (
-    <div
+    <BaseLayout>
+      <div
         className="main-container"
         style={{
-        backgroundColor: theme.palette.mode == "dark" ? '#121212' : '#fff',
-        color: mainColor,
-                paddingBottom: '120px',
-      }}
-    >
- 
-    <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%', maxWidth: 400 }}>
-
-      <Typography level="h4" sx={{ color: mainColor, mb: 2 }}>Réinitialiser le mot de passe</Typography>
-      <Typography level="body-sm" sx={{ color: mainColor, mb: 3 }}>
-        Entrez votre nouveau mot de passe.
-      </Typography>
-
-      <form onSubmit={handleSubmit}>
-        <Input
-          type="password"
-          placeholder="Nouveau mot de passe"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          sx={{ mb: 2 }}
-        />
-        <Input
-          type="password"
-          placeholder="Confirmer le mot de passe"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          sx={{ mb: 2 }}
-        />
-
-        <Button
-          type="submit"
-          variant="solid"
-          sx={{
-            mt: 1,
-            width: '100%',
-            backgroundColor: mainColor,
-            color: theme.palette.mode == "dark"  ? '#121212' : '#fff',
-            '&:hover': { backgroundColor: mainColor },
-            '&:focus': { backgroundColor: mainColor, boxShadow: 'none' },
-            '&:active': { backgroundColor: mainColor },
-          }}
-        >
-          Réinitialiser
-        </Button>
-      </form>
-
-      {message && (
-        <Typography level="body-sm" color="danger" textAlign="center" mt={2}>
-          {message}
+          flexGrow: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          width: '100%',
+          maxWidth: 400,
+          margin: '0 auto',
+          backgroundColor: theme.palette.mode == "dark" ? '#121212' : '#fff',
+          color: mainColor,
+          paddingBottom: '120px',
+        }}
+      >
+        <Typography level="h4" sx={{ color: mainColor, mb: 2 }}>Réinitialiser le mot de passe</Typography>
+        <Typography level="body-sm" sx={{ color: mainColor, mb: 3 }}>
+          Entrez votre nouveau mot de passe.
         </Typography>
-      )}
 
-      <Typography level="body-sm" textAlign="center" sx={{ mt: 3, color: mainColor }}>
-        <Button
-          variant="plain"
-          onClick={() => navigate("/login")}
-          sx={{ color: mainColor }}
-        >
-          Retour à la connexion
-        </Button>
-      </Typography>
-    </div>
+        <form onSubmit={handleSubmit}>
+          <Input
+            type="password"
+            placeholder="Nouveau mot de passe"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+          <Input
+            type="password"
+            placeholder="Confirmer le mot de passe"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            sx={{
+          mb: 2,
+          background: theme.palette.mode === 'dark' ? darkGradient : lightGradient,
+          color: theme.palette.mode === 'dark' ? 'white' : 'black',
+          '& input::placeholder': {
+            color: theme.palette.mode === 'dark' ? 'grey.400' : 'grey.500',
+          },
+        }}
+          />
 
-      <div className="fixed bottom-0 left-0 w-full z-50 flex justify-center">
-        <div className="w-full max-w-md">
-        <NavBar />
-        </div>
+          <Button
+            type="submit"
+            variant="solid"
+            sx={{
+              mt: 1,
+              width: '100%',
+              backgroundColor: mainColor,
+              color: theme.palette.mode == "dark"  ? '#121212' : '#fff',
+              '&:hover': { backgroundColor: mainColor },
+              '&:focus': { backgroundColor: mainColor, boxShadow: 'none' },
+              '&:active': { backgroundColor: mainColor },
+            }}
+          >
+            Réinitialiser
+          </Button>
+        </form>
+
+        {message && (
+          <Typography level="body-sm" color="danger" textAlign="center" mt={2}>
+            {message}
+          </Typography>
+        )}
+
+        <Typography level="body-sm" textAlign="center" sx={{ mt: 3, color: mainColor }}>
+          <Button
+            variant="plain"
+            onClick={() => navigate("/login")}
+            sx={{ color: mainColor }}
+          >
+            Retour à la connexion
+          </Button>
+        </Typography>
       </div>
-    </div>
+    </BaseLayout>
   );
 }
