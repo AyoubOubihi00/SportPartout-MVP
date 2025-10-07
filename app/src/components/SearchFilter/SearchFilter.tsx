@@ -53,7 +53,10 @@ export function SearchFilter({ onSportsChange }: { onSportsChange?: (sports: Spo
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const filteredSports = sportService.getSportsByName(searchValue).slice(0, 3);
+  const filteredSports = sportService
+    .getSportsByName(searchValue)
+    .filter(sport => !selectedSports.some(selected => selected.id === sport.id))
+    .slice(0, 3);
 
   const handleSportSelect = (sport: Sport) => {
     const newSports = [...selectedSports, sport];
@@ -185,8 +188,22 @@ export function SearchFilter({ onSportsChange }: { onSportsChange?: (sports: Spo
         </Portal>
       )}
 
-      {/* Sélections actuelles */}
-      <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+      {/* Sélections actuelles - slider horizontal */}
+      <Box
+        sx={{
+          mt: 2,
+          display: 'flex',
+          flexDirection: 'row',
+          overflowX: 'auto',
+          gap: 1,
+          whiteSpace: 'nowrap',
+          overflowY: 'hidden',
+          '&::-webkit-scrollbar': {
+            height: 6,
+          },
+          
+        }}
+      >
         {selectedSports.map(sport => (
           <Button
             key={sport.id}
@@ -197,6 +214,8 @@ export function SearchFilter({ onSportsChange }: { onSportsChange?: (sports: Spo
             sx={{
               background: theme.palette.mode === 'dark' ? darkGradient : lightGradient,
               color: theme.palette.mode === 'dark' ? 'white' : 'black',
+              minWidth: 100,
+              whiteSpace: 'nowrap',
             }}
           >
             {sport.name}

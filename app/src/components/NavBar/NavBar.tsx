@@ -32,13 +32,14 @@ export default function NavBar() {
         bottom: 0,
         left: 0,
         right: 0,
+        zIndex: 1400, // Toujours au-dessus du BottomSheet
         borderRadius: "24px 24px 0 0",
         boxShadow: "lg",
         background:
     theme.palette.mode === "dark"
         ? "linear-gradient(135deg, #0f172a, #1e293b)" // dégradé sombre
         : "linear-gradient(135deg, #f8fafc, #e2e8f0)", // dégradé clair
-            p: 2,
+        p: 2,
       })}
     >
       <Box

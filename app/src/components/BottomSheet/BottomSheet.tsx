@@ -10,14 +10,15 @@ type BottomSheetProps = {
 }
 
 export default function BottomSheet({ open, onClose, title, initialHeight, children }: BottomSheetProps) {
+  const NAVBAR_HEIGHT = 72 // px
   const [height, setHeight] = useState(0)
   const [dragging, setDragging] = useState(false)
   const startY = useRef(0)
   const startH = useRef(0)
 
   const maxHeight = useMemo(() => {
-    if (typeof window === "undefined") return 600
-    return Math.round(window.innerHeight * 0.92)
+    if (typeof window === "undefined") return 600 - NAVBAR_HEIGHT
+    return Math.round(window.innerHeight * 0.80) - NAVBAR_HEIGHT
   }, [])
 
   const collapsedHeight = useMemo(() => {
@@ -73,7 +74,7 @@ export default function BottomSheet({ open, onClose, title, initialHeight, child
   return (
     <Box
       sx={{
-        position: 'fixed', left: 0, right: 0, bottom: 0,
+        position: 'fixed', left: 0, right: 0, bottom: `${NAVBAR_HEIGHT-20}px`, // Place le BottomSheet juste au-dessus de la NavBar
         pointerEvents: open ? 'auto' : 'none', zIndex: 50,
       }}
       aria-hidden={!open}
@@ -106,7 +107,11 @@ export default function BottomSheet({ open, onClose, title, initialHeight, child
           <Box sx={{ width: 40, height: 4, bgcolor: 'neutral.outlinedBorder', borderRadius: 999, m: '6px auto 6px' }} />
           
         </Box>
-        <Box sx={{ overflow: 'auto', p: '8px 12px 12px' }}>{children}</Box>
+        <Box sx={{
+          overflow: 'auto',
+          p: '8px 12px 12px',
+          pb: `${NAVBAR_HEIGHT}px`, // Ajoute un padding-bottom égal à la navbar
+        }}>{children}</Box>
       </Sheet>
     </Box>
   )
