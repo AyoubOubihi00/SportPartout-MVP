@@ -84,4 +84,6 @@ public interface SeanceRepository extends JpaRepository<Seance, UUID>, SeanceRep
            AND s.capaSeance > 0
         """)
     int tryDecrementCapa(@Param("id") UUID id);
+
+    List<Seance> findAllByIdSport(UUID idSport);
 }
