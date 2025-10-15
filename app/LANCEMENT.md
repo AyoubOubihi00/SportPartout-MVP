@@ -26,9 +26,11 @@ L'application sera accessible à l'adresse indiquée dans le terminal (par défa
 ## 4. Autres commandes utiles
 
 - **Build de production** :
+
   ```bash
   npm run build
   ```
+
   Les fichiers optimisés seront générés dans le dossier `dist/`.
 
 - **Prévisualiser le build** :
@@ -59,4 +61,5 @@ L'application sera accessible à l'adresse indiquée dans le terminal (par défa
 ---
 
 Pour toute question, consultez la documentation officielle de Vite :
+
 - [Vite](https://vitejs.dev/guide/)

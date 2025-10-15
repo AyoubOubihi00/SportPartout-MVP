@@ -4,8 +4,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
-
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -41,7 +39,6 @@
 .read-the-docs {
   color: #888;
 }
-
 
 @layer base {
   :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) {

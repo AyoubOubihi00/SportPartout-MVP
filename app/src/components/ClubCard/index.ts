@@ -1,1 +1,1 @@
-export {default} from "./ClubCard"
+export { default } from "./ClubCard";

@@ -1,9 +1,12 @@
-import { City } from '../model/City';
-import { ApiCity } from '../model/ApiCity';
+import { City } from "../model/City";
+import { ApiCity } from "../model/ApiCity";
 
-const API_URL = 'https://data.geopf.fr/geocodage/search';
+const API_URL = "https://data.geopf.fr/geocodage/search";
 
-export async function fetchCities(query: string, selectedCity?: City | null): Promise<City[]> {
+export async function fetchCities(
+  query: string,
+  selectedCity?: City | null,
+): Promise<City[]> {
   if (query.length < 2) return [];
   const url = `${API_URL}?q=${encodeURIComponent(query)}&autocomplete=1&index=address&limit=3&returntruegeometry=false&type=municipality`;
   try {
@@ -18,7 +21,9 @@ export async function fetchCities(query: string, selectedCity?: City | null): Pr
         ? [feature.geometry.coordinates[1], feature.geometry.coordinates[0]]
         : undefined,
     }));
-    return selectedCity ? cities.filter(city => city.id !== selectedCity.id) : cities;
+    return selectedCity
+      ? cities.filter((city) => city.id !== selectedCity.id)
+      : cities;
   } catch {
     return [];
   }

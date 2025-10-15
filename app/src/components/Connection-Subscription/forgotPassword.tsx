@@ -13,8 +13,8 @@ export function ForgotPassword() {
 
   const theme = useTheme();
 
-  const darkGradient = 'linear-gradient(135deg, #0f172a, #1e293b)';
-  const lightGradient = 'linear-gradient(135deg, #f8fafc, #e2e8f0)';
+  const darkGradient = "linear-gradient(135deg, #0f172a, #1e293b)";
+  const lightGradient = "linear-gradient(135deg, #f8fafc, #e2e8f0)";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,10 +33,10 @@ export function ForgotPassword() {
     console.log("Réinitialisation du mot de passe pour:", email);
   };
 
-  const mainColor = theme.palette.mode == "dark"  ? "#fff" : "#000";
+  const mainColor = theme.palette.mode == "dark" ? "#fff" : "#000";
 
   return (
-    <AuthLayout >
+    <AuthLayout>
       <Typography level="h4" sx={{ mb: 2, color: mainColor }}>
         Réinitialiser le mot de passe
       </Typography>
@@ -51,13 +51,14 @@ export function ForgotPassword() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           sx={{
-          mb: 2,
-          background: theme.palette.mode === 'dark' ? darkGradient : lightGradient,
-          color: theme.palette.mode === 'dark' ? 'white' : 'black',
-          '& input::placeholder': {
-            color: theme.palette.mode === 'dark' ? 'grey.400' : 'grey.500',
-          },
-        }}
+            mb: 2,
+            background:
+              theme.palette.mode === "dark" ? darkGradient : lightGradient,
+            color: theme.palette.mode === "dark" ? "white" : "black",
+            "& input::placeholder": {
+              color: theme.palette.mode === "dark" ? "grey.400" : "grey.500",
+            },
+          }}
         />
 
         <Button
@@ -67,7 +68,7 @@ export function ForgotPassword() {
             mt: 1,
             width: "100%",
             backgroundColor: mainColor,
-            color: theme.palette.mode == "dark"  ? "#121212" : "#fff",
+            color: theme.palette.mode == "dark" ? "#121212" : "#fff",
             "&:hover": { backgroundColor: mainColor },
             "&:focus": { backgroundColor: mainColor, boxShadow: "none" },
             "&:active": { backgroundColor: mainColor },
@@ -83,8 +84,16 @@ export function ForgotPassword() {
         </Typography>
       )}
 
-      <Typography level="body-sm" textAlign="center" sx={{ mt: 3, color: mainColor }}>
-        <Button variant="plain" onClick={() => navigate("/login")} sx={{ color: mainColor }}>
+      <Typography
+        level="body-sm"
+        textAlign="center"
+        sx={{ mt: 3, color: mainColor }}
+      >
+        <Button
+          variant="plain"
+          onClick={() => navigate("/login")}
+          sx={{ color: mainColor }}
+        >
           Retour à la connexion
         </Button>
       </Typography>

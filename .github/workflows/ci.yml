@@ -1,0 +1,140 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - 'feature/**'
+      - 'bugfix/**'
+      - 'hotfix/**'
+  pull_request:
+    branches:
+      - 'feature/**'
+      - 'bugfix/**'
+      - 'hotfix/**'
+
+permissions:
+  contents: write
+
+jobs:
+  versioning:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Compute next v-<major>.<minor>
+        id: bump
+        shell: bash
+        run: |
+          git fetch --tags --force
+          last=$(git tag -l 'v-*' | grep -E '^v-[0-9]+\.[0-9]+$' | sort -V | tail -n1)
+          if [ -z "$last" ]; then next="v-1.0"; else v=${last#v-}; major=${v%%.*}; minor=${v#*.}; next="v-${major}.$((minor+1))"; fi
+          echo "next=$next" >> "$GITHUB_OUTPUT"
+      - name: Create and push tag
+        env:
+          TAG: ${{ steps.bump.outputs.next }}
+        run: |
+          if git rev-parse "$TAG" >/dev/null 2>&1; then exit 0; fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$TAG" -m "Auto release $TAG"
+          git push origin "$TAG"
+  frontend:
+    name: Frontend (lint, test, build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect lockfile
+        id: detect_lock
+        run: |
+          if [ -f package-lock.json ]; then echo "has_lock=true" >> "$GITHUB_OUTPUT"; else echo "has_lock=false" >> "$GITHUB_OUTPUT"; fi
+      - name: Setup Node.js (cached)
+        if: steps.detect_lock.outputs.has_lock == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Setup Node.js (no cache)
+        if: steps.detect_lock.outputs.has_lock != 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install deps (npm ci)
+        if: steps.detect_lock.outputs.has_lock == 'true'
+        run: npm ci --no-audit --no-fund
+
+      - name: Install deps (npm install)
+        if: steps.detect_lock.outputs.has_lock != 'true'
+        run: npm install --no-audit --no-fund
+
+      - name: Lint
+        run: npm run lint -- --max-warnings=0
+
+      - name: Unit tests
+        env:
+          CI: true
+        run: npm test -- --ci --runInBand
+
+      - name: Build
+        run: npm run build
+
+  backend:
+    name: Backend services (test, build)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [admin-service, club-service, findClub-service]
+    defaults:
+      run:
+        working-directory: services/${{ matrix.service }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Temurin JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: maven
+
+      - name: Make mvnw executable
+        run: chmod +x mvnw
+
+      - name: Configure Maven mirror (repo1)
+        shell: bash
+        run: |
+          mkdir -p ~/.m2
+          cat > ~/.m2/settings.xml << 'XML'
+          <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
+            <mirrors>
+              <mirror>
+                <id>repo1-mirror</id>
+                <name>Maven Central via repo1</name>
+                <url>https://repo1.maven.org/maven2</url>
+                <mirrorOf>central</mirrorOf>
+              </mirror>
+            </mirrors>
+          </settings>
+          XML
+      - name: Run unit tests
+        env:
+          MVNW_REPOURL: https://repo1.maven.org/maven2
+        run: ./mvnw -B -ntp -s ~/.m2/settings.xml -Dmaven.wagon.http.retryHandler.count=5 test
+
+      - name: Build (skip tests)
+        env:
+          MVNW_REPOURL: https://repo1.maven.org/maven2
+        run: ./mvnw -B -ntp -s ~/.m2/settings.xml -Dmaven.wagon.http.retryHandler.count=5 -DskipTests package

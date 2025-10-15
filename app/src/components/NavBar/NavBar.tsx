@@ -7,22 +7,26 @@ import Typography from "@mui/joy/Typography";
 import { useNavigate, useLocation } from "react-router-dom";
 
 export default function NavBar() {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [, setActiveIndex] = useState(0);
   const navigate = useNavigate();
   //On ça car on doit le récupérer sur les différentes pages
   const location = useLocation();
 
-
   const items = [
-    { icon: <Dumbbell size={28} />, label: "MON CLUB", paths:["/random"] },
-    { icon: <Map size={28} />, label: "EXPLORER", paths:["/"] },
-    { 
-      icon: <User size={28} />, 
-      label: "MON COMPTE", 
-      paths: ["/login", "/signup", "/forgot-password", "/resetpassword", "/resetpasswordsuccess"]   },
+    { icon: <Dumbbell size={28} />, label: "MON CLUB", paths: ["/random"] },
+    { icon: <Map size={28} />, label: "EXPLORER", paths: ["/"] },
+    {
+      icon: <User size={28} />,
+      label: "MON COMPTE",
+      paths: [
+        "/login",
+        "/signup",
+        "/forgot-password",
+        "/resetpassword",
+        "/resetpasswordsuccess",
+      ],
+    },
   ];
-
-
 
   return (
     <Sheet
@@ -36,9 +40,9 @@ export default function NavBar() {
         borderRadius: "24px 24px 0 0",
         boxShadow: "lg",
         background:
-    theme.palette.mode === "dark"
-        ? "linear-gradient(135deg, #0f172a, #1e293b)" // dégradé sombre
-        : "linear-gradient(135deg, #f8fafc, #e2e8f0)", // dégradé clair
+          theme.palette.mode === "dark"
+            ? "linear-gradient(135deg, #0f172a, #1e293b)" // dégradé sombre
+            : "linear-gradient(135deg, #f8fafc, #e2e8f0)", // dégradé clair
         p: 2,
       })}
     >
@@ -50,21 +54,16 @@ export default function NavBar() {
         }}
       >
         {items.map((item, index) => {
-        const active = item.paths.includes(location.pathname);
+          const active = item.paths.includes(location.pathname);
           return (
             <Box
               key={index}
-              onClick={
-                () => 
-                { 
-                  setActiveIndex(index);   
-                  if (item.paths && item.paths.length > 0) 
-                  {
-                    navigate(item.paths[0]); 
-                  }                
+              onClick={() => {
+                setActiveIndex(index);
+                if (item.paths && item.paths.length > 0) {
+                  navigate(item.paths[0]);
                 }
-              }
-
+              }}
               sx={{
                 display: "flex",
                 flexDirection: "column",
@@ -91,8 +90,8 @@ export default function NavBar() {
                       ? "neutral.900" // icône noire si fond blanc
                       : "white"
                     : theme.palette.mode === "dark"
-                    ? "neutral.400" // icône grise en dark
-                    : "neutral.600", // icône grise en light
+                      ? "neutral.400" // icône grise en dark
+                      : "neutral.600", // icône grise en light
                   "&:hover": {
                     background: active
                       ? theme.palette.mode === "dark"
@@ -104,8 +103,8 @@ export default function NavBar() {
                         ? "neutral.900"
                         : "white"
                       : theme.palette.mode === "dark"
-                      ? "neutral.400"
-                      : "neutral.600",
+                        ? "neutral.400"
+                        : "neutral.600",
                   },
                   "&:focus-visible": {
                     outline: "none",
@@ -129,8 +128,8 @@ export default function NavBar() {
                       ? "white" // texte blanc si actif en dark
                       : "neutral.900"
                     : theme.palette.mode === "dark"
-                    ? "neutral.400"
-                    : "neutral.600",
+                      ? "neutral.400"
+                      : "neutral.600",
                   transition: "color 0.3s",
                 })}
               >

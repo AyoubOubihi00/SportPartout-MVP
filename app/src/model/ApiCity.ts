@@ -9,4 +9,4 @@ export type ApiCity = {
   geometry: {
     coordinates: [number, number];
   };
-}
+};

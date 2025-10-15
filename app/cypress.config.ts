@@ -2,19 +2,19 @@ import { defineConfig } from "cypress";
 
 export default defineConfig({
   e2e: {
-    setupNodeEvents(on, config) {
+    setupNodeEvents() {
       // implement node event listeners here
     },
   },
   component: {
     devServer: {
-      framework: 'vue',
-      bundler: 'vite',
+      framework: "vue",
+      bundler: "vite",
       viteConfig: {
         css: {
           postcss: {
             plugins: {
-              '@tailwindcss/postcss': {},
+              "@tailwindcss/postcss": {},
               autoprefixer: {},
             },
           },

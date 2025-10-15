@@ -1,2 +1,1 @@
-export { default } from "./ClubDetails"
-
+export { default } from "./ClubDetails";

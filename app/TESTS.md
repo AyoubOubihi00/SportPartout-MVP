@@ -70,5 +70,6 @@ npm install
 ---
 
 Pour toute question, consultez la documentation officielle :
+
 - [Jest](https://jestjs.io/docs/getting-started)
 - [Cypress](https://docs.cypress.io/guides/overview/why-cypress)

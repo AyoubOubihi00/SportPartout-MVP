@@ -5,5 +5,5 @@ export default [
     path: "/subscribe",
     exact: true,
     component: SignupForm,
-  }
+  },
 ];

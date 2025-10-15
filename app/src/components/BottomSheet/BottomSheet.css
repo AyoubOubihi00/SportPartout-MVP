@@ -19,7 +19,7 @@
   height: 0;
   background: #fff;
   border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   overflow: hidden;
   transition: height 220ms ease;
   display: flex;
@@ -55,4 +55,3 @@
   overflow: auto;
   padding: 0 12px 12px;
 }
-

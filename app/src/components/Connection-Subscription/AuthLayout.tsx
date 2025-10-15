@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
-import sport_partout from "../../assets/sport_partout.svg"
-import sport_partout_reverse from "../../assets/sport_partout_reverse.svg"
+import sport_partout from "../../assets/sport_partout.svg";
+import sport_partout_reverse from "../../assets/sport_partout_reverse.svg";
 import BaseLayout from "../../layouts/BaseLayout";
 import { useTheme } from "@mui/joy/styles";
 
@@ -23,9 +23,19 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
           color: mainColor,
         }}
       >
-        <div style={{ display: "flex", justifyContent: "center", margin: "32px 0 16px 0" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            margin: "32px 0 16px 0",
+          }}
+        >
           <img
-            src={theme.palette.mode === "dark" ? sport_partout : sport_partout_reverse}
+            src={
+              theme.palette.mode === "dark"
+                ? sport_partout
+                : sport_partout_reverse
+            }
             alt="Logo"
             width={300}
           />

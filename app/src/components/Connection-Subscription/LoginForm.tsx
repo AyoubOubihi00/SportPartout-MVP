@@ -12,8 +12,8 @@ export function LoginForm() {
   const navigate = useNavigate();
   const theme = useTheme();
 
-  const darkGradient = 'linear-gradient(135deg, #0f172a, #1e293b)';
-  const lightGradient = 'linear-gradient(135deg, #f8fafc, #e2e8f0)';
+  const darkGradient = "linear-gradient(135deg, #0f172a, #1e293b)";
+  const lightGradient = "linear-gradient(135deg, #f8fafc, #e2e8f0)";
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValues({ ...values, [e.target.name]: e.target.value });
@@ -46,7 +46,11 @@ export function LoginForm() {
 
       <Typography level="body-sm" sx={{ mb: 2, color: mainColor }}>
         Pas encore de compte ?{" "}
-        <Button variant="plain" onClick={() => navigate("/signup")} sx={{ color: mainColor }}>
+        <Button
+          variant="plain"
+          onClick={() => navigate("/signup")}
+          sx={{ color: mainColor }}
+        >
           S'inscrire
         </Button>
       </Typography>
@@ -60,13 +64,14 @@ export function LoginForm() {
           placeholder="Email"
           required
           sx={{
-          mb: 2,
-          background: theme.palette.mode === 'dark' ? darkGradient : lightGradient,
-          color: theme.palette.mode === 'dark' ? 'white' : 'black',
-          '& input::placeholder': {
-            color: theme.palette.mode === 'dark' ? 'grey.400' : 'grey.500',
-          },
-        }}
+            mb: 2,
+            background:
+              theme.palette.mode === "dark" ? darkGradient : lightGradient,
+            color: theme.palette.mode === "dark" ? "white" : "black",
+            "& input::placeholder": {
+              color: theme.palette.mode === "dark" ? "grey.400" : "grey.500",
+            },
+          }}
         />
         <Input
           name="password"
@@ -75,20 +80,27 @@ export function LoginForm() {
           onChange={handleChange}
           placeholder="Mot de passe"
           required
-           sx={{
-          mb: 2,
-          background: theme.palette.mode === 'dark' ? darkGradient : lightGradient,
-          color: theme.palette.mode === 'dark' ? 'white' : 'black',
-          '& input::placeholder': {
-            color: theme.palette.mode === 'dark' ? 'grey.400' : 'grey.500',
-          },
-        }}
+          sx={{
+            mb: 2,
+            background:
+              theme.palette.mode === "dark" ? darkGradient : lightGradient,
+            color: theme.palette.mode === "dark" ? "white" : "black",
+            "& input::placeholder": {
+              color: theme.palette.mode === "dark" ? "grey.400" : "grey.500",
+            },
+          }}
         />
 
         <Button
           variant="plain"
           onClick={() => navigate("/forgot-password")}
-          sx={{ alignSelf: "flex-end", mb: 2, padding: 0, minWidth: 0, color: mainColor }}
+          sx={{
+            alignSelf: "flex-end",
+            mb: 2,
+            padding: 0,
+            minWidth: 0,
+            color: mainColor,
+          }}
         >
           Mot de passe oublié ?
         </Button>

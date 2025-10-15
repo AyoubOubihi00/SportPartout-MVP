@@ -9,18 +9,17 @@ import { HomePage } from "./components/HomePage/HomePage";
 function App() {
   return (
     <Router>
- 
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginForm />} />
         <Route path="/signup" element={<SignupForm />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/resetpassword" element={<ResetPassword />} />
-        <Route path="/resetpasswordsuccess" element={<ResetPasswordSuccess />} />
-
+        <Route
+          path="/resetpasswordsuccess"
+          element={<ResetPasswordSuccess />}
+        />
       </Routes>
-
-
     </Router>
   );
 }

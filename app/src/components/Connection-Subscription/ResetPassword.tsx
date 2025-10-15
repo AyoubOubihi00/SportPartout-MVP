@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import './CommonStyle.css';
+import "./CommonStyle.css";
 import Input from "@mui/joy/Input";
 import Button from "@mui/joy/Button";
 import Typography from "@mui/joy/Typography";
@@ -15,8 +15,8 @@ export function ResetPassword() {
   const navigate = useNavigate();
   const theme = useTheme();
 
-  const darkGradient = 'linear-gradient(135deg, #0f172a, #1e293b)';
-  const lightGradient = 'linear-gradient(135deg, #f8fafc, #e2e8f0)';
+  const darkGradient = "linear-gradient(135deg, #0f172a, #1e293b)";
+  const lightGradient = "linear-gradient(135deg, #f8fafc, #e2e8f0)";
 
   const mainColor = theme.palette.mode ? "#fff" : "#000";
 
@@ -41,7 +41,6 @@ export function ResetPassword() {
     setMessage("");
     console.log("Réinitialisation du mot de passe avec token:", token);
     console.log("Nouveau mot de passe:", password);
-
   };
 
   return (
@@ -50,19 +49,21 @@ export function ResetPassword() {
         className="main-container"
         style={{
           flexGrow: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          width: '100%',
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          width: "100%",
           maxWidth: 400,
-          margin: '0 auto',
-          backgroundColor: theme.palette.mode == "dark" ? '#121212' : '#fff',
+          margin: "0 auto",
+          backgroundColor: theme.palette.mode == "dark" ? "#121212" : "#fff",
           color: mainColor,
-          paddingBottom: '120px',
+          paddingBottom: "120px",
         }}
       >
-        <Typography level="h4" sx={{ color: mainColor, mb: 2 }}>Réinitialiser le mot de passe</Typography>
+        <Typography level="h4" sx={{ color: mainColor, mb: 2 }}>
+          Réinitialiser le mot de passe
+        </Typography>
         <Typography level="body-sm" sx={{ color: mainColor, mb: 3 }}>
           Entrez votre nouveau mot de passe.
         </Typography>
@@ -81,13 +82,14 @@ export function ResetPassword() {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             sx={{
-          mb: 2,
-          background: theme.palette.mode === 'dark' ? darkGradient : lightGradient,
-          color: theme.palette.mode === 'dark' ? 'white' : 'black',
-          '& input::placeholder': {
-            color: theme.palette.mode === 'dark' ? 'grey.400' : 'grey.500',
-          },
-        }}
+              mb: 2,
+              background:
+                theme.palette.mode === "dark" ? darkGradient : lightGradient,
+              color: theme.palette.mode === "dark" ? "white" : "black",
+              "& input::placeholder": {
+                color: theme.palette.mode === "dark" ? "grey.400" : "grey.500",
+              },
+            }}
           />
 
           <Button
@@ -95,12 +97,12 @@ export function ResetPassword() {
             variant="solid"
             sx={{
               mt: 1,
-              width: '100%',
+              width: "100%",
               backgroundColor: mainColor,
-              color: theme.palette.mode == "dark"  ? '#121212' : '#fff',
-              '&:hover': { backgroundColor: mainColor },
-              '&:focus': { backgroundColor: mainColor, boxShadow: 'none' },
-              '&:active': { backgroundColor: mainColor },
+              color: theme.palette.mode == "dark" ? "#121212" : "#fff",
+              "&:hover": { backgroundColor: mainColor },
+              "&:focus": { backgroundColor: mainColor, boxShadow: "none" },
+              "&:active": { backgroundColor: mainColor },
             }}
           >
             Réinitialiser
@@ -113,7 +115,11 @@ export function ResetPassword() {
           </Typography>
         )}
 
-        <Typography level="body-sm" textAlign="center" sx={{ mt: 3, color: mainColor }}>
+        <Typography
+          level="body-sm"
+          textAlign="center"
+          sx={{ mt: 3, color: mainColor }}
+        >
           <Button
             variant="plain"
             onClick={() => navigate("/login")}

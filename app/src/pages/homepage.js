@@ -5,5 +5,5 @@ export default [
     path: "/",
     exact: true,
     component: HomePage,
-  }
+  },
 ];

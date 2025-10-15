@@ -1,11 +1,11 @@
-import type { Club } from "../model/Club"
+import type { Club } from "../model/Club";
 
 // Mock aligné sur les fixtures du club-service (valeurs complémentaires ajoutées)
 export const clubs: Club[] = [
   {
     id: "123e4567-e89b-12d3-a456-426614174000",
     name: "Club de Football de Paris",
-    sport: "Football",
+    sportType: { id: "123e4567-e89b-12d3-a456-426614174000", name: "Football" },
     typeId: "123e4567-e89b-12d3-a456-426614174000",
     typeName: "football",
     city: "Paris",
@@ -19,12 +19,13 @@ export const clubs: Club[] = [
     notation: 4.5,
     members: 156,
     dateCreation: "2021-05-15",
-    description: "Le Club de Football de Paris est un club amateur fondé en 2021, dédié à la promotion du football pour tous les âges et niveaux. Nous offrons des entraînements hebdomadaires, des matchs amicaux et des tournois locaux. Rejoignez-nous pour vivre votre passion du football dans une ambiance conviviale et sportive.",
+    description:
+      "Le Club de Football de Paris est un club amateur fondé en 2021, dédié à la promotion du football pour tous les âges et niveaux. Nous offrons des entraînements hebdomadaires, des matchs amicaux et des tournois locaux. Rejoignez-nous pour vivre votre passion du football dans une ambiance conviviale et sportive.",
   },
   {
     id: "123e4567-e89b-12d3-a456-426614174002",
     name: "Club de Basketball de Lyon",
-    sport: "Basketball",
+    sportType: { id: "123e4567-e89b-12d3-a456-426614174000", name: "Football" },
     typeId: "123e4567-e89b-12d3-a456-426614174002",
     typeName: "basketball",
     city: "Lyon",
@@ -38,12 +39,13 @@ export const clubs: Club[] = [
     notation: 4.2,
     members: 89,
     dateCreation: "2019-03-22",
-    description: "Le Club de Basketball de Lyon est un club amateur fondé en 2019, dédié à la promotion du basketball pour tous les âges et niveaux. Nous offrons des entraînements hebdomadaires, des matchs amicaux et des tournois locaux. Rejoignez-nous pour vivre votre passion du basketball dans une ambiance conviviale et sportive.",
+    description:
+      "Le Club de Basketball de Lyon est un club amateur fondé en 2019, dédié à la promotion du basketball pour tous les âges et niveaux. Nous offrons des entraînements hebdomadaires, des matchs amicaux et des tournois locaux. Rejoignez-nous pour vivre votre passion du basketball dans une ambiance conviviale et sportive.",
   },
   {
     id: "123e4567-e89b-12d3-a456-426614174003",
     name: "Club de Tennis de Marseille",
-    sport: "Tennis",
+    sportType: { id: "123e4567-e89b-12d3-a456-426614174000", name: "Football" },
     typeId: "123e4567-e89b-12d3-a456-426614174003",
     typeName: "tennis",
     city: "Marseille",
@@ -57,13 +59,14 @@ export const clubs: Club[] = [
     notation: 4.0,
     members: 74,
     dateCreation: "2020-07-10",
-    description: "Le Club de Tennis de Marseille est un club amateur fondé en 2020, dédié à la promotion du tennis pour tous les âges et niveaux. Nous offrons des entraînements hebdomadaires, des matchs amicaux et des tournois locaux. Rejoignez-nous pour vivre votre passion du tennis dans une ambiance conviviale et sportive.",
+    description:
+      "Le Club de Tennis de Marseille est un club amateur fondé en 2020, dédié à la promotion du tennis pour tous les âges et niveaux. Nous offrons des entraînements hebdomadaires, des matchs amicaux et des tournois locaux. Rejoignez-nous pour vivre votre passion du tennis dans une ambiance conviviale et sportive.",
   },
   // Metz
   {
     id: "223e4567-e89b-12d3-a456-426614174010",
     name: "Basketball Club Metz",
-    sport: "Basketball",
+    sportType: { id: "123e4567-e89b-12d3-a456-426614174000", name: "Football" },
     typeId: "123e4567-e89b-12d3-a456-426614174002",
     typeName: "basketball",
     city: "Metz",
@@ -77,12 +80,13 @@ export const clubs: Club[] = [
     notation: 4.1,
     members: 75,
     dateCreation: "2018-11-05",
-    description: "Le Basketball Club Metz est un club amateur fondé en 2018, dédié à la promotion du basketball pour tous les âges et niveaux. Nous offrons des entraînements hebdomadaires, des matchs amicaux et des tournois locaux. Rejoignez-nous pour vivre votre passion du basketball dans une ambiance conviviale et sportive.",
+    description:
+      "Le Basketball Club Metz est un club amateur fondé en 2018, dédié à la promotion du basketball pour tous les âges et niveaux. Nous offrons des entraînements hebdomadaires, des matchs amicaux et des tournois locaux. Rejoignez-nous pour vivre votre passion du basketball dans une ambiance conviviale et sportive.",
   },
   {
     id: "223e4567-e89b-12d3-a456-426614174011",
     name: "Football Club Metz",
-    sport: "Football",
+    sportType: { id: "123e4567-e89b-12d3-a456-426614174000", name: "Football" },
     typeId: "123e4567-e89b-12d3-a456-426614174000",
     typeName: "football",
     city: "Metz",
@@ -96,12 +100,13 @@ export const clubs: Club[] = [
     notation: 4.3,
     members: 120,
     dateCreation: "2017-09-12",
-    description: "Le Football Club Metz est un club amateur fondé en 2017, dédié à la promotion du football pour tous les âges et niveaux. Nous offrons des entraînements hebdomadaires, des matchs amicaux et des tournois locaux. Rejoignez-nous pour vivre votre passion du football dans une ambiance conviviale et sportive.",
+    description:
+      "Le Football Club Metz est un club amateur fondé en 2017, dédié à la promotion du football pour tous les âges et niveaux. Nous offrons des entraînements hebdomadaires, des matchs amicaux et des tournois locaux. Rejoignez-nous pour vivre votre passion du football dans une ambiance conviviale et sportive.",
   },
   {
     id: "223e4567-e89b-12d3-a456-426614174012",
     name: "Tennis Club Metz",
-    sport: "Tennis",
+    sportType: { id: "123e4567-e89b-12d3-a456-426614174000", name: "Football" },
     typeId: "123e4567-e89b-12d3-a456-426614174003",
     typeName: "tennis",
     city: "Metz",
@@ -115,12 +120,13 @@ export const clubs: Club[] = [
     notation: 4.0,
     members: 50,
     dateCreation: "2022-01-20",
-    description: "Le Tennis Club Metz est un club amateur fondé en 2022, dédié à la promotion du tennis pour tous les âges et niveaux. Nous offrons des entraînements hebdomadaires, des matchs amicaux et des tournois locaux. Rejoignez-nous pour vivre votre passion du tennis dans une ambiance conviviale et sportive.",
+    description:
+      "Le Tennis Club Metz est un club amateur fondé en 2022, dédié à la promotion du tennis pour tous les âges et niveaux. Nous offrons des entraînements hebdomadaires, des matchs amicaux et des tournois locaux. Rejoignez-nous pour vivre votre passion du tennis dans une ambiance conviviale et sportive.",
   },
   {
     id: "223e4567-e89b-12d3-a456-426614174013",
     name: "Rugby Club Metz",
-    sport: "Rugby",
+    sportType: { id: "123e4567-e89b-12d3-a456-426614174000", name: "Football" },
     typeName: "rugby",
     city: "Metz",
     country: "France",
@@ -133,13 +139,14 @@ export const clubs: Club[] = [
     notation: 4.5,
     members: 90,
     dateCreation: "2016-06-30",
-    description: "Le Rugby Club Metz est un club amateur fondé en 2016, dédié à la promotion du rugby pour tous les âges et niveaux. Nous offrons des entraînements hebdomadaires, des matchs amicaux et des tournois locaux. Rejoignez-nous pour vivre votre passion du rugby dans une ambiance conviviale et sportive.",
+    description:
+      "Le Rugby Club Metz est un club amateur fondé en 2016, dédié à la promotion du rugby pour tous les âges et niveaux. Nous offrons des entraînements hebdomadaires, des matchs amicaux et des tournois locaux. Rejoignez-nous pour vivre votre passion du rugby dans une ambiance conviviale et sportive.",
   },
   // Nancy
   {
     id: "223e4567-e89b-12d3-a456-426614174020",
     name: "Basketball Club Nancy",
-    sport: "Basketball",
+    sportType: { id: "123e4567-e89b-12d3-a456-426614174000", name: "Football" },
     typeId: "123e4567-e89b-12d3-a456-426614174002",
     typeName: "basketball",
     city: "Nancy",
@@ -153,12 +160,13 @@ export const clubs: Club[] = [
     notation: 4.2,
     members: 100,
     dateCreation: "2020-02-14",
-    description: "Le Basketball Club Nancy est un club amateur fondé en 2020, dédié à la promotion du basketball pour tous les âges et niveaux. Nous offrons des entraînements hebdomadaires, des matchs amicaux et des tournois locaux. Rejoignez-nous pour vivre votre passion du basketball dans une ambiance conviviale et sportive.",
+    description:
+      "Le Basketball Club Nancy est un club amateur fondé en 2020, dédié à la promotion du basketball pour tous les âges et niveaux. Nous offrons des entraînements hebdomadaires, des matchs amicaux et des tournois locaux. Rejoignez-nous pour vivre votre passion du basketball dans une ambiance conviviale et sportive.",
   },
   {
     id: "223e4567-e89b-12d3-a456-426614174021",
     name: "Football Club Nancy",
-    sport: "Football",
+    sportType: { id: "123e4567-e89b-12d3-a456-426614174000", name: "Football" },
     typeId: "123e4567-e89b-12d3-a456-426614174000",
     typeName: "football",
     city: "Nancy",
@@ -172,12 +180,13 @@ export const clubs: Club[] = [
     notation: 4.4,
     members: 140,
     dateCreation: "2015-08-25",
-    description: "Le Football Club Nancy est un club amateur fondé en 2015, dédié à la promotion du football pour tous les âges et niveaux. Nous offrons des entraînements hebdomadaires, des matchs amicaux et des tournois locaux. Rejoignez-nous pour vivre votre passion du football dans une ambiance conviviale et sportive.",
+    description:
+      "Le Football Club Nancy est un club amateur fondé en 2015, dédié à la promotion du football pour tous les âges et niveaux. Nous offrons des entraînements hebdomadaires, des matchs amicaux et des tournois locaux. Rejoignez-nous pour vivre votre passion du football dans une ambiance conviviale et sportive.",
   },
   {
     id: "223e4567-e89b-12d3-a456-426614174022",
     name: "Tennis Club Nancy",
-    sport: "Tennis",
+    sportType: { id: "123e4567-e89b-12d3-a456-426614174000", name: "Football" },
     typeId: "123e4567-e89b-12d3-a456-426614174003",
     typeName: "tennis",
     city: "Nancy",
@@ -191,13 +200,14 @@ export const clubs: Club[] = [
     notation: 3.9,
     members: 60,
     dateCreation: "2021-11-11",
-    description: "Le Tennis Club Nancy est un club amateur fondé en 2021, dédié à la promotion du tennis pour tous les âges et niveaux. Nous offrons des entraînements hebdomadaires, des matchs amicaux et des tournois locaux. Rejoignez-nous pour vivre votre passion du tennis dans une ambiance conviviale et sportive.",
+    description:
+      "Le Tennis Club Nancy est un club amateur fondé en 2021, dédié à la promotion du tennis pour tous les âges et niveaux. Nous offrons des entraînements hebdomadaires, des matchs amicaux et des tournois locaux. Rejoignez-nous pour vivre votre passion du tennis dans une ambiance conviviale et sportive.",
   },
   // Strasbourg
   {
     id: "223e4567-e89b-12d3-a456-426614174030",
     name: "Football Club Strasbourg",
-    sport: "Football",
+    sportType: { id: "123e4567-e89b-12d3-a456-426614174000", name: "Football" },
     typeId: "123e4567-e89b-12d3-a456-426614174000",
     typeName: "football",
     city: "Strasbourg",
@@ -211,12 +221,13 @@ export const clubs: Club[] = [
     notation: 4.6,
     members: 200,
     dateCreation: "2014-04-18",
-    description: "Le Football Club Strasbourg est un club amateur fondé en 2014, dédié à la promotion du football pour tous les âges et niveaux. Nous offrons des entraînements hebdomadaires, des matchs amicaux et des tournois locaux. Rejoignez-nous pour vivre votre passion du football dans une ambiance conviviale et sportive.",
+    description:
+      "Le Football Club Strasbourg est un club amateur fondé en 2014, dédié à la promotion du football pour tous les âges et niveaux. Nous offrons des entraînements hebdomadaires, des matchs amicaux et des tournois locaux. Rejoignez-nous pour vivre votre passion du football dans une ambiance conviviale et sportive.",
   },
   {
     id: "223e4567-e89b-12d3-a456-426614174031",
     name: "Rugby Club Strasbourg",
-    sport: "Rugby",
+    sportType: { id: "123e4567-e89b-12d3-a456-426614174000", name: "Football" },
     typeName: "rugby",
     city: "Strasbourg",
     country: "France",
@@ -229,6 +240,7 @@ export const clubs: Club[] = [
     notation: 4.3,
     members: 110,
     dateCreation: "2013-10-09",
-    description: "Le Rugby Club Strasbourg est un club amateur fondé en 2013, dédié à la promotion du rugby pour tous les âges et niveaux. Nous offrons des entraînements hebdomadaires, des matchs amicaux et des tournois locaux. Rejoignez-nous pour vivre votre passion du rugby dans une ambiance conviviale et sportive.",
+    description:
+      "Le Rugby Club Strasbourg est un club amateur fondé en 2013, dédié à la promotion du rugby pour tous les âges et niveaux. Nous offrons des entraînements hebdomadaires, des matchs amicaux et des tournois locaux. Rejoignez-nous pour vivre votre passion du rugby dans une ambiance conviviale et sportive.",
   },
-]
+];

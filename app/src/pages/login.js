@@ -5,5 +5,5 @@ export default [
     path: "/login",
     exact: true,
     component: LoginForm,
-  }
+  },
 ];

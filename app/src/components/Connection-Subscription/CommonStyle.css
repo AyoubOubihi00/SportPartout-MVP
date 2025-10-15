@@ -1,5 +1,7 @@
 /* CommonStyle.css */
-html, body, #root {
+html,
+body,
+#root {
   margin: 0;
   padding: 0;
   width: 100%;
@@ -7,7 +9,8 @@ html, body, #root {
   background-color: #fff; /* light par défaut */
 }
 
-html.dark-mode, body.dark-mode {
+html.dark-mode,
+body.dark-mode {
   background-color: #121212; /* dark mode */
 }
 

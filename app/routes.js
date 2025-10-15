@@ -10,10 +10,8 @@ export default class Routes {
       ...SignupForm,
       ...ForgotPassword,
       ...ResetPassword,
-      ...MapView
+      ...MapView,
     ];
-
-
 
     routeHandler.hooks.initRoutes.tapPromise("AppRoutes", async () => {
       routeHandler.addRoutes(routes);
