@@ -1,12 +1,10 @@
 package fr.monclub.planning_service.planning.service;
 
-import fr.monclub.planning_service.planning.model.Seance;
 import fr.monclub.planning_service.planning.repository.SeanceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -16,13 +14,11 @@ public class UpdateSportTypeService {
     private final SeanceRepository seanceRepository;
 
     @Transactional
-    public void apply(UUID sportTypeId, String sportTypeName) {
-        List<Seance> seances = seanceRepository.findAllByIdSport(sportTypeId);
-        if (seances.isEmpty()) {
+    public void apply(UUID sportTypeId, String name) {
+        if (sportTypeId == null || name == null) {
             return;
         }
-
-        seances.forEach(seance -> seance.setNameSport(sportTypeName));
-        seanceRepository.saveAll(seances);
+        seanceRepository.updateSportTypeName(sportTypeId, name);
     }
 }
+
