@@ -119,6 +119,44 @@ services:
     networks:
       - monclub-net
 
+  db-planning:
+    image: postgis/postgis:16-3.4-alpine
+    container_name: monclub-db-planning
+    env_file:
+      - ./services/planning-service/.env
+    ports:
+      - "5437:5432"
+    networks:
+      - monclub-net
+    volumes:
+      - db_planning_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL","pg_isready -U $POSTGRES_USER -d planning_db || exit 1" ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  planning-service:
+    build: ./services/planning-service
+    container_name: monclub-planning-service
+    env_file:
+      - ./services/planning-service/.env
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db-planning:5432/planning_db
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+
+    depends_on:
+      db-planning:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+    ports:
+      - "8085:8080"
+    networks:
+      - monclub-net
+
   db-authentification:
     image: postgis/postgis:16-3.4-alpine
     container_name: monclub-db-authentification
@@ -135,7 +173,7 @@ services:
       interval: 5s
       timeout: 3s
       retries: 20
-    
+
   authentification-service:
     build: ./services/auth-service
     container_name: monclub-authentification-service
@@ -165,4 +203,5 @@ volumes:
   db_club_data:
   db_admin_data:
   db_findclub_data:
+  db_planning_data:
   db_authentification_data:

@@ -1,0 +1,74 @@
+# ----- Scalars -----
+scalar UUID
+scalar DateTime
+
+# ----- Enums -----
+enum SeanceStatus {
+  OPEN
+  PENDING
+  CANCELED
+  FULL
+}
+
+# ----- Types -----
+type Seance {
+  id: UUID!
+  idClub: UUID!
+  idTerrain: UUID!
+  idCoach: UUID
+  startTime: DateTime!
+  endTime: DateTime!
+  capacite: Int!
+  capaSeance: Int!
+  idSport: UUID!
+  nameSport: String!
+  description: String
+  status: SeanceStatus!
+  createdBy: UUID        # <- nullable pour coller à l’audit
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+# DTO pratique pour l’UI
+type SeanceWithAvailability {
+  id: UUID!
+  idClub: UUID!
+  idTerrain: UUID!
+  idCoach: UUID
+  startTime: DateTime!
+  endTime: DateTime!
+  durationMinutes: Int!
+  capacite: Int!
+  capaSeance: Int!
+  remainingPlaces: Int!
+  full: Boolean!
+  idSport: UUID!
+  nameSport: String!
+  description: String
+  status: SeanceStatus!
+  createdBy: UUID
+}
+
+# ----- Queries -----
+type Query {
+  seance(id: UUID!): Seance
+
+  # << méthodes de contrôleur et à tests >>
+  seancesByClubBetween(
+    clubId: UUID!
+    start: DateTime!
+    end: DateTime!
+  ): [Seance!]!
+
+  seancesByCoachBetween(
+    coachId: UUID!
+    start: DateTime!
+    end: DateTime!
+  ): [Seance!]!
+
+  seancesWithAvailabilityByClubBetween(
+    clubId: UUID!
+    start: DateTime!
+    end: DateTime!
+  ): [SeanceWithAvailability!]!
+}

@@ -1,5 +1,4 @@
 # Variables d’environnement
-
 Ce dépôt contient un front (Vite/React dans `app/`) et des services lancés via Docker Compose. Voici les variables d’environnement à connaître et comment les renseigner.
 
 ## Front (`app/`)

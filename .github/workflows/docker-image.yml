@@ -5,7 +5,6 @@ on:
     branches:
       - main
       - dev
-      - 'feature/**'
     tags:
       - 'v-*'
 
@@ -27,6 +26,8 @@ jobs:
             image: monclub-club-service
           - service: findClub-service
             image: monclub-findclub-service
+          - service: planning-service
+            image: monclub-planning-service
     steps:
       - name: Checkout
         uses: actions/checkout@v4
