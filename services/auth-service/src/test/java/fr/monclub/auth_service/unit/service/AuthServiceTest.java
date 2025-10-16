@@ -1,7 +1,8 @@
-package fr.monclub.auth_service.auth.service;
+package fr.monclub.auth_service.unit.service;
 
 import fr.monclub.auth_service.auth.catalog.UserCatalog;
 import fr.monclub.auth_service.auth.model.User;
+import fr.monclub.auth_service.auth.service.AuthService;
 import fr.monclub.auth_service.config.JWT.JwtUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -4,10 +4,12 @@ import fr.monclub.admin_service.admin.model.SportType;
 import fr.monclub.admin_service.admin.catalog.SportTypeCatalog;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.graphql.tester.AutoConfigureGraphQlTester;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.graphql.test.tester.GraphQlTester;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
@@ -26,6 +28,9 @@ class SportTypeControllerIntegrationTest {
 
     @MockitoBean
     private SportTypeCatalog sportTypeCatalog;
+
+    @MockitoBean
+    private RabbitTemplate rabbitTemplate;
 
 
     @Test
@@ -118,6 +123,7 @@ class SportTypeControllerIntegrationTest {
         existingSportType.setId(sportTypeId);
         existingSportType.setName(oldName);
 
+
         when(sportTypeCatalog.getSportTypeById(sportTypeId)).thenReturn(existingSportType);
         when(sportTypeCatalog.save(any(SportType.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
@@ -129,6 +135,12 @@ class SportTypeControllerIntegrationTest {
               }
             }
             """;
+
+        System.out.println("GraphQL Mutation: " + mutation);
+        System.out.println(graphQlTester.document(mutation)
+                .variable("id", sportTypeId)
+                .variable("name", newName)
+                .execute());
 
         graphQlTester.document(mutation)
                 .variable("id", sportTypeId)
