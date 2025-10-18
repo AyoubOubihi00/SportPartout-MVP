@@ -1,0 +1,40 @@
+type ClubMember {
+    clubId: ID!
+    userId: ID!
+    firstName: String!
+    lastName: String!
+    birthDate: String
+    email: String!
+    phoneNumber: String,
+    isActif : Boolean,
+    dateSubscription : String,
+    himself : Boolean
+}
+
+
+
+input UserInput {
+    userId : ID!
+    firstName: String!
+    lastName: String!
+    birthDate: String!
+    email: String!
+    phoneNumber: String
+}
+
+
+type Mutation {
+    subscribeToClub(clubId: ID!, newMember: UserInput!): ClubMember
+    unsubscribeFromClub(clubId: ID!, memberId: ID!): Int
+    forcedUnsubscribe(clubId : ID!, memberId: ID!): Int
+
+}
+
+type Query {
+    ActiveClubMembersByClubId(clubId: ID!): [ClubMember]
+    IsNotActiveClubMembersByClubId(clubId: ID!): [ClubMember]
+    AllClubMembersByClubId(clubId: ID!): [ClubMember]
+    clubMembersByUserId(userId: ID!): [ClubMember]
+
+}
+

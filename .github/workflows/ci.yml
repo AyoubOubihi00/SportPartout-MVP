@@ -93,7 +93,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        service: [auth-service, admin-service, club-service, findClub-service, planning-service]
+        service: [auth-service, admin-service, club-service, findClub-service, planning-service, club-membership-service]
     defaults:
       run:
         working-directory: services/${{ matrix.service }}
