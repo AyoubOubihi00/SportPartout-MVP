@@ -24,11 +24,13 @@ export default function BottomSheet({
 
   const maxHeight = useMemo(() => {
     if (typeof window === "undefined") return 600 - NAVBAR_HEIGHT;
-    return Math.round(window.innerHeight * 0.8) - NAVBAR_HEIGHT;
+    const isMobile = window.innerWidth <= 640;
+    const ratio = isMobile ? 0.87 : 0.88; // allow higher pull on mobile
+    return Math.round(window.innerHeight * ratio) - NAVBAR_HEIGHT;
   }, []);
 
   const collapsedHeight = useMemo(() => {
-    return Math.min(380, Math.round(maxHeight * 0.5));
+    return Math.min(380, Math.round(maxHeight * 0.7));
   }, [maxHeight]);
 
   useEffect(() => {
@@ -85,7 +87,7 @@ export default function BottomSheet({
         position: "fixed",
         left: 0,
         right: 0,
-        bottom: `${NAVBAR_HEIGHT - 20}px`, // Place le BottomSheet juste au-dessus de la NavBar
+        bottom: `${NAVBAR_HEIGHT}px`, // Place le BottomSheet juste au-dessus de la NavBar
         pointerEvents: open ? "auto" : "none",
         zIndex: 50,
       }}
