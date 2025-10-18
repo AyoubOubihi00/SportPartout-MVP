@@ -6,6 +6,9 @@ import { ResetPassword } from "./components/Connection-Subscription/ResetPasswor
 import { ResetPasswordSuccess } from "./components/Connection-Subscription/ResetPasswordSuccess";
 import { ForgotPassword } from "./components/Connection-Subscription/forgotPassword";
 import { HomePage } from "./components/HomePage/HomePage";
+import { MemberProfile } from "./components/Profile/MemberProfile/MemberProfile";
+import { EditMemberProfile } from "./components/Profile/MemberProfile/EditMemberProfile";
+import OwnerProfile from "./components/Profile/OwnerProfile/OwnerProfile";
 function App() {
   return (
     <Router>
@@ -19,6 +22,9 @@ function App() {
           path="/resetpasswordsuccess"
           element={<ResetPasswordSuccess />}
         />
+        <Route path="/memberprofile" element={<MemberProfile />} />
+        <Route path="/editmemberprofile" element={<EditMemberProfile />} />
+        <Route path="ownerprofile" element={<OwnerProfile />} />
       </Routes>
     </Router>
   );
