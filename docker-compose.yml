@@ -194,6 +194,20 @@ services:
       - "8084:8080"
     networks:
       - monclub-net
+  envoy-gateway:
+    image: envoyproxy/envoy:v1.14.1
+    container_name: envoy-gateway
+    ports:
+      - "8080:8080"  
+      - "19000:19000" 
+    volumes:
+      - ./envoy.yaml:/etc/envoy/envoy.yaml:ro
+    depends_on:
+      - club-service
+      - authentification-service
+    networks:
+      - monclub-net
+
 
 networks:
   monclub-net:

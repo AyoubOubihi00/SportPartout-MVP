@@ -30,7 +30,7 @@ type RegisterResponse {
     message: String!
 }
 
-type User @key(fields: "id") {
+type User {
     id: ID!
     email: String!
     createdAt: String!

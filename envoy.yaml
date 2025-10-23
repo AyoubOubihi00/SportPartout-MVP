@@ -1,0 +1,192 @@
+static_resources:
+  listeners:
+    - name: listener_0
+      address:
+        socket_address:
+          address: 0.0.0.0
+          port_value: 8080
+      filter_chains:
+        - filters:
+            - name: envoy.filters.network.http_connection_manager
+              typed_config:
+                "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+                stat_prefix: ingress_http
+                route_config:
+                  name: local_route
+                  virtual_hosts:
+                    - name: graphql_services
+                      domains: ["*"]
+                      routes:
+                        # Routes publiques (sans JWT) - DOIVENT ÊTRE EN PREMIER
+                        - match:
+                            prefix: "/auth/public"
+                          route:
+                            prefix_rewrite: "/graphql"
+                            cluster: authentification_service
+
+                        # Routes protégées par JWT
+                        - match:
+                            prefix: "/club/graphql"
+                          route:
+                            prefix_rewrite: "/graphql"
+                            cluster: club_service
+                        
+                        - match:
+                            prefix: "/admin/graphql"
+                          route:
+                            prefix_rewrite: "/graphql"
+                            cluster: admin_service
+
+                        - match:
+                            prefix: "/auth/graphql"
+                          route:
+                            prefix_rewrite: "/graphql"
+                            cluster: authentification_service
+
+                        - match:
+                            prefix: "/.well-known/jwks.json"
+                          route:
+                            cluster: jwt_provider_cluster
+
+                        - match:
+                            prefix: "/finclub/graphql"
+                          route:
+                            prefix_rewrite: "/graphql"
+                            cluster: findclub_service
+
+                        - match:
+                            prefix: "/planning/graphql"
+                          route:
+                            prefix_rewrite: "/graphql"
+                            cluster: planning_service
+
+                        
+
+                http_filters:
+                  # 🔐 JWT filter (protège /auth/graphql)
+                  - name: envoy.filters.http.jwt_authn
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.jwt_authn.v3.JwtAuthentication
+                      providers:
+                        auth_provider:
+                          issuer: "https://auth.sportpartout.fr"
+                          remote_jwks:
+                            http_uri:
+                              uri: "http://authentification-service:8080/.well-known/jwks.json"
+                              cluster: jwt_provider_cluster
+                              timeout: 5s
+                          from_headers:
+                            - name: Authorization
+                              value_prefix: "Bearer "
+                      rules:
+                        - match:
+                            prefix: "/auth/graphql"
+                          requires:
+                            provider_name: auth_provider
+                        - match:
+                            prefix: "/club/graphql"
+                          requires:
+                            provider_name: auth_provider
+
+
+                  # 📦 Buffer filter
+                  - name: envoy.filters.http.buffer
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.buffer.v3.Buffer
+                      max_request_bytes: 5242880
+
+                  # 🚀 Router filter
+                  - name: envoy.filters.http.router
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+
+  clusters:
+    # Microservice "club"
+    - name: club_service
+      connect_timeout: 5s
+      type: STRICT_DNS
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: club_service
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: club-service
+                      port_value: 8080
+    
+    # Microservice d'administration
+    - name: admin_service
+      connect_timeout: 5s
+      type: STRICT_DNS
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: admin_service
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: admin-service
+                      port_value: 8080
+
+    # Microservice d'authentification
+    - name: authentification_service
+      connect_timeout: 5s
+      type: STRICT_DNS
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: authentification_service
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: authentification-service
+                      port_value: 8080
+
+    # Microservice findClub
+    - name: findclub_service
+      connect_timeout: 5s
+      type: STRICT_DNS
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: findclub_service
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: findclub-service
+                      port_value: 8080
+    # Microservice planning
+    - name: planning_service
+      connect_timeout: 5s
+      type: STRICT_DNS
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: planning_service
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: planning-service
+                      port_value: 8080
+
+
+    # Cluster JWKS pour JWT validation (même service que authentification-service)
+    - name: jwt_provider_cluster
+      connect_timeout: 5s
+      type: STRICT_DNS
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: jwt_provider_cluster
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: authentification-service
+                      port_value: 8080
