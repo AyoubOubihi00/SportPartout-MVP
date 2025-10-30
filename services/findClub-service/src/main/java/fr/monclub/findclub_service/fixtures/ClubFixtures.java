@@ -13,12 +13,24 @@ import java.util.Date;
 import java.util.UUID;
 
 @Component
-@Profile("dev")
+@Profile("prod")
 public class ClubFixtures implements CommandLineRunner {
 
     public static final UUID UUID_FOOTBALL = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
     public static final UUID UUID_BASKETBALL = UUID.fromString("123e4567-e89b-12d3-a456-426614174002");
     public static final UUID UUID_TENNIS = UUID.fromString("123e4567-e89b-12d3-a456-426614174003");
+    public static final UUID UUID_RUGBY = UUID.fromString("123e4567-e89b-12d3-a456-426614174004");
+    public static final UUID UUID_HAND_BALL = UUID.fromString("123e4567-e89b-12d3-a456-426614174005");
+    public static final UUID UUID_VOLLEY_BALL = UUID.fromString("123e4567-e89b-12d3-a456-426614174006");
+    public static final UUID UUID_BASE_BALL = UUID.fromString("123e4567-e89b-12d3-a456-426614174007");
+    public static final UUID UUID_GOLF = UUID.fromString("123e4567-e89b-12d3-a456-426614174008");
+    public static final UUID UUID_CYCLING = UUID.fromString("123e4567-e89b-12d3-a456-426614174009");
+    public static final UUID UUID_SWIMMING = UUID.fromString("123e4567-e89b-12d3-a456-426614174010");
+    public static final UUID UUID_ATHLETISM = UUID.fromString("123e4567-e89b-12d3-a456-426614174011");
+    public static final UUID UUID_NATATION = UUID.fromString("123e4567-e89b-12d3-a456-426614174012");
+    public static final UUID UUID_JUDO = UUID.fromString("123e4567-e89b-12d3-a456-426614174013");
+    public static final UUID UUID_VOLLEY = UUID.fromString("123e4567-e89b-12d3-a456-426614174014");
+
 
     private final FindClubRepository findClubRepository;
 
@@ -36,7 +48,9 @@ public class ClubFixtures implements CommandLineRunner {
             findClubRepository.save(new Club(
                     null,
                     "Club de Football de Paris",
-                    this.UUID_FOOTBALL,
+                    4.5,
+                    12,
+                    UUID_FOOTBALL,
                     "football",
                     "Paris",
                     "France",
@@ -54,6 +68,8 @@ public class ClubFixtures implements CommandLineRunner {
             findClubRepository.save(new Club(
                     null,
                     "Club de Basketball de Lyon",
+                    4.0,
+                    22,
                     UUID_BASKETBALL,
                     "Basketball",
                     "Lyon",
@@ -72,6 +88,8 @@ public class ClubFixtures implements CommandLineRunner {
             findClubRepository.save(new Club(
                     null,
                     "Club de Tennis de Marseille",
+                    3.8,
+                    9,
                     UUID_TENNIS,
                     "Tennis",
                     "Marseille",
@@ -87,6 +105,321 @@ public class ClubFixtures implements CommandLineRunner {
                     daysAgo(7),
                     null
             ));
+            findClubRepository.save(new Club(
+                    null,
+                    "Club de Tennis de Metz",
+                    4.2,
+                    21,
+                    UUID_TENNIS,
+                    "Tennis",
+                    "Metz",
+                    "France",
+                    "12 Rue de la Chèvre",
+                    "57000",
+                    "0387551234",
+                    "tennismetz@example.com",
+                    49.1193,
+                    6.1757,
+                    UUID.randomUUID(),
+                    daysAgo(35),
+                    daysAgo(5),
+                    null
+            ));
+
+            findClubRepository.save(new Club(
+                    null,
+                    "Metz Basket Club",
+                    4.3,
+                    31,
+                    UUID_BASKETBALL,
+                    "Basketball",
+                    "Metz",
+                    "France",
+                    "8 Rue Serpenoise",
+                    "57000",
+                    "0387555678",
+                    "basketmetz@example.com",
+                    49.1208,
+                    6.1761,
+                    UUID.randomUUID(),
+                    daysAgo(60),
+                    daysAgo(10),
+                    null
+            ));
+
+            findClubRepository.save(new Club(
+                    null,
+                    "Football Club Metz Sud",
+                    2.9,
+                    29,
+                    UUID_FOOTBALL,
+                    "Football",
+                    "Metz",
+                    "France",
+                    "20 Avenue Foch",
+                    "57000",
+                    "0387569988",
+                    "fcmetzsud@example.com",
+                    49.1185,
+                    6.1750,
+                    UUID.randomUUID(),
+                    daysAgo(22),
+                    daysAgo(3),
+                    null
+            ));
+
+            findClubRepository.save(new Club(
+                    null,
+                    "Club de Natation Metz Plage",
+                    4.1,
+                    45,
+                    UUID_NATATION,
+                    "Natation",
+                    "Metz",
+                    "France",
+                    "3 Rue du Pontiffroy",
+                    "57000",
+                    "0387562222",
+                    "natmetz@example.com",
+                    49.1221,
+                    6.1782,
+                    UUID.randomUUID(),
+                    daysAgo(75),
+                    daysAgo(12),
+                    null
+            ));
+
+            findClubRepository.save(new Club(
+                    null,
+                    "Metz Judo Académie",
+                    4.6,
+                    7,
+                    UUID_JUDO,
+                    "Judo",
+                    "Metz",
+                    "France",
+                    "15 Rue du Cambout",
+                    "57000",
+                    "0387591111",
+                    "judometz@example.com",
+                    49.1177,
+                    6.1768,
+                    UUID.randomUUID(),
+                    daysAgo(40),
+                    daysAgo(9),
+                    null
+            ));
+            findClubRepository.save(new Club(
+                    null,
+                    "Nancy Tennis Club",
+                    4.4,
+                    12,
+                    UUID_TENNIS,
+                    "Tennis",
+                    "Nancy",
+                    "France",
+                    "10 Rue Saint-Dizier",
+                    "54000",
+                    "0383271111",
+                    "tennisnancy@example.com",
+                    48.6921,
+                    6.1844,
+                    UUID.randomUUID(),
+                    daysAgo(33),
+                    daysAgo(6),
+                    null
+            ));
+
+            findClubRepository.save(new Club(
+                    null,
+                    "Nancy Volley Ball",
+                    4.0,
+                    45,
+                    UUID_VOLLEY,
+                    "Volley",
+                    "Nancy",
+                    "France",
+                    "5 Rue Stanislas",
+                    "54000",
+                    "0383272222",
+                    "volleynancy@example.com",
+                    48.6920,
+                    6.1833,
+                    UUID.randomUUID(),
+                    daysAgo(52),
+                    daysAgo(8),
+                    null
+            ));
+
+            findClubRepository.save(new Club(
+                    null,
+                    "Nancy Football Club",
+                    3.9,
+                    25,
+                    UUID_FOOTBALL,
+                    "Football",
+                    "Nancy",
+                    "France",
+                    "22 Avenue de Boufflers",
+                    "54000",
+                    "0383283333",
+                    "fcnancy@example.com",
+                    48.6915,
+                    6.1772,
+                    UUID.randomUUID(),
+                    daysAgo(45),
+                    daysAgo(2),
+                    null
+            ));
+
+            findClubRepository.save(new Club(
+                    null,
+                    "Nancy Natation Loisirs",
+                    4.2,
+                    30,
+                    UUID_NATATION,
+                    "Natation",
+                    "Nancy",
+                    "France",
+                    "9 Rue de la Commanderie",
+                    "54000",
+                    "0383284444",
+                    "natationnancy@example.com",
+                    48.6909,
+                    6.1820,
+                    UUID.randomUUID(),
+                    daysAgo(25),
+                    daysAgo(4),
+                    null
+            ));
+
+            findClubRepository.save(new Club(
+                    null,
+                    "Nancy Judo Club",
+                    2.8,
+                    35,
+                    UUID_JUDO,
+                    "Judo",
+                    "Nancy",
+                    "France",
+                    "14 Rue du Faubourg des Trois Maisons",
+                    "54000",
+                    "0383285555",
+                    "judonancy@example.com",
+                    48.6924,
+                    6.1769,
+                    UUID.randomUUID(),
+                    daysAgo(70),
+                    daysAgo(11),
+                    null
+            ));
+            findClubRepository.save(new Club(
+                    null,
+                    "Strasbourg Tennis Club",
+                    3.7,
+                    18,
+                    UUID_TENNIS,
+                    "Tennis",
+                    "Strasbourg",
+                    "France",
+                    "2 Allée du Printemps",
+                    "67000",
+                    "0388251111",
+                    "tennisstrasbourg@example.com",
+                    48.5734,
+                    7.7521,
+                    UUID.randomUUID(),
+                    daysAgo(38),
+                    daysAgo(5),
+                    null
+            ));
+
+            findClubRepository.save(new Club(
+                    null,
+                    "Strasbourg Basket Union",
+                    4.5,
+                    27,
+                    UUID_BASKETBALL,
+                    "Basketball",
+                    "Strasbourg",
+                    "France",
+                    "16 Rue des Juifs",
+                    "67000",
+                    "0388252222",
+                    "basketstrasbourg@example.com",
+                    48.5740,
+                    7.7512,
+                    UUID.randomUUID(),
+                    daysAgo(41),
+                    daysAgo(6),
+                    null
+            ));
+
+            findClubRepository.save(new Club(
+                    null,
+                    "Racing Club de Strasbourg",
+                    4.8,
+                    15,
+                    UUID_FOOTBALL,
+                    "Football",
+                    "Strasbourg",
+                    "France",
+                    "12 Boulevard de Dresde",
+                    "67000",
+                    "0388263333",
+                    "rcstrasbourg@example.com",
+                    48.5780,
+                    7.7519,
+                    UUID.randomUUID(),
+                    daysAgo(18),
+                    daysAgo(2),
+                    null
+            ));
+
+            findClubRepository.save(new Club(
+                    null,
+                    "Strasbourg Natation",
+                    2.9,
+                    40,
+                    UUID_NATATION,
+                    "Natation",
+                    "Strasbourg",
+                    "France",
+                    "5 Rue Pierre Montet",
+                    "67000",
+                    "0388274444",
+                    "natationstrasbourg@example.com",
+                    48.5765,
+                    7.7541,
+                    UUID.randomUUID(),
+                    daysAgo(29),
+                    daysAgo(4),
+                    null
+            ));
+
+            findClubRepository.save(new Club(
+                    null,
+                    "Strasbourg Judo Académie",
+                    1.9,
+                    20,
+                    UUID_JUDO,
+                    "Judo",
+                    "Strasbourg",
+                    "France",
+                    "10 Rue du Dôme",
+                    "67000",
+                    "0388275555",
+                    "judostrasbourg@example.com",
+                    48.5750,
+                    7.7509,
+                    UUID.randomUUID(),
+                    daysAgo(55),
+                    daysAgo(9),
+                    null
+            ));
+
+
+
         }
     }
 }

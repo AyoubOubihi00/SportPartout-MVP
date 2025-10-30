@@ -3,7 +3,6 @@ import { Map, Marker } from "pigeon-maps";
 import { osm } from "pigeon-maps/providers";
 import useGeolocalisation from "../../hooks/useGeolocalisation";
 import { mapCenterService } from "../../services/mapCenterService";
-import { clubs } from "../../mock/club";
 import { SearchFilter } from "../SearchFilter/SearchFilter";
 import ClubCard from "../ClubCard";
 import ClubDetails from "../ClubDetails";
@@ -14,8 +13,9 @@ import { useTheme } from "@mui/joy/styles";
 import Supercluster, { PointFeature } from "supercluster";
 import { Sport } from "../../model/Sport";
 import { Club } from "../../model/Club";
-
-//import { useNavigate } from "react-router-dom";
+import { estimateMapRadius } from "../../services/mapRadiusService";
+import { getClubsNear } from "../../services/clubService";
+import { haversineDistance } from "../../services/distanceService";
 
 interface ClubFeatureProperties {
   cluster: boolean;
@@ -30,9 +30,15 @@ type PointFeatureType = PointFeature<ClubFeatureProperties>;
 type ClusterOrPoint = ClusterFeature | PointFeatureType;
 
 export default function MapView() {
+  const [clubs, setClubs] = useState<Club[]>([]);
   const theme = useTheme();
   const [manualCenter, setManualCenter] = useState(false);
   const [selectedSports, setSelectedSports] = useState<Sport[]>([]);
+  // State pour les coins de la carte
+  const [mapCorners, setMapCorners] = useState<{
+    topLeft: [number, number] | null;
+    bottomRight: [number, number] | null;
+  }>({ topLeft: null, bottomRight: null });
 
   // Récupération de la position de l'utilisateur
   const { userPos } = useGeolocalisation();
@@ -53,15 +59,15 @@ export default function MapView() {
     return unsubscribe;
   }, []);
 
-  // Filtrage des clubs selon les sports sélectionnés
   const filteredClubs = useMemo(() => {
     if (!selectedSports || selectedSports.length === 0) return clubs;
     return clubs.filter((club) =>
       selectedSports.some(
-        (sel) => sel.name === club.sportType.id || sel.id === club.sportType.id,
+        (sel) =>
+          sel.name === club.sportType?.id || sel.id === club.sportType?.id,
       ),
     );
-  }, [selectedSports]);
+  }, [selectedSports, clubs]);
 
   const points: PointFeatureType[] = useMemo(
     () =>
@@ -137,11 +143,52 @@ export default function MapView() {
           setCenter(center as [number, number]);
           setZoom(zoom);
           setBounds([bounds.sw[1], bounds.sw[0], bounds.ne[1], bounds.ne[0]]);
+          // Détection coins :
+          // Coin haut-gauche (nord-ouest)
+          const topLeft: [number, number] = [bounds.ne[0], bounds.sw[1]];
+          // Coin bas-droit (sud-est)
+          const bottomRight: [number, number] = [bounds.sw[0], bounds.ne[1]];
+          setMapCorners({ topLeft, bottomRight });
+
+          // Appel API clubsNear
+          // On prend le centre de la carte et le rayon estimé (distance centre -> coin haut-gauche)
+          const lat = (center as [number, number])[0];
+          const lng = (center as [number, number])[1];
+          // Rayon en km (distance entre centre et coin haut-gauche)
+          const radiusKm = estimateMapRadius([lat, lng], topLeft);
+          getClubsNear(lat, lng, radiusKm)
+            .then((data) => {
+              console.log("clubsNear data:", data);
+              const mapped = data.map((club) => {
+                const clubPosition: [number, number] = [
+                  club.latitude,
+                  club.longitude,
+                ];
+                const userPosition = userPos ?? center;
+                const distance = haversineDistance(userPosition, clubPosition);
+
+                return {
+                  id: club.id,
+                  name: club.name,
+                  sportType: { id: club.typeIdSport, name: club.typeNameSport },
+                  distance: Number(distance.toFixed(2)),
+                  notation: club.notation ?? 0,
+                  addresse: `${club.address}${club.city ? ", " + club.city : ""}`,
+                  members: club.memberCount ?? 0,
+                  position: clubPosition,
+                };
+              });
+              console.log("Mapped clubsNear:", mapped);
+              setClubs(mapped);
+            })
+            .catch((err) => {
+              console.error("Erreur clubsNear:", err);
+            });
         }}
         animate
         zoomSnap={false}
         dprs={[1, 2]}
-        minZoom={2}
+        minZoom={6}
         maxZoom={50}
       >
         {userPos && (
@@ -237,11 +284,19 @@ export default function MapView() {
               <Marker
                 key={`club-${clubId}`}
                 anchor={[lat, lng]}
-                width={42}
-                color={"#0f172a"}
+                width={48}
+                color={selectedClub === clubId ? "#eab308" : "#0f172a"}
                 onClick={({ event }) => {
                   event.stopPropagation();
                   setSelectedClub(clubId);
+                }}
+                style={{
+                  filter:
+                    selectedClub === clubId
+                      ? "drop-shadow(0 0 8px #eab308)"
+                      : undefined,
+                  zIndex: selectedClub === clubId ? 10 : undefined,
+                  transition: "filter 0.15s, z-index 0.15s",
                 }}
               />
             );
@@ -289,6 +344,52 @@ export default function MapView() {
           <LocateFixed />
         </IconButton>
       )}
+
+      {/* Affichage des coins de la carte */}
+      <Box
+        sx={{
+          position: "absolute",
+          bottom: 8,
+          left: 8,
+          zIndex: 200,
+          background: "rgba(255,255,255,0.85)",
+          borderRadius: 2,
+          p: 1,
+          fontSize: 12,
+          color: "#222",
+          boxShadow: 1,
+        }}
+      >
+        <div>
+          <b>Coin haut-gauche :</b>
+          {mapCorners.topLeft
+            ? ` [lat: ${mapCorners.topLeft[0].toFixed(5)}, lng: ${mapCorners.topLeft[1].toFixed(5)}]`
+            : " -"}
+        </div>
+        <div>
+          <b>Coin bas-droit :</b>
+          {mapCorners.bottomRight
+            ? ` [lat: ${mapCorners.bottomRight[0].toFixed(5)}, lng: ${mapCorners.bottomRight[1].toFixed(5)}]`
+            : " -"}
+        </div>
+        <div>
+          <div>
+            <b>Rayon estimé :</b>
+            {mapCorners.topLeft && center
+              ? (() => {
+                  // Vérification de l'ordre : [latitude, longitude]
+                  const topLeftLatLng: [number, number] = [
+                    mapCorners.topLeft[0],
+                    mapCorners.topLeft[1],
+                  ];
+                  // Debug : afficher les valeurs utilisées
+
+                  return ` ${estimateMapRadius(mapCorners.bottomRight!, topLeftLatLng).toFixed(2)} km`;
+                })()
+              : " -"}
+          </div>
+        </div>
+      </Box>
 
       <BottomSheet
         open={selectedClub !== null}

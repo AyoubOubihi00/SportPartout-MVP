@@ -17,53 +17,112 @@ static_resources:
                     - name: graphql_services
                       domains: ["*"]
                       routes:
-                        # Routes publiques (sans JWT) - DOIVENT ÊTRE EN PREMIER
+                        # Route publique avec CORS activé
                         - match:
                             prefix: "/auth/public"
                           route:
                             prefix_rewrite: "/graphql"
                             cluster: authentification_service
+                            cors:
+                              allow_origin_string_match:
+                                - prefix: "http://localhost:5173"
+                              allow_methods: "GET, POST, OPTIONS"
+                              allow_headers: "Content-Type, Authorization"
+                              expose_headers: "Authorization"
+                              max_age: "86400"
+                              allow_credentials: true
 
-                        # Routes protégées par JWT
+                        # Routes protégées
                         - match:
                             prefix: "/club/graphql"
                           route:
                             prefix_rewrite: "/graphql"
                             cluster: club_service
-                        
+                            cors:
+                              allow_origin_string_match:
+                                - prefix: "http://localhost:5173"
+                              allow_methods: "GET, POST, OPTIONS"
+                              allow_headers: "Content-Type, Authorization"
+                              expose_headers: "Authorization"
+                              max_age: "86400"
+                              allow_credentials: true
+
                         - match:
                             prefix: "/admin/graphql"
                           route:
                             prefix_rewrite: "/graphql"
                             cluster: admin_service
+                            cors:
+                              allow_origin_string_match:
+                                - prefix: "http://localhost:5173"
+                              allow_methods: "GET, POST, OPTIONS"
+                              allow_headers: "Content-Type, Authorization"
+                              expose_headers: "Authorization"
+                              max_age: "86400"
+                              allow_credentials: true
 
                         - match:
                             prefix: "/auth/graphql"
                           route:
                             prefix_rewrite: "/graphql"
                             cluster: authentification_service
+                            cors:
+                              allow_origin_string_match:
+                                - prefix: "http://localhost:5173"
+                              allow_methods: "GET, POST, OPTIONS"
+                              allow_headers: "Content-Type, Authorization"
+                              expose_headers: "Authorization"
+                              max_age: "86400"
+                              allow_credentials: true
 
                         - match:
                             prefix: "/.well-known/jwks.json"
                           route:
                             cluster: jwt_provider_cluster
+                            cors:
+                              allow_origin_string_match:
+                                - prefix: "http://localhost:5173"
+                              allow_methods: "GET, POST, OPTIONS"
+                              allow_headers: "Content-Type, Authorization"
+                              expose_headers: "Authorization"
+                              max_age: "86400"
+                              allow_credentials: true
 
                         - match:
-                            prefix: "/finclub/graphql"
+                            prefix: "/findclub/graphql"
                           route:
                             prefix_rewrite: "/graphql"
                             cluster: findclub_service
+                            cors:
+                              allow_origin_string_match:
+                                - prefix: "http://localhost:5173"
+                              allow_methods: "GET, POST, OPTIONS"
+                              allow_headers: "Content-Type, Authorization"
+                              expose_headers: "Authorization"
+                              max_age: "86400"
+                              allow_credentials: true
 
                         - match:
                             prefix: "/planning/graphql"
                           route:
                             prefix_rewrite: "/graphql"
                             cluster: planning_service
-
-                        
+                            cors:
+                              allow_origin_string_match:
+                                - prefix: "http://localhost:5173"
+                              allow_methods: "GET, POST, OPTIONS"
+                              allow_headers: "Content-Type, Authorization"
+                              expose_headers: "Authorization"
+                              max_age: "86400"
+                              allow_credentials: true
 
                 http_filters:
-                  # 🔐 JWT filter (protège /auth/graphql)
+                  # ⚙️ Le filtre CORS doit être AVANT le routeur
+                  - name: envoy.filters.http.cors
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.cors.v3.Cors
+
+                  # 🔐 JWT filter
                   - name: envoy.filters.http.jwt_authn
                     typed_config:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.jwt_authn.v3.JwtAuthentication
@@ -78,16 +137,17 @@ static_resources:
                           from_headers:
                             - name: Authorization
                               value_prefix: "Bearer "
+                          forward_payload_header: "X-JWT-Claims"
                       rules:
                         - match:
                             prefix: "/auth/graphql"
                           requires:
                             provider_name: auth_provider
+
                         - match:
                             prefix: "/club/graphql"
                           requires:
                             provider_name: auth_provider
-
 
                   # 📦 Buffer filter
                   - name: envoy.filters.http.buffer
@@ -95,10 +155,11 @@ static_resources:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.buffer.v3.Buffer
                       max_request_bytes: 5242880
 
-                  # 🚀 Router filter
+                  # 🚀 Router filter (toujours en dernier)
                   - name: envoy.filters.http.router
                     typed_config:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+
 
   clusters:
     # Microservice "club"

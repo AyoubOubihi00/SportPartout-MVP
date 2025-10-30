@@ -8,6 +8,8 @@ import LinearProgress from "@mui/joy/LinearProgress";
 import Typography from "@mui/joy/Typography";
 import AuthLayout from "./AuthLayout";
 import { useTheme } from "@mui/joy";
+import { register } from "../../services/auth/authService";
+import { useBubble } from "../shared/useBubble";
 
 export function SignupForm() {
   const [values, setValues] = useState({
@@ -18,11 +20,13 @@ export function SignupForm() {
     email: "",
     password: "",
     confirmPassword: "",
+    phone: "",
   });
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
   const theme = useTheme();
 
+  const { showSuccessBubble, showErrorBubble } = useBubble();
   const minLength = 12;
 
   const darkGradient = "linear-gradient(135deg, #0f172a, #1e293b)";
@@ -36,7 +40,7 @@ export function SignupForm() {
     setValues({ ...values, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (
@@ -46,7 +50,8 @@ export function SignupForm() {
       !values.password ||
       !values.confirmPassword ||
       !values.sexe ||
-      !values.birthDate
+      !values.birthDate ||
+      !values.phone
     ) {
       setMessage("Tous les champs sont obligatoires.");
       return;
@@ -62,13 +67,32 @@ export function SignupForm() {
     }
 
     setMessage("");
-    console.log("Signup data:", values);
+
+    // Appel du service d'inscription
+    const result = await register({
+      email: values.email,
+      password: values.password,
+      lastName: values.nom,
+      firstName: values.prenom,
+      birthDate: values.birthDate + "T00:00:00Z",
+      phone: values.phone,
+    });
+
+    if (result.success) {
+      showSuccessBubble("Compte créé !");
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500);
+    } else {
+      showErrorBubble(result.message || "Erreur lors de l’inscription");
+    }
   };
 
   const mainColor = theme.palette.mode == "dark" ? "#fff" : "#000";
 
   return (
     <AuthLayout>
+      {/* plus de gestion locale d'erreur ici, tout est global */}
       <Typography level="h4" sx={{ mb: 2, color: mainColor }}>
         Inscription
       </Typography>
@@ -220,6 +244,29 @@ export function SignupForm() {
         {values.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email) && (
           <Typography level="body-xs" color="danger" sx={{ mb: 1 }}>
             Email non valide
+          </Typography>
+        )}
+        <Input
+          name="phone"
+          placeholder="Téléphone"
+          value={values.phone}
+          onChange={handleChange}
+          required
+          error={!values.phone && message !== ""}
+          sx={{
+            mb: 2,
+            background:
+              theme.palette.mode === "dark" ? darkGradient : lightGradient,
+            color: theme.palette.mode === "dark" ? "white" : "black",
+            "& input::placeholder": {
+              color: theme.palette.mode === "dark" ? "grey.400" : "grey.500",
+            },
+          }}
+        />
+
+        {!values.phone && message !== "" && (
+          <Typography level="body-xs" color="danger" sx={{ mb: 1 }}>
+            Téléphone obligatoire
           </Typography>
         )}
         <Input

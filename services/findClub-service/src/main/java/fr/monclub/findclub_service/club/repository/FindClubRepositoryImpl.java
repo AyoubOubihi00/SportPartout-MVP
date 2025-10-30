@@ -22,6 +22,8 @@ public class FindClubRepositoryImpl implements FindClubRepositoryCustom {
         String sql = """
             SELECT c.id,
                    c.name,
+                   c.notation,
+                   c.member_count,
                    c.type_id_sport,
                    c.type_name_sport,
                    c.city,
@@ -103,17 +105,19 @@ public class FindClubRepositoryImpl implements FindClubRepositoryCustom {
         return new FindClubWithDistance(
                 asUuid(row[0]),
                 asString(row[1]),
-                asUuid(row[2]),
-                asString(row[3]),
-                asString(row[4]),
+                asDouble(row[2]),
+                asInteger(row[3]),
+                asUuid(row[4]),
                 asString(row[5]),
                 asString(row[6]),
                 asString(row[7]),
                 asString(row[8]),
                 asString(row[9]),
-                asDouble(row[10]),
-                asDouble(row[11]),
-                asDouble(row[12])
+                asString(row[10]),
+                asString(row[11]),
+                asDouble(row[12]),
+                asDouble(row[13]),
+                asDouble(row[14])
         );
     }
 
@@ -131,5 +135,10 @@ public class FindClubRepositoryImpl implements FindClubRepositoryCustom {
         if (value instanceof Float f) return f.doubleValue();
         if (value instanceof Number n) return n.doubleValue();
         return 0d;
+    }
+
+    private int asInteger(Object value) {
+        if (value instanceof Integer i) return i;
+        return 0;
     }
 }

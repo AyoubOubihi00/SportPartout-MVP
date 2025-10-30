@@ -14,21 +14,20 @@ export default function BaseLayout({
       style={{
         minHeight: "100dvh",
         width: "100vw",
-        background: "inherit",
         display: "flex",
         flexDirection: "column",
+        background:
+          theme.palette.mode === "dark"
+            ? "linear-gradient(135deg, #0f172a, #1e293b)"
+            : "linear-gradient(135deg, #f8fafc, #e2e8f0)",
       }}
     >
       <main
         style={{
           flex: 1,
           width: "100vw",
-          paddingBottom: "88px", // hauteur estimée de la navbar
+          marginBottom: "110px",
           boxSizing: "border-box",
-          background:
-            theme.palette.mode === "dark"
-              ? "linear-gradient(135deg, #0f172a, #1e293b)"
-              : "linear-gradient(135deg, #f8fafc, #e2e8f0)",
         }}
       >
         {children}

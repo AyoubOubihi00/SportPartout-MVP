@@ -33,6 +33,9 @@ function sportEmoji(sport?: string) {
   if (s.includes("basket")) return "🏀";
   if (s.includes("tennis")) return "🎾";
   if (s.includes("rugby")) return "🏉";
+  if (s.includes("badminton")) return "🏸";
+  if (s.includes("natation")) return "🏊";
+  if (s.includes("course")) return "🏃";
   return "🏅";
 }
 

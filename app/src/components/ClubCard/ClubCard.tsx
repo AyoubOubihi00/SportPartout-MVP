@@ -5,6 +5,8 @@ import {
   FaFootballBall,
   FaTableTennis,
   FaBasketballBall,
+  FaSwimmingPool,
+  FaThLarge,
 } from "react-icons/fa";
 import { GiSoccerBall } from "react-icons/gi";
 import { Card, Typography, Button, Chip, Box, Stack } from "@mui/joy";
@@ -15,6 +17,10 @@ const sportIcons: Record<string, React.ReactNode> = {
   Basketball: <FaBasketballBall size={50} color="#FF8C00" />,
   Tennis: <FaTableTennis size={50} color="#32CD32" />,
   Rugby: <FaFootballBall size={49} color="#1E90FF" />,
+  Natation: <FaSwimmingPool size={50} color="#1E90FF" />,
+  Badminton: <FaTableTennis size={50} color="#32CD32" />,
+  Judo: <FaThLarge size={50} color="#8A2BE2" />,
+  Volley: <FaBasketballBall size={50} color="#00fff7ff" />,
 };
 
 type ClubCardProps = Club & {

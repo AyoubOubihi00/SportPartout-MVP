@@ -8,15 +8,36 @@ export type Club = {
   notation: number;
   addresse: string;
   members: number;
+  latitude?: number;
+  longitude?: number;
   position: [number, number];
+
   // Données additionnelles (fixtures)
   city?: string;
   country?: string;
   postalCode?: string;
   phoneNumber?: string;
   email?: string;
-  typeId?: string;
-  typeName?: string;
   dateCreation?: string;
   description?: string;
+};
+
+export type ClubNear = {
+  id: string;
+  name: string;
+  typeIdSport: string;
+  typeNameSport: string;
+  distanceKm: number;
+  notation: number;
+  address: string;
+  memberCount: number;
+  latitude: number;
+  longitude: number;
+  description: string;
+  city: string;
+  country: string;
+  postalCode: string;
+  phoneNumber: string;
+  email: string;
+  dateCreation: string;
 };

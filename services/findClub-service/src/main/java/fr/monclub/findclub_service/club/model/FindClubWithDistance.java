@@ -12,6 +12,8 @@ public class FindClubWithDistance {
 
     private final UUID id;
     private final String name;
+    private final double notation;
+    private int memberCount;
     private final UUID typeIdSport;
     private final String typeNameSport;
     private final String city;
@@ -28,6 +30,8 @@ public class FindClubWithDistance {
         this(
                 club.getId(),
                 club.getName(),
+                club.getNotation(),
+                club.getMemberCount(),
                 club.getTypeIdSport(),
                 club.getTypeNameSport(),
                 club.getCity(),

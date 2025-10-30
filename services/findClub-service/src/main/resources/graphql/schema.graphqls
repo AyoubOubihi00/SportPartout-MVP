@@ -25,7 +25,10 @@ type Club {
 type ClubWithDistance {
     id: ID!
     name: String!
-    type: Sport!
+    typeIdSport: ID!
+    typeNameSport: String!
+    notation: Float!
+    memberCount: Int!
     city: String!
     address: String!
     country: String!

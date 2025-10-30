@@ -4,6 +4,8 @@ import fr.monclub.auth_service.auth.catalog.UserCatalog;
 import fr.monclub.auth_service.auth.mapper.RegisterInputToUserMapper;
 import fr.monclub.auth_service.auth.model.*;
 import fr.monclub.auth_service.auth.service.AuthService;
+import graphql.GraphqlErrorBuilder;
+import graphql.schema.DataFetchingEnvironment;
 import lombok.AllArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;

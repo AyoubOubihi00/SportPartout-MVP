@@ -18,6 +18,8 @@ public class Club {
     @GeneratedValue(generator = "UUID")
     private UUID id;
     private String name;
+    private double notation;
+    private int memberCount;
 
     private UUID typeIdSport;
     private String typeNameSport;

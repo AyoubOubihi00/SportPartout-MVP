@@ -28,6 +28,9 @@ public class TypeSportFixtures implements CommandLineRunner {
     public static final UUID UUID_CYCLING = UUID.fromString("123e4567-e89b-12d3-a456-426614174009");
     public static final UUID UUID_SWIMMING = UUID.fromString("123e4567-e89b-12d3-a456-426614174010");
     public static final UUID UUID_ATHLETISM = UUID.fromString("123e4567-e89b-12d3-a456-426614174011");
+    public static final UUID UUID_NATATION = UUID.fromString("123e4567-e89b-12d3-a456-426614174012");
+    public static final UUID UUID_JUDO = UUID.fromString("123e4567-e89b-12d3-a456-426614174013");
+    public static final UUID UUID_VOLLEY = UUID.fromString("123e4567-e89b-12d3-a456-426614174014");
 
     @Override
     public void run(String... args) {
@@ -43,6 +46,9 @@ public class TypeSportFixtures implements CommandLineRunner {
             catalog.save(new SportType(UUID_CYCLING, "Cycling"));
             catalog.save(new SportType(UUID_SWIMMING, "Swimming"));
             catalog.save(new SportType(UUID_ATHLETISM, "Athletism"));
+            catalog.save(new SportType(UUID_NATATION, "Natation"));
+            catalog.save(new SportType(UUID_JUDO, "Judo"));
+            catalog.save(new SportType(UUID_VOLLEY, "Volley"));
         }
     }
 }

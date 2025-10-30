@@ -19,6 +19,8 @@ export default function NavBar() {
       icon: <User size={28} />,
       label: "MON COMPTE",
       paths: [
+        "/memberprofile",
+        "/ownerprofile",
         "/login",
         "/signup",
         "/forgot-password",

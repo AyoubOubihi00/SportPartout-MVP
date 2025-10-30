@@ -5,6 +5,8 @@ import Button from "@mui/joy/Button";
 import Typography from "@mui/joy/Typography";
 import AuthLayout from "./AuthLayout";
 import { useTheme } from "@mui/joy/styles";
+import { useAuth } from "../shared/useAuth";
+import { useBubble } from "../shared/useBubble";
 
 export function LoginForm() {
   const [values, setValues] = useState({ email: "", password: "" });
@@ -19,21 +21,36 @@ export function LoginForm() {
     setValues({ ...values, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const { login } = useAuth();
+  const { showSuccessBubble, showErrorBubble } = useBubble();
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!values.email || !values.password) {
       setMessage("Email et mot de passe sont obligatoires");
+      showErrorBubble("Email et mot de passe sont obligatoires");
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(values.email)) {
       setMessage("Email non valide");
+      showErrorBubble("Email non valide");
       return;
     }
 
     setMessage("");
-    console.log("Login data:", values);
+    const result = await login({
+      email: values.email,
+      password: values.password,
+    });
+    if (result.success) {
+      showSuccessBubble("Connexion réussie !");
+      setTimeout(() => navigate("/"), 1000);
+    } else {
+      setMessage(result.message || "Erreur lors de la connexion");
+      showErrorBubble(result.message || "Erreur lors de la connexion");
+    }
   };
 
   const mainColor = theme.palette.mode == "dark" ? "#fff" : "#000";

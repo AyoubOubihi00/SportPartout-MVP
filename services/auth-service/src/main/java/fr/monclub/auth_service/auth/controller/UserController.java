@@ -15,7 +15,7 @@ public class UserController {
     private final UserCatalog userCatalog;
 
     @QueryMapping
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public User me() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
