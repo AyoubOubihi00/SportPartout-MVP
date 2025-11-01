@@ -72,3 +72,8 @@ type Query {
     end: DateTime!
   ): [SeanceWithAvailability!]!
 }
+
+type Mutation {
+    acceptSeance(seanceId: UUID!, clubId: UUID!): Seance!
+    refuseSeance(seanceId: UUID!, clubId: UUID!, reason: String!): Seance!
+}
