@@ -71,4 +71,6 @@ public class Seance {
 
     // Soft delete éventuel (géré manuellement)
     private OffsetDateTime deletedAt;
+
+    private String refusalReason;
 }
