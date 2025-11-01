@@ -27,6 +27,7 @@ type Seance {
   createdBy: UUID        # <- nullable pour coller à l’audit
   createdAt: DateTime
   updatedAt: DateTime
+    refusalReason: String
 }
 
 # DTO pratique pour l’UI

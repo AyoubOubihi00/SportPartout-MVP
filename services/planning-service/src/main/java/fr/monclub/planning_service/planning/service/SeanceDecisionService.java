@@ -46,7 +46,7 @@ public class SeanceDecisionService {
     }
 
     private void ensureOwnedByClub(Seance seance, UUID clubId) {
-        if (clubId == null || !seance.getIdClub().equals(clubId)) {
+        if (!seance.getIdClub().equals(clubId)) {
             throw new PlanningAccessDeniedException("Le gerant ne peut pas statuer sur une seance d'un autre club");
         }
     }
