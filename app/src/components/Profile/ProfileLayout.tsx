@@ -1,13 +1,15 @@
 import React from "react";
 import { useTheme } from "@mui/joy/styles";
-import NavBar from "../NavBar/NavBar";
 import BaseLayout from "../../layouts/BaseLayout";
 import "./ProfileCommon.css";
+import ProfileRoleSwitch from "./ProfileRoleSwitch";
 
 export default function ProfileLayout({
   children,
+  showRoleSwitch = true,
 }: {
   children: React.ReactNode;
+  showRoleSwitch?: boolean;
 }) {
   const theme = useTheme();
   const mainColor = theme.palette.mode == "dark" ? "#fff" : "#000";
@@ -28,11 +30,12 @@ export default function ProfileLayout({
           color: mainColor,
         }}
       >
-        <div style={{ width: "100%", maxWidth: 400 }}>{children}</div>
+        <div style={{ width: "100%", maxWidth: 480 }}>
+          {showRoleSwitch && <ProfileRoleSwitch />}
+          {children}
+        </div>
         <div className="profile-navbar">
-          <div className="profile-navbar-inner">
-            <NavBar />
-          </div>
+          <div className="profile-navbar-inner"></div>
         </div>
       </div>
     </BaseLayout>

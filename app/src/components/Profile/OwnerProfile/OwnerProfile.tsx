@@ -1,37 +1,42 @@
 import Avatar from "@mui/joy/Avatar";
-import BaseLayout from "../../../layouts/BaseLayout";
 import Typography from "@mui/joy/Typography";
-import Badge from "@mui/joy/Badge";
 import Button from "@mui/joy/Button";
-import Tabs from "@mui/joy/Tabs";
-import Tab from "@mui/joy/Tab";
-import TabList from "@mui/joy/TabList";
-import TabPanel from "@mui/joy/TabPanel";
 import { useTheme } from "@mui/joy/styles";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../../shared/useAuth";
+import ProfileLayout from "../ProfileLayout";
+//
+import CircularProgress from "@mui/joy/CircularProgress";
+import { getMe, type UserProfile } from "../../../services/auth/authService";
+import { getAge } from "../../../services/auth/memberService";
 
 export default function OwnerProfile() {
   const { token, logout } = useAuth();
   const theme = useTheme();
   const navigate = useNavigate();
   const mainColor = theme.palette.mode == "dark" ? "#fff" : "#000";
-  const bgColor = theme.palette.mode === "dark" ? "#0f172a" : "#f8fafc";
+  const labelColor =
+    theme.palette.mode === "dark" ? "neutral.400" : "neutral.500";
+  const darkGradient = "linear-gradient(135deg, #0f172a, #1e293b)";
+  const lightGradient = "linear-gradient(135deg, #f8fafc, #e2e8f0)";
+  const bgColor = theme.palette.mode === "dark" ? darkGradient : lightGradient;
+  const [userData, setUserData] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!token) {
       navigate("/login");
+      return;
     }
+    setLoading(true);
+    getMe(token)
+      .then((data) => {
+        setUserData(data);
+      })
+      .finally(() => setLoading(false));
   }, [token, navigate]);
   if (!token) return null;
-
-  const userData = {
-    name: "Pierre Martin",
-    role: "Gérant",
-    memberSince: "Septembre 2023",
-    city: "Paris",
-  };
 
   const managedClubs = [
     {
@@ -52,24 +57,52 @@ export default function OwnerProfile() {
     },
   ];
 
+  if (loading) {
+    return (
+      <ProfileLayout>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: 300,
+          }}
+        >
+          <CircularProgress size="lg" variant="plain" />
+        </div>
+      </ProfileLayout>
+    );
+  }
+
+  const initials = (
+    (userData?.firstName?.charAt(0) ?? "") +
+    (userData?.lastName?.charAt(0) ?? "")
+  ).toUpperCase();
+
   return (
-    <BaseLayout>
+    <ProfileLayout>
+      {/* Profil */}
       <div
         style={{
-          width: "100%",
-          maxWidth: 600,
           margin: "0 auto",
           padding: "0px 16px",
           paddingTop: 32,
         }}
       >
-        {/* Profil */}
-        <div style={{ textAlign: "center", marginBottom: 32 }}>
+        <div
+          style={{
+            textAlign: "center",
+            marginBottom: 32,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 24,
+          }}
+        >
           <div
             style={{
               display: "flex",
               justifyContent: "center",
-              marginBottom: 16,
             }}
           >
             <Avatar
@@ -81,87 +114,201 @@ export default function OwnerProfile() {
                 color: theme.palette.mode === "dark" ? "white" : "black",
               }}
             >
-              {userData.name
-                .split(" ")
-                .map((n) => n[0])
-                .join("")}
+              {initials}
             </Avatar>
           </div>
-          <Typography level="title-md" sx={{ color: mainColor }}>
-            {userData.name}
-          </Typography>
-          <Typography level="body-sm" sx={{ color: "neutral.400" }}>
-            {userData.role}
-          </Typography>
-          <Typography level="body-sm" sx={{ color: "neutral.400" }}>
-            Gérant depuis {userData.memberSince}
-          </Typography>
-          <Typography level="body-sm" sx={{ color: "neutral.400" }}>
-            {userData.city}
-          </Typography>
-          <Button
-            fullWidth
-            size="md"
-            onClick={() => navigate("/editmemberprofile")}
-            variant="solid"
-            sx={{
-              mt: 2,
-              backgroundColor: mainColor,
-              color: theme.palette.mode === "dark" ? "#121212" : "#fff",
-              borderRadius: 2,
-              fontWeight: "bold",
-              boxShadow: 0,
-              "&:hover": { backgroundColor: mainColor },
-              "&:focus": { backgroundColor: mainColor, boxShadow: "none" },
-              "&:active": { backgroundColor: mainColor },
-            }}
-          >
-            Modifier
-          </Button>
-          <Button
-            fullWidth
-            size="md"
-            variant="outlined"
-            color="danger"
-            sx={{ mt: 1, borderRadius: 2, fontWeight: "bold" }}
-            onClick={() => {
-              logout();
-              navigate("/login");
-            }}
-          >
-            Se déconnecter
-          </Button>
-        </div>
 
-        {/* Stats */}
-        <div style={{ width: "100%", maxWidth: 480, marginBottom: 32 }}>
-          <div style={{ display: "flex", gap: 16, marginBottom: 16 }}>
+          {/* Infos utilisateur (liste simple sans couche visuelle) */}
+          <div
+            style={{
+              maxWidth: 480,
+              marginInline: "auto",
+              textAlign: "left",
+            }}
+          >
             <div
               style={{
-                flex: 1,
-                padding: 12,
-                background: "#f8fafc",
-                borderRadius: 8,
+                display: "grid",
+                gridTemplateColumns: "160px 1fr",
+                rowGap: 16,
+                columnGap: 16,
+                alignItems: "center",
+                justifyItems: "start",
               }}
             >
-              <Typography level="body-xs" sx={{ color: mainColor }}>
-                Total Membres
+              <Typography
+                level="body-sm"
+                sx={{
+                  color: labelColor,
+                  fontWeight: 500,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                }}
+              >
+                Nom
               </Typography>
-              <Typography fontWeight="md">231</Typography>
+              <Typography
+                level="body-md"
+                sx={{ color: mainColor, fontWeight: 600 }}
+              >
+                {(userData?.lastName ?? "").toUpperCase() || "—"}
+              </Typography>
+
+              <Typography
+                level="body-sm"
+                sx={{
+                  color: labelColor,
+                  fontWeight: 500,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                }}
+              >
+                Prénom
+              </Typography>
+              <Typography
+                level="body-md"
+                sx={{ color: mainColor, fontWeight: 600 }}
+              >
+                {userData?.firstName
+                  ? userData.firstName.charAt(0).toUpperCase() +
+                    userData.firstName.slice(1).toLowerCase()
+                  : "—"}
+              </Typography>
+
+              <Typography
+                level="body-sm"
+                sx={{
+                  color: labelColor,
+                  fontWeight: 500,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                }}
+              >
+                Sexe
+              </Typography>
+              <Typography
+                level="body-md"
+                sx={{ color: mainColor, fontWeight: 600 }}
+              >
+                —
+              </Typography>
+
+              <Typography
+                level="body-sm"
+                sx={{
+                  color: labelColor,
+                  fontWeight: 500,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                }}
+              >
+                Email
+              </Typography>
+              <Typography
+                level="body-md"
+                sx={{ color: mainColor, fontWeight: 600 }}
+              >
+                {userData?.email || "—"}
+              </Typography>
+
+              <Typography
+                level="body-sm"
+                sx={{
+                  color: labelColor,
+                  fontWeight: 500,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                }}
+              >
+                Téléphone
+              </Typography>
+              <Typography
+                level="body-md"
+                sx={{ color: mainColor, fontWeight: 600 }}
+              >
+                {userData?.phone || "—"}
+              </Typography>
+
+              <Typography
+                level="body-sm"
+                sx={{
+                  color: labelColor,
+                  fontWeight: 500,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                }}
+              >
+                Naissance
+              </Typography>
+              <Typography
+                level="body-md"
+                sx={{ color: mainColor, fontWeight: 600 }}
+              >
+                {userData?.birthDate
+                  ? `${new Date(userData.birthDate).toLocaleDateString("fr-FR")} (${getAge(userData.birthDate)} ans)`
+                  : "—"}
+              </Typography>
+
+              <Typography
+                level="body-sm"
+                sx={{
+                  color: labelColor,
+                  fontWeight: 500,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                }}
+              >
+                Membre depuis
+              </Typography>
+              <Typography
+                level="body-md"
+                sx={{ color: mainColor, fontWeight: 600 }}
+              >
+                {userData?.createdAt
+                  ? new Date(userData.createdAt).toLocaleDateString("fr-FR")
+                  : "—"}
+              </Typography>
             </div>
-            <div
-              style={{
-                flex: 1,
-                padding: 12,
-                background: "#f8fafc",
-                borderRadius: 8,
+          </div>
+
+          <div
+            style={{
+              width: "100%",
+              maxWidth: 480,
+              marginInline: "auto",
+              display: "flex",
+              flexDirection: "column",
+              gap: 8,
+            }}
+          >
+            <Button
+              fullWidth
+              size="md"
+              onClick={() => navigate("/editmemberprofile")}
+              variant="solid"
+              sx={{
+                backgroundColor: mainColor,
+                color: theme.palette.mode === "dark" ? "#121212" : "#fff",
+                "&:hover": { backgroundColor: mainColor },
+                "&:focus": { backgroundColor: mainColor, boxShadow: "none" },
+                "&:active": { backgroundColor: mainColor },
               }}
             >
-              <Typography level="body-xs" sx={{ color: mainColor }}>
-                Revenus ce mois
-              </Typography>
-              <Typography fontWeight="md">€5,300</Typography>
-            </div>
+              Modifier
+            </Button>
+            <Button
+              fullWidth
+              size="md"
+              variant="outlined"
+              color="danger"
+              sx={{ fontWeight: "bold" }}
+              onClick={() => {
+                logout();
+                navigate("/login");
+              }}
+            >
+              Se déconnecter
+            </Button>
           </div>
         </div>
 
@@ -179,61 +326,85 @@ export default function OwnerProfile() {
           >
             Clubs gérés ({managedClubs.length})
           </Typography>
-          {managedClubs.map((club) => (
-            <div key={club.id} style={{ marginBottom: 16 }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
+              gap: 12,
+            }}
+          >
+            {managedClubs.map((club) => (
               <div
+                key={club.id}
                 style={{
+                  border: "2px solid",
+                  borderColor: mainColor,
+                  borderRadius: 8,
+                  padding: 12,
+                  minHeight: 120,
                   display: "flex",
+                  flexDirection: "column",
                   justifyContent: "space-between",
-                  alignItems: "center",
+                  gap: 8,
                 }}
               >
-                <Typography
-                  level="body-sm"
-                  fontWeight="md"
-                  sx={{ color: mainColor }}
+                <div>
+                  <Typography
+                    level="body-sm"
+                    fontWeight="md"
+                    sx={{ color: mainColor }}
+                  >
+                    {club.name}
+                  </Typography>
+                  <Typography
+                    level="body-xs"
+                    sx={{
+                      color:
+                        theme.palette.mode === "dark"
+                          ? "neutral.400"
+                          : "neutral.600",
+                    }}
+                  >
+                    {club.sport} • {club.members} membres
+                  </Typography>
+                </div>
+                <Button
+                  size="sm"
+                  variant="solid"
+                  onClick={() => navigate(`/clubs/${club.id}`)}
+                  sx={{
+                    backgroundColor: mainColor,
+                    color: theme.palette.mode === "dark" ? "#121212" : "#fff",
+                    boxShadow: 0,
+                    "&:hover": { backgroundColor: mainColor },
+                    "&:focus": {
+                      backgroundColor: mainColor,
+                      boxShadow: "none",
+                    },
+                    "&:active": { backgroundColor: mainColor },
+                  }}
                 >
-                  {club.name}
-                </Typography>
-                <Badge color="success">{club.sport}</Badge>
+                  Gérer
+                </Button>
               </div>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginTop: 8,
-                }}
-              >
-                <Typography level="body-xs" sx={{ color: "neutral.500" }}>
-                  {club.members}/{club.maxCapacity} membres
-                </Typography>
-                <Typography level="body-xs" sx={{ color: "neutral.500" }}>
-                  €{club.revenue}/mois
-                </Typography>
-              </div>
-            </div>
-          ))}
-          <Button variant="soft" sx={{ mt: 1 }}>
+            ))}
+          </div>
+          <Button
+            variant="solid"
+            sx={{
+              mt: 1,
+              backgroundColor: mainColor,
+              color: theme.palette.mode === "dark" ? "#121212" : "#fff",
+              boxShadow: 0,
+              "&:hover": { backgroundColor: mainColor },
+              "&:focus": { backgroundColor: mainColor, boxShadow: "none" },
+              "&:active": { backgroundColor: mainColor },
+            }}
+          >
             + Nouveau Club
           </Button>
         </div>
-
-        {/* Tabs Membres / Activité */}
-        <div style={{ width: "100%", maxWidth: 480 }}>
-          <Tabs defaultValue={0} sx={{ mt: 3 }}>
-            <TabList>
-              <Tab>Membres</Tab>
-              <Tab>Activité</Tab>
-            </TabList>
-            <TabPanel value={0} sx={{ mt: 2 }}>
-              <Typography>Membres content ici...</Typography>
-            </TabPanel>
-            <TabPanel value={1} sx={{ mt: 2 }}>
-              <Typography>Activité content ici...</Typography>
-            </TabPanel>
-          </Tabs>
-        </div>
       </div>
-    </BaseLayout>
+    </ProfileLayout>
   );
 }

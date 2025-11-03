@@ -1,16 +1,19 @@
-// src/App.tsx
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
 import { LoginForm } from "./components/Connection-Subscription/LoginForm";
 import { SignupForm } from "./components/Connection-Subscription/SignupForm";
 import { ResetPassword } from "./components/Connection-Subscription/ResetPassword";
 import { ResetPasswordSuccess } from "./components/Connection-Subscription/ResetPasswordSuccess";
 import { ForgotPassword } from "./components/Connection-Subscription/forgotPassword";
 import { HomePage } from "./components/HomePage/HomePage";
-import { MemberProfile } from "./components/Profile/MemberProfile/MemberProfile";
 import { EditMemberProfile } from "./components/Profile/MemberProfile/EditMemberProfile";
-import OwnerProfile from "./components/Profile/OwnerProfile/OwnerProfile";
 import { BubbleProvider } from "./components/shared/SuccessBubbleContext";
 import { AuthProvider } from "./components/shared/AuthContext";
+import ProfileSwitch from "./components/Profile/ProfileSwitch";
 import MyActivities from "./components/Activities/MyActivities";
 
 function App() {
@@ -28,9 +31,16 @@ function App() {
               path="/resetpasswordsuccess"
               element={<ResetPasswordSuccess />}
             />
-            <Route path="/memberprofile" element={<MemberProfile />} />
+            <Route path="/profile" element={<ProfileSwitch />} />
+            <Route
+              path="/memberprofile"
+              element={<Navigate to="/profile" replace />}
+            />
             <Route path="/editmemberprofile" element={<EditMemberProfile />} />
-            <Route path="ownerprofile" element={<OwnerProfile />} />
+            <Route
+              path="/ownerprofile"
+              element={<Navigate to="/profile" replace />}
+            />
             <Route path="/activities" element={<MyActivities />} />
           </Routes>
         </Router>

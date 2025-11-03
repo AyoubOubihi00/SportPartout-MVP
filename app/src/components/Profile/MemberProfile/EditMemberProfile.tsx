@@ -6,12 +6,25 @@ import Button from "@mui/joy/Button";
 import Typography from "@mui/joy/Typography";
 import Avatar from "@mui/joy/Avatar";
 import IconButton from "@mui/joy/IconButton";
+import FormControl from "@mui/joy/FormControl";
+import FormLabel from "@mui/joy/FormLabel";
+import Select from "@mui/joy/Select";
+import Option from "@mui/joy/Option";
+import Stack from "@mui/joy/Stack";
+import CircularProgress from "@mui/joy/CircularProgress";
+import { useTheme } from "@mui/joy/styles";
 import { Camera, X } from "lucide-react";
-import BaseLayout from "../../../layouts/BaseLayout";
+import ProfileLayout from "../../Profile/ProfileLayout";
 import { useAuth } from "../../shared/useAuth";
 
 export function EditMemberProfile() {
   const { token } = useAuth();
+  const theme = useTheme();
+  const mainColor = theme.palette.mode == "dark" ? "#fff" : "#000";
+  const darkGradient = "linear-gradient(135deg, #0f172a, #1e293b)";
+  const lightGradient = "linear-gradient(135deg, #f8fafc, #e2e8f0)";
+  const bgColor = theme.palette.mode === "dark" ? darkGradient : lightGradient;
+  const textOnMain = theme.palette.mode === "dark" ? "#121212" : "#fff";
   const [loading, setLoading] = useState(true);
   const [, setUserData] = useState<UserProfile | null>(null);
   const navigate = useNavigate();
@@ -22,7 +35,7 @@ export function EditMemberProfile() {
     email: "",
     phone: "",
     birthDate: "",
-    city: "",
+    gender: "",
   });
   useEffect(() => {
     if (!token) return;
@@ -36,13 +49,9 @@ export function EditMemberProfile() {
             lastName: data.lastName || "",
             email: data.email || "",
             phone: data.phone || "",
-            // Suprrimer T00:00Z et formatage à une date dd/MM/YYYY
-            birthDate: Date.parse(data.birthDate)
-              ? new Intl.DateTimeFormat("fr-FR").format(
-                  new Date(data.birthDate),
-                )
-              : "",
-            city: "", // à adapter si tu as la ville dans l'API
+            // Note: conserver la date ISO pour l'input type="date" si possible
+            birthDate: data.birthDate ?? "",
+            gender: "", // non fourni par l'API actuellement
           });
         }
       })
@@ -69,6 +78,12 @@ export function EditMemberProfile() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValues({ ...values, [e.target.name]: e.target.value });
+  };
+  const handleGenderChange = (
+    _: React.SyntheticEvent | null,
+    newValue: string | null,
+  ) => {
+    setValues((prev) => ({ ...prev, gender: newValue ?? "" }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -124,12 +139,15 @@ export function EditMemberProfile() {
       formData.append("lastName", values.lastName);
       formData.append("email", values.email);
       formData.append("phone", values.phone);
-      formData.append("city", values.city);
-      if (avatarFile) {
-        formData.append("avatar", avatarFile);
-      }
+      formData.append("birthDate", values.birthDate);
+      formData.append("gender", values.gender);
+      if (avatarFile) formData.append("avatar", avatarFile);
 
-      console.log("Données envoyées (simulées) :", { values, avatarFile });
+      // TODO: appeler l'API de mise à jour quand elle sera disponible.
+      console.log("Données envoyées (simulées) :", {
+        values,
+        hasAvatar: !!avatarFile,
+      });
       // navigate vers la page profil (ou afficher confirmation)
       navigate("/profile");
     } catch (err) {
@@ -148,7 +166,7 @@ export function EditMemberProfile() {
 
   if (loading) {
     return (
-      <BaseLayout>
+      <ProfileLayout showRoleSwitch={false}>
         <div
           style={{
             display: "flex",
@@ -157,147 +175,231 @@ export function EditMemberProfile() {
             minHeight: 300,
           }}
         >
-          <span>Chargement du profil...</span>
+          <CircularProgress size="lg" variant="plain" />
         </div>
-      </BaseLayout>
+      </ProfileLayout>
     );
   }
 
   return (
-    <BaseLayout>
+    <ProfileLayout showRoleSwitch={false}>
       <div
         style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: 32,
+          margin: "0 auto",
+          padding: "0 16px",
+          paddingTop: 32,
+          width: "100%",
+          maxWidth: 480,
         }}
       >
-        <div style={{ width: "100%", maxWidth: 420 }}>
-          <Typography level="h4" sx={{ mb: 3, textAlign: "center" }}>
-            Modifier mon profil
-          </Typography>
+        <Typography
+          level="h4"
+          sx={{ mb: 3, textAlign: "center", color: mainColor }}
+        >
+          Modifier mon profil
+        </Typography>
 
-          {/* avatar upload */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              flexDirection: "column",
-              marginBottom: 24,
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <Avatar
-                src={avatarPreview ?? undefined}
-                sx={{
-                  "--Avatar-size": "90px",
-                  border: "2px solid",
-                  borderColor: "primary.solidBg",
-                }}
-              >
-                {!avatarPreview && initials}
-              </Avatar>
+        {/* avatar upload */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            flexDirection: "column",
+            marginBottom: 24,
+            gap: 24,
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <Avatar
+              src={avatarPreview ?? undefined}
+              sx={{
+                "--Avatar-size": "90px",
+                border: "2px solid",
+                borderColor: mainColor,
+                background: bgColor,
+                color: theme.palette.mode === "dark" ? "white" : "black",
+              }}
+            >
+              {!avatarPreview && initials}
+            </Avatar>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {/* bouton pour ouvrir le file input */}
-                <label htmlFor="avatar-upload">
-                  <input
-                    id="avatar-upload"
-                    type="file"
-                    accept="image/*"
-                    style={{ display: "none" }}
-                    onChange={handleFileChange}
-                  />
-                  <IconButton
-                    aria-label="Changer la photo"
-                    component="span"
-                    size="sm"
-                  >
-                    <Camera size={16} />
-                  </IconButton>
-                </label>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {/* bouton pour ouvrir le file input */}
+              <label htmlFor="avatar-upload">
+                <input
+                  id="avatar-upload"
+                  type="file"
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  onChange={handleFileChange}
+                />
+                <IconButton
+                  aria-label="Changer la photo"
+                  component="span"
+                  size="sm"
+                >
+                  <Camera size={16} />
+                </IconButton>
+              </label>
 
-                {/* supprimer / restaurer */}
-                {(avatarPreview || avatarFile) && (
-                  <IconButton
-                    aria-label="Supprimer la photo"
-                    color="neutral"
-                    size="sm"
-                    onClick={handleRemoveAvatar}
-                  >
-                    <X size={16} />
-                  </IconButton>
-                )}
-              </div>
+              {/* supprimer / restaurer */}
+              {(avatarPreview || avatarFile) && (
+                <IconButton
+                  aria-label="Supprimer la photo"
+                  color="neutral"
+                  size="sm"
+                  onClick={handleRemoveAvatar}
+                >
+                  <X size={16} />
+                </IconButton>
+              )}
             </div>
-
-            {error && (
-              <Typography level="body-xs" color="danger" sx={{ mt: 1 }}>
-                {error}
-              </Typography>
-            )}
-            <Typography level="body-xs" sx={{ mt: 1, color: "neutral.500" }}>
-              Taille maximale : 2 Mo. Formats : jpg, png, webp...
-            </Typography>
           </div>
 
+          {error && (
+            <Typography level="body-xs" color="danger" sx={{ mt: 1 }}>
+              {error}
+            </Typography>
+          )}
+          <Typography level="body-xs" sx={{ mt: 1, color: "neutral.500" }}>
+            Taille maximale : 2 Mo. Formats : jpg, png, webp...
+          </Typography>
           <form onSubmit={handleSubmit}>
-            <Input
-              name="name"
-              value={values.lastName}
-              onChange={handleChange}
-              placeholder="Nom complet"
-              sx={{ mb: 2 }}
-            />
-            <Input
-              name="firstName"
-              value={values.firstName}
-              onChange={handleChange}
-              placeholder="Prénom"
-              sx={{ mb: 2 }}
-            />
-
-            <Input
-              name="email"
-              type="email"
-              disabled={true}
-              value={values.email}
-              onChange={handleChange}
-              placeholder="Email"
-              sx={{ mb: 2 }}
-            />
-            <Input
-              name="phoneNumber"
-              type="tel"
-              value={values.phone}
-              onChange={handleChange}
-              placeholder="Numéro de téléphone"
-              sx={{ mb: 2 }}
-            />
-            <Input
-              name="birthDate"
-              type="date"
-              value={values.birthDate}
-              onChange={handleChange}
-              placeholder="Date de naissance"
-              sx={{ mb: 3 }}
-            />
+            <Stack spacing={2} sx={{ mb: 3, mt: 1 }}>
+              <FormControl>
+                <FormLabel
+                  sx={{
+                    textTransform: "uppercase",
+                    letterSpacing: ".08em",
+                    fontSize: 12,
+                  }}
+                >
+                  Nom
+                </FormLabel>
+                <Input
+                  name="lastName"
+                  value={values.lastName}
+                  onChange={handleChange}
+                  placeholder="Votre nom"
+                />
+              </FormControl>
+              <FormControl>
+                <FormLabel
+                  sx={{
+                    textTransform: "uppercase",
+                    letterSpacing: ".08em",
+                    fontSize: 12,
+                  }}
+                >
+                  Prénom
+                </FormLabel>
+                <Input
+                  name="firstName"
+                  value={values.firstName}
+                  onChange={handleChange}
+                  placeholder="Votre prénom"
+                />
+              </FormControl>
+              <FormControl>
+                <FormLabel
+                  sx={{
+                    textTransform: "uppercase",
+                    letterSpacing: ".08em",
+                    fontSize: 12,
+                  }}
+                >
+                  Email
+                </FormLabel>
+                <Input
+                  name="email"
+                  type="email"
+                  disabled
+                  value={values.email}
+                  onChange={handleChange}
+                  placeholder="Email"
+                />
+              </FormControl>
+              <FormControl>
+                <FormLabel
+                  sx={{
+                    textTransform: "uppercase",
+                    letterSpacing: ".08em",
+                    fontSize: 12,
+                  }}
+                >
+                  Téléphone
+                </FormLabel>
+                <Input
+                  name="phone"
+                  type="tel"
+                  value={values.phone}
+                  onChange={handleChange}
+                  placeholder="06 12 34 56 78"
+                />
+              </FormControl>
+              <FormControl>
+                <FormLabel
+                  sx={{
+                    textTransform: "uppercase",
+                    letterSpacing: ".08em",
+                    fontSize: 12,
+                  }}
+                >
+                  Naissance
+                </FormLabel>
+                <Input
+                  name="birthDate"
+                  type="date"
+                  value={values.birthDate}
+                  onChange={handleChange}
+                />
+              </FormControl>
+              <FormControl>
+                <FormLabel
+                  sx={{
+                    textTransform: "uppercase",
+                    letterSpacing: ".08em",
+                    fontSize: 12,
+                  }}
+                >
+                  Sexe
+                </FormLabel>
+                <Select
+                  placeholder="Sélectionner"
+                  value={values.gender}
+                  onChange={handleGenderChange}
+                >
+                  <Option value="">Non précisé</Option>
+                  <Option value="FEMALE">Femme</Option>
+                  <Option value="MALE">Homme</Option>
+                  <Option value="OTHER">Autre</Option>
+                </Select>
+              </FormControl>
+            </Stack>
 
             <div style={{ display: "flex", gap: 16 }}>
               <Button
                 variant="outlined"
                 color="neutral"
                 fullWidth
-                onClick={() => navigate("/memberprofile")}
+                type="button"
+                onClick={() => navigate("/profile")}
               >
                 Annuler
               </Button>
               <Button
-                /*type="submit"*/ onClick={() => navigate("/memberprofile")}
+                type="submit"
                 variant="solid"
                 fullWidth
+                sx={{
+                  backgroundColor: mainColor,
+                  color: textOnMain,
+                  fontWeight: "bold",
+                  boxShadow: 0,
+                  "&:hover": { backgroundColor: mainColor },
+                  "&:focus": { backgroundColor: mainColor, boxShadow: "none" },
+                  "&:active": { backgroundColor: mainColor },
+                }}
               >
                 Enregistrer
               </Button>
@@ -305,6 +407,6 @@ export function EditMemberProfile() {
           </form>
         </div>
       </div>
-    </BaseLayout>
+    </ProfileLayout>
   );
 }

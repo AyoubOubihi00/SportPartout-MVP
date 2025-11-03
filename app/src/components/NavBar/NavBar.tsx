@@ -13,16 +13,16 @@ export default function NavBar() {
   const location = useLocation();
 
   const items = [
-    { icon: <Dumbbell size={28} />, label: "MON CLUB", paths: ["/random"] },
+    { icon: <Dumbbell size={28} />, label: "CLUB", paths: ["/random"] },
     {
       icon: <CalendarRange size={28} />,
-      label: "MES ACTIVITÉS",
+      label: "ACTIVITÉS",
       paths: ["/activities"],
     },
     { icon: <Map size={28} />, label: "EXPLORER", paths: ["/"] },
     {
       icon: <User size={28} />,
-      label: "MON COMPTE",
+      label: "PROFIL",
       paths: [
         "/memberprofile",
         "/ownerprofile",
@@ -31,6 +31,7 @@ export default function NavBar() {
         "/forgot-password",
         "/resetpassword",
         "/resetpasswordsuccess",
+        "/profile",
       ],
     },
   ];
@@ -76,7 +77,8 @@ export default function NavBar() {
                 flexDirection: "column",
                 alignItems: "center",
                 cursor: "pointer",
-                minWidth: 80,
+                maxWidth: 80,
+                textAlign: "center",
                 gap: 0.5,
                 transition: "all 0.3s",
               }}
