@@ -5,6 +5,7 @@ import fr.monclub.planning_service.planning.model.Seance;
 import fr.monclub.planning_service.planning.model.SeanceWithAvailability;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
@@ -52,5 +53,17 @@ public class SeanceController {
             @Argument OffsetDateTime end
     ) {
         return catalog.findWithAvailabilityByClubBetween(clubId, start, end);
+    }
+
+    // Inscription à une séance
+    @MutationMapping
+    public Seance joinSeance(@Argument UUID id) {
+        return catalog.join(id);
+    }
+
+    // Désinscription d'une séance
+    @MutationMapping
+    public Seance leaveSeance(@Argument UUID id) {
+        return catalog.leave(id);
     }
 }

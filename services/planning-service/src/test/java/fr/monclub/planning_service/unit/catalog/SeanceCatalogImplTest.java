@@ -169,6 +169,60 @@ class SeanceCatalogImplTest {
         assertThat(captor.getValue().getStatus()).isEqualTo(SeanceStatus.CANCELED);
     }
 
+    @Test
+    void join_incrementeCapaciteEtPeutPasserFull() {
+        UUID id = UUID.randomUUID();
+        Seance before = baseSeanceBuilder().id(id).capacite(3).capaSeance(2).status(SeanceStatus.OPEN).build();
+        Seance after  = baseSeanceBuilder().id(id).capacite(3).capaSeance(3).status(SeanceStatus.OPEN).build();
+
+        when(repo.findById(id)).thenReturn(Optional.of(before))  // getById initial
+                               .thenReturn(Optional.of(after));  // reload après incrément
+        when(repo.tryIncrementCapa(id)).thenReturn(1);
+        when(repo.saveAndFlush(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        Seance res = catalog.join(id);
+        assertThat(res.getCapaSeance()).isEqualTo(3);
+        assertThat(res.getStatus()).isEqualTo(SeanceStatus.FULL);
+    }
+
+    @Test
+    void join_echoueSiDejaPleine() {
+        UUID id = UUID.randomUUID();
+        Seance s = baseSeanceBuilder().id(id).capacite(2).capaSeance(2).status(SeanceStatus.FULL).build();
+        when(repo.findById(id)).thenReturn(Optional.of(s));
+        when(repo.tryIncrementCapa(id)).thenReturn(0);
+
+        assertThatThrownBy(() -> catalog.join(id))
+                .isInstanceOf(fr.monclub.planning_service.core.exception.CapacityFullException.class);
+    }
+
+    @Test
+    void leave_decrementeCapaciteEtPeutResterOpen() {
+        UUID id = UUID.randomUUID();
+        Seance before = baseSeanceBuilder().id(id).capacite(5).capaSeance(4).status(SeanceStatus.OPEN).build();
+        Seance after  = baseSeanceBuilder().id(id).capacite(5).capaSeance(3).status(SeanceStatus.OPEN).build();
+
+        when(repo.findById(id)).thenReturn(Optional.of(before))
+                               .thenReturn(Optional.of(after));
+        when(repo.tryDecrementCapa(id)).thenReturn(1);
+        when(repo.saveAndFlush(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        Seance res = catalog.leave(id);
+        assertThat(res.getCapaSeance()).isEqualTo(3);
+        assertThat(res.getStatus()).isEqualTo(SeanceStatus.OPEN);
+    }
+
+    @Test
+    void leave_echoueSiAucuneInscription() {
+        UUID id = UUID.randomUUID();
+        Seance s = baseSeanceBuilder().id(id).capacite(5).capaSeance(0).status(SeanceStatus.OPEN).build();
+        when(repo.findById(id)).thenReturn(Optional.of(s));
+        when(repo.tryDecrementCapa(id)).thenReturn(0);
+
+        assertThatThrownBy(() -> catalog.leave(id))
+                .isInstanceOf(fr.monclub.planning_service.core.exception.NoRegistrationException.class);
+    }
+
     // ----------- Test_Helpers -----------
 
     private Seance.SeanceBuilder baseSeanceBuilder() {

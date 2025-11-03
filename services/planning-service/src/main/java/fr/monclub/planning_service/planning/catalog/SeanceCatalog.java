@@ -24,4 +24,10 @@ public interface SeanceCatalog {
     Seance save(Seance seance);
 
     Seance saveAndFlush(Seance seance);
+
+    // business: inscription à une séance (capacité + statut)
+    Seance join(UUID seanceId);
+
+    // business: désinscription d'une séance (capacité + statut)
+    Seance leave(UUID seanceId);
 }

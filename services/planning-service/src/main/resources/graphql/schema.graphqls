@@ -77,4 +77,11 @@ type Query {
 type Mutation {
     acceptSeance(seanceId: UUID!, clubId: UUID!): Seance!
     refuseSeance(seanceId: UUID!, clubId: UUID!, reason: String!): Seance!
+    # Inscrire un utilisateur à une séance existante.
+      # Pour l’instant le service ne gère que la capacité; l’identité de l’utilisateur
+      # sera portée par un autre service (membership) via évènement ultérieur.
+      joinSeance(id: UUID!): Seance!
+
+      # Désinscrire un utilisateur d'une séance (décrémente la capacité utilisée).
+      leaveSeance(id: UUID!): Seance!
 }

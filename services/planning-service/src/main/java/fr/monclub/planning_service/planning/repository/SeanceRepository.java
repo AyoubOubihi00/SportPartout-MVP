@@ -66,7 +66,7 @@ public interface SeanceRepository extends JpaRepository<Seance, UUID>, SeanceRep
     );
 
     // Incrémenter / décrémenter la capacité utilisée (inscriptions) de manière atomique
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
         UPDATE Seance s
            SET s.capaSeance = s.capaSeance + 1
@@ -76,7 +76,7 @@ public interface SeanceRepository extends JpaRepository<Seance, UUID>, SeanceRep
         """)
     int tryIncrementCapa(@Param("id") UUID id);
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
         UPDATE Seance s
            SET s.capaSeance = s.capaSeance - 1

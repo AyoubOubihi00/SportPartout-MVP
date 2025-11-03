@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
-@Testcontainers
+@Testcontainers(disabledWithoutDocker = true)
 class SeanceE2ETest {
 
     @Container
@@ -123,6 +123,37 @@ class SeanceE2ETest {
         assertThat(response.getBody())
                 .contains("\"nameSport\":\"Foot\"")
                 .contains("\"status\":\"OPEN\"");
+    }
+
+    @Test
+    void shouldJoinSeance_ThroughGraphQL() {
+        String mutation = """
+            mutation($id: UUID!) {
+              joinSeance(id: $id) { id capaSeance status }
+            }
+        """;
+
+        var response = postGraphQL(mutation, Map.<String, Object>of("id", seanceId.toString()));
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        // capaSeance devait passer de 3 -> 4
+        assertThat(response.getBody()).contains("\"capaSeance\":4");
+    }
+
+    @Test
+    void shouldLeaveSeance_ThroughGraphQL() {
+        // On commence par une inscription pour s'assurer qu'il y a au moins 1 inscrit
+        String join = """
+            mutation($id: UUID!) { joinSeance(id: $id) { id capaSeance } }
+        """;
+        postGraphQL(join, Map.<String, Object>of("id", seanceId.toString()));
+
+        String leave = """
+            mutation($id: UUID!) { leaveSeance(id: $id) { id capaSeance status } }
+        """;
+        var response = postGraphQL(leave, Map.<String, Object>of("id", seanceId.toString()));
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        // capaSeance était 3 -> join => 4 -> leave => 3
+        assertThat(response.getBody()).contains("\"capaSeance\":3");
     }
 
     // ----------------- util -----------------

@@ -35,7 +35,7 @@ public class GraphQLExceptionHandler extends DataFetcherExceptionResolverAdapter
                     .build();
         }
 
-        if (ex instanceof InvalidDatesException || ex instanceof OverlapException) {
+        if (ex instanceof InvalidDatesException || ex instanceof OverlapException || ex instanceof NoRegistrationException) {
             return GraphqlErrorBuilder.newError(env)
                     .message(ex.getMessage())
                     .errorType(ErrorType.BAD_REQUEST)

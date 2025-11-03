@@ -30,6 +30,78 @@ class SeanceControllerIntegrationTest {
     private SeanceCatalog catalog;
 
     @Test
+    void shouldJoinSeanceMutation() {
+        UUID id = UUID.randomUUID();
+        Seance joined = Seance.builder()
+                .id(id)
+                .idClub(UUID.randomUUID())
+                .idTerrain(UUID.randomUUID())
+                .startTime(OffsetDateTime.parse("2025-01-01T10:00:00Z"))
+                .endTime(OffsetDateTime.parse("2025-01-01T11:00:00Z"))
+                .capacite(5)
+                .capaSeance(4)
+                .idSport(UUID.randomUUID())
+                .nameSport("Foot")
+                .status(SeanceStatus.OPEN)
+                .build();
+
+        when(catalog.join(id)).thenReturn(joined);
+
+        String mutation = """
+            mutation($id: UUID!) {
+              joinSeance(id: $id) {
+                id
+                capaSeance
+                status
+              }
+            }
+        """;
+
+        graphQlTester.document(mutation)
+                .variable("id", id)
+                .execute()
+                .path("joinSeance.id").entity(String.class).isEqualTo(id.toString())
+                .path("joinSeance.capaSeance").entity(Integer.class).isEqualTo(4)
+                .path("joinSeance.status").entity(String.class).isEqualTo("OPEN");
+    }
+
+    @Test
+    void shouldLeaveSeanceMutation() {
+        UUID id = UUID.randomUUID();
+        Seance left = Seance.builder()
+                .id(id)
+                .idClub(UUID.randomUUID())
+                .idTerrain(UUID.randomUUID())
+                .startTime(OffsetDateTime.parse("2025-01-01T10:00:00Z"))
+                .endTime(OffsetDateTime.parse("2025-01-01T11:00:00Z"))
+                .capacite(5)
+                .capaSeance(2)
+                .idSport(UUID.randomUUID())
+                .nameSport("Foot")
+                .status(SeanceStatus.OPEN)
+                .build();
+
+        when(catalog.leave(id)).thenReturn(left);
+
+        String mutation = """
+            mutation($id: UUID!) {
+              leaveSeance(id: $id) {
+                id
+                capaSeance
+                status
+              }
+            }
+        """;
+
+        graphQlTester.document(mutation)
+                .variable("id", id)
+                .execute()
+                .path("leaveSeance.id").entity(String.class).isEqualTo(id.toString())
+                .path("leaveSeance.capaSeance").entity(Integer.class).isEqualTo(2)
+                .path("leaveSeance.status").entity(String.class).isEqualTo("OPEN");
+    }
+
+    @Test
     void shouldReturnSeanceById() {
         UUID id = UUID.randomUUID();
         UUID clubId = UUID.randomUUID();

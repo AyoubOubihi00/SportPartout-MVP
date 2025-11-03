@@ -77,6 +77,41 @@ public class SeanceCatalogImpl implements SeanceCatalog {
         return repo.saveAndFlush(seance);
     }
 
+    @Override
+    @Transactional
+    public Seance join(UUID seanceId) {
+        // Vérifie l’existence d’abord (message d’erreur clair)
+        Seance existing = getById(seanceId);
+        if (existing.getStatus() == SeanceStatus.CANCELED) {
+            throw new fr.monclub.planning_service.core.exception.CapacityFullException("Séance annulée : inscription impossible.");
+        }
+
+        int updated = repo.tryIncrementCapa(seanceId);
+        if (updated == 0) {
+            // soit pleine, soit status non ouvert
+            throw new fr.monclub.planning_service.core.exception.CapacityFullException();
+        }
+        // Recharge l’entité, applique les règles (peut passer à FULL) et flush
+        Seance s = getById(seanceId);
+        ensureBusinessRules(s);
+        return repo.saveAndFlush(s);
+    }
+
+    @Override
+    @Transactional
+    public Seance leave(UUID seanceId) {
+        // Vérifie l’existence
+        getById(seanceId);
+
+        int updated = repo.tryDecrementCapa(seanceId);
+        if (updated == 0) {
+            throw new fr.monclub.planning_service.core.exception.NoRegistrationException();
+        }
+        Seance s = getById(seanceId);
+        ensureBusinessRules(s); // peut repasser à OPEN si n'est plus pleine
+        return repo.saveAndFlush(s);
+    }
+
     // ---------- Helpers métier ----------
 
     private record Period(OffsetDateTime start, OffsetDateTime end) {}
