@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dumbbell, Map, User } from "lucide-react";
+import { Dumbbell, Map, User, CalendarRange } from "lucide-react";
 import Sheet from "@mui/joy/Sheet";
 import Box from "@mui/joy/Box";
 import IconButton from "@mui/joy/IconButton";
@@ -14,6 +14,11 @@ export default function NavBar() {
 
   const items = [
     { icon: <Dumbbell size={28} />, label: "MON CLUB", paths: ["/random"] },
+    {
+      icon: <CalendarRange size={28} />,
+      label: "MES ACTIVITÉS",
+      paths: ["/activities"],
+    },
     { icon: <Map size={28} />, label: "EXPLORER", paths: ["/"] },
     {
       icon: <User size={28} />,

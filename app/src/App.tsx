@@ -11,6 +11,7 @@ import { EditMemberProfile } from "./components/Profile/MemberProfile/EditMember
 import OwnerProfile from "./components/Profile/OwnerProfile/OwnerProfile";
 import { BubbleProvider } from "./components/shared/SuccessBubbleContext";
 import { AuthProvider } from "./components/shared/AuthContext";
+import MyActivities from "./components/Activities/MyActivities";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
             <Route path="/memberprofile" element={<MemberProfile />} />
             <Route path="/editmemberprofile" element={<EditMemberProfile />} />
             <Route path="ownerprofile" element={<OwnerProfile />} />
+            <Route path="/activities" element={<MyActivities />} />
           </Routes>
         </Router>
       </BubbleProvider>

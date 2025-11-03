@@ -7,6 +7,7 @@ type BottomSheetProps = {
   title?: React.ReactNode;
   initialHeight?: number; // px
   children: React.ReactNode;
+  topOffset?: number;
 };
 
 export default function BottomSheet({
@@ -15,6 +16,7 @@ export default function BottomSheet({
   title,
   initialHeight,
   children,
+  topOffset,
 }: BottomSheetProps) {
   const NAVBAR_HEIGHT = 72; // px
   const [height, setHeight] = useState(0);
@@ -23,11 +25,17 @@ export default function BottomSheet({
   const startH = useRef(0);
 
   const maxHeight = useMemo(() => {
-    if (typeof window === "undefined") return 600 - NAVBAR_HEIGHT;
+    if (typeof window === "undefined") return 570 - NAVBAR_HEIGHT;
     const isMobile = window.innerWidth <= 640;
-    const ratio = isMobile ? 0.87 : 0.88; // allow higher pull on mobile
-    return Math.round(window.innerHeight * ratio) - NAVBAR_HEIGHT;
-  }, []);
+    const ratio = isMobile ? 0.85 : 0.86; // limite douce
+    const ratioHeight = Math.round(window.innerHeight * ratio) - NAVBAR_HEIGHT;
+    const top = Math.max(0, topOffset ?? 0);
+    const belowTabsHeight = Math.round(
+      window.innerHeight - NAVBAR_HEIGHT - top,
+    );
+    const clamped = Math.max(140, Math.min(ratioHeight, belowTabsHeight));
+    return clamped;
+  }, [topOffset]);
 
   const collapsedHeight = useMemo(() => {
     return Math.min(380, Math.round(maxHeight * 0.7));
@@ -87,7 +95,7 @@ export default function BottomSheet({
         position: "fixed",
         left: 0,
         right: 0,
-        bottom: `${NAVBAR_HEIGHT}px`, // Place le BottomSheet juste au-dessus de la NavBar
+        bottom: `${NAVBAR_HEIGHT + 20}px`, // s'arrête juste au-dessus de la NavBar
         pointerEvents: open ? "auto" : "none",
         zIndex: 50,
       }}
