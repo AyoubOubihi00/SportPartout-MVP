@@ -30,6 +30,8 @@ jobs:
             image: monclub-planning-service
           - service: club-membership-service
             image: monclub-club-membership-service
+          - service: bff-service
+            image: monclub-bff-service
     steps:
       - name: Checkout
         uses: actions/checkout@v4

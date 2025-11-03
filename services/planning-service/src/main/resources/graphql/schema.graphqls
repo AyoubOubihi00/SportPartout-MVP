@@ -27,6 +27,7 @@ type Seance {
   createdBy: UUID        # <- nullable pour coller à l’audit
   createdAt: DateTime
   updatedAt: DateTime
+    refusalReason: String
 }
 
 # DTO pratique pour l’UI
@@ -71,4 +72,9 @@ type Query {
     start: DateTime!
     end: DateTime!
   ): [SeanceWithAvailability!]!
+}
+
+type Mutation {
+    acceptSeance(seanceId: UUID!, clubId: UUID!): Seance!
+    refuseSeance(seanceId: UUID!, clubId: UUID!, reason: String!): Seance!
 }

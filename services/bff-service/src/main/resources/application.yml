@@ -1,0 +1,16 @@
+server:
+  port: ${SERVER_PORT:8090}
+
+monclub:
+  planning:
+    graphql-url: ${PLANNING_SERVICE_GRAPHQL_URL:http://localhost:8085/graphql}
+  club:
+    graphql-url: ${CLUB_SERVICE_GRAPHQL_URL:http://localhost:8081/graphql}
+
+spring:
+  main:
+    allow-bean-definition-overriding: false
+
+logging:
+  level:
+    fr.monclub.bff: INFO

@@ -1,0 +1,25 @@
+scalar UUID
+scalar DateTime
+
+enum SeanceStatus {
+  OPEN
+  PENDING
+  CANCELED
+  FULL
+}
+
+type SeanceDecision {
+  id: UUID!
+  clubId: UUID!
+  status: SeanceStatus!
+  refusalReason: String
+}
+
+type Query {
+  _empty: String
+}
+
+type Mutation {
+  acceptPendingSeance(seanceId: UUID!, userId: UUID!): SeanceDecision!
+  refusePendingSeance(seanceId: UUID!, userId: UUID!, reason: String!): SeanceDecision!
+}
