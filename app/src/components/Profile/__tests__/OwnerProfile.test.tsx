@@ -63,7 +63,7 @@ describe("OwnerProfile (unit)", () => {
       </MemoryRouter>
     );
 
-    expect(await screen.findByTestId("profile-layout")).toBeInTheDocument();
+    // OwnerProfile no longer wraps itself in ProfileLayout; just assert the content
     expect(await screen.findByText(/Clubs gérés/i)).toBeInTheDocument();
   });
 

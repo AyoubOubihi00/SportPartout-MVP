@@ -1,5 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
-import { getMe, UserProfile } from "../../../services/auth/authService";
+import {
+  getMe,
+  UserProfile,
+  updateUser,
+} from "../../../services/auth/authService";
 import { useNavigate } from "react-router-dom";
 import Input from "@mui/joy/Input";
 import Button from "@mui/joy/Button";
@@ -8,17 +12,17 @@ import Avatar from "@mui/joy/Avatar";
 import IconButton from "@mui/joy/IconButton";
 import FormControl from "@mui/joy/FormControl";
 import FormLabel from "@mui/joy/FormLabel";
-import Select from "@mui/joy/Select";
-import Option from "@mui/joy/Option";
 import Stack from "@mui/joy/Stack";
 import CircularProgress from "@mui/joy/CircularProgress";
 import { useTheme } from "@mui/joy/styles";
 import { Camera, X } from "lucide-react";
 import ProfileLayout from "../../Profile/ProfileLayout";
 import { useAuth } from "../../shared/useAuth";
+import { useBubble } from "../../shared/useBubble";
 
 export function EditMemberProfile() {
   const { token } = useAuth();
+  const { showSuccessBubble, showErrorBubble } = useBubble();
   const theme = useTheme();
   const mainColor = theme.palette.mode == "dark" ? "#fff" : "#000";
   const darkGradient = "linear-gradient(135deg, #0f172a, #1e293b)";
@@ -49,9 +53,11 @@ export function EditMemberProfile() {
             lastName: data.lastName || "",
             email: data.email || "",
             phone: data.phone || "",
-            // Note: conserver la date ISO pour l'input type="date" si possible
-            birthDate: data.birthDate ?? "",
-            gender: "", // non fourni par l'API actuellement
+            // Stocker birthDate au format yyyy-MM-dd pour l'input type="date"
+            birthDate: Date.parse(data.birthDate)
+              ? new Date(data.birthDate).toISOString().slice(0, 10)
+              : "",
+            gender: "", // à adapter si tu as la ville dans l'API
           });
         }
       })
@@ -63,6 +69,7 @@ export function EditMemberProfile() {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null); // blob url ou url distante
   const prevBlobRef = useRef<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [, setSuccess] = useState<string | null>(null);
 
   const MAX_SIZE = 2 * 1024 * 1024; // 2MB
 
@@ -78,12 +85,6 @@ export function EditMemberProfile() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValues({ ...values, [e.target.name]: e.target.value });
-  };
-  const handleGenderChange = (
-    _: React.SyntheticEvent | null,
-    newValue: string | null,
-  ) => {
-    setValues((prev) => ({ ...prev, gender: newValue ?? "" }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -129,33 +130,47 @@ export function EditMemberProfile() {
     // validation basique
     if (!values.firstName || !values.lastName || !values.email) {
       setError("Le prénom, le nom et l’email sont obligatoires.");
+      showErrorBubble("Le prénom, le nom et l’email sont obligatoires.");
       return;
     }
 
     try {
-      // Exemple : envoi via FormData si tu as une API qui accepte l'avatar
-      const formData = new FormData();
-      formData.append("firstName", values.firstName);
-      formData.append("lastName", values.lastName);
-      formData.append("email", values.email);
-      formData.append("phone", values.phone);
-      formData.append("birthDate", values.birthDate);
-      formData.append("gender", values.gender);
-      if (avatarFile) formData.append("avatar", avatarFile);
+      // Appel du service updateUser (GraphQL mutation)
+      // Préparer l'input en respectant le format attendu (ISO pour la date)
+      const input = {
+        firstName: values.firstName,
+        lastName: values.lastName,
+        phone: values.phone || undefined,
+        birthDate: values.birthDate
+          ? new Date(values.birthDate).toISOString()
+          : undefined,
+      };
 
-      // TODO: appeler l'API de mise à jour quand elle sera disponible.
-      console.log("Données envoyées (simulées) :", {
-        values,
-        hasAvatar: !!avatarFile,
-      });
-      // navigate vers la page profil (ou afficher confirmation)
-      navigate("/profile");
+      // appel API
+      setLoading(true);
+      const res = await updateUser(input);
+      setLoading(false);
+
+      if (res.message === "User updated successfully") {
+        // afficher message succès
+        setError(null);
+        setSuccess("Profil mis à jour avec succès.");
+        showSuccessBubble("Profil mis à jour avec succès.");
+        // attendre un court instant pour laisser l'utilisateur voir le message, puis naviguer
+        setTimeout(() => navigate("/profile"), 1200);
+      } else {
+        const msg = res.message || "Erreur lors de la mise à jour du profil.";
+        setError(msg);
+        showErrorBubble(msg);
+      }
     } catch (err) {
-      setError(
+      setLoading(false);
+      const msg =
         err instanceof Error && err.message
           ? err.message
-          : "Erreur lors de la sauvegarde.",
-      );
+          : "Erreur lors de la sauvegarde.";
+      setError(msg);
+      showErrorBubble(msg);
     }
   };
 
@@ -166,7 +181,7 @@ export function EditMemberProfile() {
 
   if (loading) {
     return (
-      <ProfileLayout showRoleSwitch={false}>
+      <ProfileLayout>
         <div
           style={{
             display: "flex",
@@ -182,7 +197,7 @@ export function EditMemberProfile() {
   }
 
   return (
-    <ProfileLayout showRoleSwitch={false}>
+    <ProfileLayout>
       <div
         style={{
           margin: "0 auto",
@@ -200,16 +215,16 @@ export function EditMemberProfile() {
         </Typography>
 
         {/* avatar upload */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            flexDirection: "column",
-            marginBottom: 24,
-            gap: 24,
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              justifyContent: "center",
+              marginBottom: 16,
+            }}
+          >
             <Avatar
               src={avatarPreview ?? undefined}
               sx={{
@@ -261,7 +276,10 @@ export function EditMemberProfile() {
               {error}
             </Typography>
           )}
-          <Typography level="body-xs" sx={{ mt: 1, color: "neutral.500" }}>
+          <Typography
+            level="body-xs"
+            sx={{ mt: 1, color: "neutral.500", textAlign: "center" }}
+          >
             Taille maximale : 2 Mo. Formats : jpg, png, webp...
           </Typography>
           <form onSubmit={handleSubmit}>
@@ -354,27 +372,6 @@ export function EditMemberProfile() {
                   onChange={handleChange}
                 />
               </FormControl>
-              <FormControl>
-                <FormLabel
-                  sx={{
-                    textTransform: "uppercase",
-                    letterSpacing: ".08em",
-                    fontSize: 12,
-                  }}
-                >
-                  Sexe
-                </FormLabel>
-                <Select
-                  placeholder="Sélectionner"
-                  value={values.gender}
-                  onChange={handleGenderChange}
-                >
-                  <Option value="">Non précisé</Option>
-                  <Option value="FEMALE">Femme</Option>
-                  <Option value="MALE">Homme</Option>
-                  <Option value="OTHER">Autre</Option>
-                </Select>
-              </FormControl>
             </Stack>
 
             <div style={{ display: "flex", gap: 16 }}>
@@ -384,6 +381,7 @@ export function EditMemberProfile() {
                 fullWidth
                 type="button"
                 onClick={() => navigate("/profile")}
+                disabled={loading}
               >
                 Annuler
               </Button>
@@ -391,6 +389,7 @@ export function EditMemberProfile() {
                 type="submit"
                 variant="solid"
                 fullWidth
+                disabled={loading}
                 sx={{
                   backgroundColor: mainColor,
                   color: textOnMain,
@@ -401,7 +400,7 @@ export function EditMemberProfile() {
                   "&:active": { backgroundColor: mainColor },
                 }}
               >
-                Enregistrer
+                {loading ? "Enregistrement..." : "Enregistrer"}
               </Button>
             </div>
           </form>

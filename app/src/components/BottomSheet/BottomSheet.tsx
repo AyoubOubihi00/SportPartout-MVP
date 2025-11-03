@@ -25,7 +25,7 @@ export default function BottomSheet({
   const startH = useRef(0);
 
   const maxHeight = useMemo(() => {
-    if (typeof window === "undefined") return 570 - NAVBAR_HEIGHT;
+    if (typeof window === "undefined") return 600 - NAVBAR_HEIGHT;
     const isMobile = window.innerWidth <= 640;
     const ratio = isMobile ? 0.85 : 0.86; // limite douce
     const ratioHeight = Math.round(window.innerHeight * ratio) - NAVBAR_HEIGHT;
@@ -95,7 +95,7 @@ export default function BottomSheet({
         position: "fixed",
         left: 0,
         right: 0,
-        bottom: `${NAVBAR_HEIGHT + 20}px`, // s'arrête juste au-dessus de la NavBar
+        bottom: `${NAVBAR_HEIGHT + 8}px`, // s'arrête juste au-dessus de la NavBar
         pointerEvents: open ? "auto" : "none",
         zIndex: 50,
       }}

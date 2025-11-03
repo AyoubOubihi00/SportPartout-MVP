@@ -1,6 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
 import { Map, Marker } from "pigeon-maps";
-import { osm } from "pigeon-maps/providers";
 import useGeolocalisation from "../../hooks/useGeolocalisation";
 import { mapCenterService } from "../../services/mapCenterService";
 import { SearchFilter } from "../SearchFilter/SearchFilter";
@@ -16,6 +15,13 @@ import { Club } from "../../model/Club";
 import { estimateMapRadius } from "../../services/mapRadiusService";
 import { getClubsNear } from "../../services/clubService";
 import { haversineDistance } from "../../services/distanceService";
+
+function cartoDBProvider(x: number, y: number, z: number, dpr?: number) {
+  const subdomains = ["a", "b", "c", "d"];
+  const s = subdomains[(x + y) % subdomains.length]; // pour répartir un peu les requêtes
+  const retina = dpr! >= 2 ? "@2x" : "";
+  return `https://${s}.basemaps.cartocdn.com/light_all/${z}/${x}/${y}${retina}.png`;
+}
 
 interface ClubFeatureProperties {
   cluster: boolean;
@@ -35,7 +41,11 @@ export default function MapView() {
   const [manualCenter, setManualCenter] = useState(false);
   const [selectedSports, setSelectedSports] = useState<Sport[]>([]);
   // State pour les coins de la carte
-  const [mapCorners, setMapCorners] = useState<{
+  const [
+    ,
+    //mapCorners
+    setMapCorners,
+  ] = useState<{
     topLeft: [number, number] | null;
     bottomRight: [number, number] | null;
   }>({ topLeft: null, bottomRight: null });
@@ -130,7 +140,7 @@ export default function MapView() {
       </Box>
 
       <Map
-        provider={osm}
+        provider={cartoDBProvider}
         center={center}
         zoom={zoom}
         onClick={() => {
@@ -346,7 +356,7 @@ export default function MapView() {
       )}
 
       {/* Affichage des coins de la carte */}
-      <Box
+      {/* <Box
         sx={{
           position: "absolute",
           bottom: 8,
@@ -389,7 +399,7 @@ export default function MapView() {
               : " -"}
           </div>
         </div>
-      </Box>
+      </Box> */}
 
       <BottomSheet
         open={selectedClub !== null}

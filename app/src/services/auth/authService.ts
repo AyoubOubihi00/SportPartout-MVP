@@ -152,3 +152,70 @@ export async function register(
     };
   }
 }
+
+// --- Update User ---
+export interface UpdateUserInput {
+  firstName?: string;
+  lastName?: string;
+  birthDate?: string; // ISO string (DateTime)
+  phone?: string;
+}
+
+export interface UpdateUserResponse {
+  message?: string;
+}
+
+/**
+ * Met à jour le profil utilisateur via l'API GraphQL.
+ * Utilise le token stocké dans localStorage (clé `authToken`) si présent.
+ */
+export async function updateUser(
+  input: UpdateUserInput,
+): Promise<UpdateUserResponse> {
+  // try to get token from localStorage
+  const token =
+    typeof localStorage !== "undefined"
+      ? localStorage.getItem("authToken")
+      : null;
+
+  if (!token) {
+    return { message: "Utilisateur non authentifié" };
+  }
+
+  const query = `mutation UpdateUser($input: UpdateUserInput!) {\n  updateUser(input: $input) {\n  message\n   }\n}`;
+
+  const variables = { input };
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/graphql`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ query, variables }),
+    });
+
+    const result = await response.json();
+
+    if (result.errors) {
+      return {
+        message: result.errors[0]?.message || "Erreur lors de la mise à jour",
+      };
+    }
+
+    const payload = result.data?.updateUser;
+    if (!payload) {
+      return { message: "Réponse inattendue du serveur" };
+    }
+
+    return {
+      message: payload.message,
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      return { message: error.message };
+    }
+    return { message: "Erreur réseau lors de la mise à jour" };
+  }
+}

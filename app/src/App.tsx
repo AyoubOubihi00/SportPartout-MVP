@@ -1,9 +1,4 @@
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  Navigate,
-} from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { LoginForm } from "./components/Connection-Subscription/LoginForm";
 import { SignupForm } from "./components/Connection-Subscription/SignupForm";
 import { ResetPassword } from "./components/Connection-Subscription/ResetPassword";
@@ -32,15 +27,8 @@ function App() {
               element={<ResetPasswordSuccess />}
             />
             <Route path="/profile" element={<ProfileSwitch />} />
-            <Route
-              path="/memberprofile"
-              element={<Navigate to="/profile" replace />}
-            />
             <Route path="/editmemberprofile" element={<EditMemberProfile />} />
-            <Route
-              path="/ownerprofile"
-              element={<Navigate to="/profile" replace />}
-            />
+
             <Route path="/activities" element={<MyActivities />} />
           </Routes>
         </Router>

@@ -1,6 +1,10 @@
 import "@testing-library/jest-dom";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
+import { BubbleProvider } from "../../shared/SuccessBubbleContext";
+import { Provider } from "react-redux";
+import { configureStore } from "@reduxjs/toolkit";
+import rolesReducer from "../../../store/rolesSlice";
 
 // Mock getMe to control fetched user data
 const getMeMock = jest.fn();
@@ -52,10 +56,19 @@ describe("EditMemberProfile (unit)", () => {
     };
     getMeMock.mockResolvedValue(fakeUser);
 
+    const store = (configureStore as any)({
+      reducer: { roles: rolesReducer },
+      preloadedState: { roles: { roles: ["USER"], viewMode: "USER" } } as any,
+    });
+
     render(
-      <MemoryRouter>
-        <EditMemberProfile />
-      </MemoryRouter>
+      <Provider store={store}>
+        <MemoryRouter>
+          <BubbleProvider>
+            <EditMemberProfile />
+          </BubbleProvider>
+        </MemoryRouter>
+      </Provider>
     );
 
   // Le switch ne doit pas apparaître sur l'écran d'édition
@@ -88,10 +101,19 @@ describe("EditMemberProfile (unit)", () => {
     };
     getMeMock.mockResolvedValue(fakeUser);
 
+    const store = (configureStore as any)({
+      reducer: { roles: rolesReducer },
+      preloadedState: { roles: { roles: ["USER"], viewMode: "USER" } } as any,
+    });
+
     render(
-      <MemoryRouter>
-        <EditMemberProfile />
-      </MemoryRouter>
+      <Provider store={store}>
+        <MemoryRouter>
+          <BubbleProvider>
+            <EditMemberProfile />
+          </BubbleProvider>
+        </MemoryRouter>
+      </Provider>
     );
 
     const lastNameInput = await screen.findByPlaceholderText("Votre nom");
@@ -104,11 +126,10 @@ describe("EditMemberProfile (unit)", () => {
     const saveBtn = await screen.findByRole("button", { name: /Enregistrer/i });
     fireEvent.click(saveBtn);
 
-    await waitFor(() => {
-      expect(
-        screen.getByText("Le prénom, le nom et l’email sont obligatoires.")
-      ).toBeInTheDocument();
-    });
+    const matches = await screen.findAllByText(
+      "Le prénom, le nom et l’email sont obligatoires."
+    );
+    expect(matches.length).toBeGreaterThan(0);
   });
 
   it("navigue vers /profile au clic sur Annuler et après un submit valide", async () => {
@@ -126,10 +147,19 @@ describe("EditMemberProfile (unit)", () => {
     };
     getMeMock.mockResolvedValue(fakeUser);
 
+    const store = (configureStore as any)({
+      reducer: { roles: rolesReducer },
+      preloadedState: { roles: { roles: ["USER"], viewMode: "USER" } } as any,
+    });
+
     render(
-      <MemoryRouter>
-        <EditMemberProfile />
-      </MemoryRouter>
+      <Provider store={store}>
+        <MemoryRouter>
+          <BubbleProvider>
+            <EditMemberProfile />
+          </BubbleProvider>
+        </MemoryRouter>
+      </Provider>
     );
 
     // Annuler

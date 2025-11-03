@@ -5,7 +5,9 @@ import { useTheme } from "@mui/joy/styles";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../shared/useAuth";
-import ProfileLayout from "../ProfileLayout";
+// ProfileLayout is no longer used here; the layout wrapper is provided by
+// `ProfileSwitch` so that the BaseLayout/NavBar stays mounted between
+// Owner/User switches and avoids a full-page remount visual effect.
 //
 import CircularProgress from "@mui/joy/CircularProgress";
 import { getMe, type UserProfile } from "../../../services/auth/authService";
@@ -59,18 +61,16 @@ export default function OwnerProfile() {
 
   if (loading) {
     return (
-      <ProfileLayout>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            minHeight: 300,
-          }}
-        >
-          <CircularProgress size="lg" variant="plain" />
-        </div>
-      </ProfileLayout>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: 300,
+        }}
+      >
+        <CircularProgress size="lg" variant="plain" />
+      </div>
     );
   }
 
@@ -80,331 +80,330 @@ export default function OwnerProfile() {
   ).toUpperCase();
 
   return (
-    <ProfileLayout>
-      {/* Profil */}
+    // Profil (content only). The surrounding ProfileLayout is provided
+    // by `ProfileSwitch` so BaseLayout/NavBar remain mounted.
+    <div
+      style={{
+        margin: "0 auto",
+        padding: "0px 16px",
+        paddingTop: 32,
+      }}
+    >
       <div
         style={{
-          margin: "0 auto",
-          padding: "0px 16px",
-          paddingTop: 32,
+          textAlign: "center",
+          marginBottom: 32,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 24,
         }}
       >
         <div
           style={{
-            textAlign: "center",
-            marginBottom: 32,
             display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 24,
+            justifyContent: "center",
+          }}
+        >
+          <Avatar
+            sx={{
+              "--Avatar-size": "90px",
+              border: "2px solid",
+              borderColor: mainColor,
+              background: bgColor,
+              color: theme.palette.mode === "dark" ? "white" : "black",
+            }}
+          >
+            {initials}
+          </Avatar>
+        </div>
+
+        {/* Infos utilisateur (liste simple sans couche visuelle) */}
+        <div
+          style={{
+            maxWidth: 480,
+            marginInline: "auto",
+            textAlign: "left",
           }}
         >
           <div
             style={{
-              display: "flex",
-              justifyContent: "center",
+              display: "grid",
+              gridTemplateColumns: "120px 1fr",
+              rowGap: 16,
+              columnGap: 16,
+              alignItems: "center",
+              justifyItems: "start",
             }}
           >
-            <Avatar
+            <Typography
+              level="body-sm"
               sx={{
-                "--Avatar-size": "90px",
-                border: "2px solid",
-                borderColor: mainColor,
-                background: bgColor,
-                color: theme.palette.mode === "dark" ? "white" : "black",
+                color: labelColor,
+                fontWeight: 500,
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
               }}
             >
-              {initials}
-            </Avatar>
-          </div>
-
-          {/* Infos utilisateur (liste simple sans couche visuelle) */}
-          <div
-            style={{
-              maxWidth: 480,
-              marginInline: "auto",
-              textAlign: "left",
-            }}
-          >
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "160px 1fr",
-                rowGap: 16,
-                columnGap: 16,
-                alignItems: "center",
-                justifyItems: "start",
-              }}
+              Nom
+            </Typography>
+            <Typography
+              level="body-md"
+              sx={{ color: mainColor, fontWeight: 600 }}
             >
-              <Typography
-                level="body-sm"
-                sx={{
-                  color: labelColor,
-                  fontWeight: 500,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                }}
-              >
-                Nom
-              </Typography>
-              <Typography
-                level="body-md"
-                sx={{ color: mainColor, fontWeight: 600 }}
-              >
-                {(userData?.lastName ?? "").toUpperCase() || "—"}
-              </Typography>
+              {(userData?.lastName ?? "").toUpperCase() || "—"}
+            </Typography>
 
-              <Typography
-                level="body-sm"
-                sx={{
-                  color: labelColor,
-                  fontWeight: 500,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                }}
-              >
-                Prénom
-              </Typography>
-              <Typography
-                level="body-md"
-                sx={{ color: mainColor, fontWeight: 600 }}
-              >
-                {userData?.firstName
-                  ? userData.firstName.charAt(0).toUpperCase() +
-                    userData.firstName.slice(1).toLowerCase()
-                  : "—"}
-              </Typography>
-
-              <Typography
-                level="body-sm"
-                sx={{
-                  color: labelColor,
-                  fontWeight: 500,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                }}
-              >
-                Sexe
-              </Typography>
-              <Typography
-                level="body-md"
-                sx={{ color: mainColor, fontWeight: 600 }}
-              >
-                —
-              </Typography>
-
-              <Typography
-                level="body-sm"
-                sx={{
-                  color: labelColor,
-                  fontWeight: 500,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                }}
-              >
-                Email
-              </Typography>
-              <Typography
-                level="body-md"
-                sx={{ color: mainColor, fontWeight: 600 }}
-              >
-                {userData?.email || "—"}
-              </Typography>
-
-              <Typography
-                level="body-sm"
-                sx={{
-                  color: labelColor,
-                  fontWeight: 500,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                }}
-              >
-                Téléphone
-              </Typography>
-              <Typography
-                level="body-md"
-                sx={{ color: mainColor, fontWeight: 600 }}
-              >
-                {userData?.phone || "—"}
-              </Typography>
-
-              <Typography
-                level="body-sm"
-                sx={{
-                  color: labelColor,
-                  fontWeight: 500,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                }}
-              >
-                Naissance
-              </Typography>
-              <Typography
-                level="body-md"
-                sx={{ color: mainColor, fontWeight: 600 }}
-              >
-                {userData?.birthDate
-                  ? `${new Date(userData.birthDate).toLocaleDateString("fr-FR")} (${getAge(userData.birthDate)} ans)`
-                  : "—"}
-              </Typography>
-
-              <Typography
-                level="body-sm"
-                sx={{
-                  color: labelColor,
-                  fontWeight: 500,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                }}
-              >
-                Membre depuis
-              </Typography>
-              <Typography
-                level="body-md"
-                sx={{ color: mainColor, fontWeight: 600 }}
-              >
-                {userData?.createdAt
-                  ? new Date(userData.createdAt).toLocaleDateString("fr-FR")
-                  : "—"}
-              </Typography>
-            </div>
-          </div>
-
-          <div
-            style={{
-              width: "100%",
-              maxWidth: 480,
-              marginInline: "auto",
-              display: "flex",
-              flexDirection: "column",
-              gap: 8,
-            }}
-          >
-            <Button
-              fullWidth
-              size="md"
-              onClick={() => navigate("/editmemberprofile")}
-              variant="solid"
+            <Typography
+              level="body-sm"
               sx={{
-                backgroundColor: mainColor,
-                color: theme.palette.mode === "dark" ? "#121212" : "#fff",
-                "&:hover": { backgroundColor: mainColor },
-                "&:focus": { backgroundColor: mainColor, boxShadow: "none" },
-                "&:active": { backgroundColor: mainColor },
+                color: labelColor,
+                fontWeight: 500,
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
               }}
             >
-              Modifier
-            </Button>
-            <Button
-              fullWidth
-              size="md"
-              variant="outlined"
-              color="danger"
-              sx={{ fontWeight: "bold" }}
-              onClick={() => {
-                logout();
-                navigate("/login");
+              Prénom
+            </Typography>
+            <Typography
+              level="body-md"
+              sx={{ color: mainColor, fontWeight: 600 }}
+            >
+              {userData?.firstName
+                ? userData.firstName.charAt(0).toUpperCase() +
+                  userData.firstName.slice(1).toLowerCase()
+                : "—"}
+            </Typography>
+
+            <Typography
+              level="body-sm"
+              sx={{
+                color: labelColor,
+                fontWeight: 500,
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
               }}
             >
-              Se déconnecter
-            </Button>
+              Sexe
+            </Typography>
+            <Typography
+              level="body-md"
+              sx={{ color: mainColor, fontWeight: 600 }}
+            >
+              —
+            </Typography>
+
+            <Typography
+              level="body-sm"
+              sx={{
+                color: labelColor,
+                fontWeight: 500,
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+              }}
+            >
+              Email
+            </Typography>
+            <Typography
+              level="body-md"
+              sx={{ color: mainColor, fontWeight: 600 }}
+            >
+              {userData?.email || "—"}
+            </Typography>
+
+            <Typography
+              level="body-sm"
+              sx={{
+                color: labelColor,
+                fontWeight: 500,
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+              }}
+            >
+              Téléphone
+            </Typography>
+            <Typography
+              level="body-md"
+              sx={{ color: mainColor, fontWeight: 600 }}
+            >
+              {userData?.phone || "—"}
+            </Typography>
+
+            <Typography
+              level="body-sm"
+              sx={{
+                color: labelColor,
+                fontWeight: 500,
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+              }}
+            >
+              Naissance
+            </Typography>
+            <Typography
+              level="body-md"
+              sx={{ color: mainColor, fontWeight: 600 }}
+            >
+              {userData?.birthDate
+                ? `${new Date(userData.birthDate).toLocaleDateString("fr-FR")} (${getAge(userData.birthDate)} ans)`
+                : "—"}
+            </Typography>
+
+            <Typography
+              level="body-sm"
+              sx={{
+                color: labelColor,
+                fontWeight: 500,
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+              }}
+            >
+              Membre depuis
+            </Typography>
+            <Typography
+              level="body-md"
+              sx={{ color: mainColor, fontWeight: 600 }}
+            >
+              {userData?.createdAt
+                ? new Date(userData.createdAt).toLocaleDateString("fr-FR")
+                : "—"}
+            </Typography>
           </div>
         </div>
 
-        {/* Clubs gérés */}
-        <div style={{ width: "100%", maxWidth: 480, marginBottom: 32 }}>
-          <Typography
-            level="title-sm"
-            sx={{
-              mb: 2,
-              display: "flex",
-              alignItems: "center",
-              gap: 1,
-              color: mainColor,
-            }}
-          >
-            Clubs gérés ({managedClubs.length})
-          </Typography>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
-              gap: 12,
-            }}
-          >
-            {managedClubs.map((club) => (
-              <div
-                key={club.id}
-                style={{
-                  border: "2px solid",
-                  borderColor: mainColor,
-                  borderRadius: 8,
-                  padding: 12,
-                  minHeight: 120,
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                  gap: 8,
-                }}
-              >
-                <div>
-                  <Typography
-                    level="body-sm"
-                    fontWeight="md"
-                    sx={{ color: mainColor }}
-                  >
-                    {club.name}
-                  </Typography>
-                  <Typography
-                    level="body-xs"
-                    sx={{
-                      color:
-                        theme.palette.mode === "dark"
-                          ? "neutral.400"
-                          : "neutral.600",
-                    }}
-                  >
-                    {club.sport} • {club.members} membres
-                  </Typography>
-                </div>
-                <Button
-                  size="sm"
-                  variant="solid"
-                  onClick={() => navigate(`/clubs/${club.id}`)}
-                  sx={{
-                    backgroundColor: mainColor,
-                    color: theme.palette.mode === "dark" ? "#121212" : "#fff",
-                    boxShadow: 0,
-                    "&:hover": { backgroundColor: mainColor },
-                    "&:focus": {
-                      backgroundColor: mainColor,
-                      boxShadow: "none",
-                    },
-                    "&:active": { backgroundColor: mainColor },
-                  }}
-                >
-                  Gérer
-                </Button>
-              </div>
-            ))}
-          </div>
+        <div
+          style={{
+            width: "100%",
+            maxWidth: 480,
+            marginInline: "auto",
+            display: "flex",
+            flexDirection: "column",
+            gap: 8,
+          }}
+        >
           <Button
+            fullWidth
+            size="md"
+            onClick={() => navigate("/editmemberprofile")}
             variant="solid"
             sx={{
-              mt: 1,
               backgroundColor: mainColor,
               color: theme.palette.mode === "dark" ? "#121212" : "#fff",
-              boxShadow: 0,
               "&:hover": { backgroundColor: mainColor },
               "&:focus": { backgroundColor: mainColor, boxShadow: "none" },
               "&:active": { backgroundColor: mainColor },
             }}
           >
-            + Nouveau Club
+            Modifier
+          </Button>
+          <Button
+            fullWidth
+            size="md"
+            variant="outlined"
+            color="danger"
+            sx={{ fontWeight: "bold" }}
+            onClick={() => {
+              logout();
+              navigate("/login");
+            }}
+          >
+            Se déconnecter
           </Button>
         </div>
       </div>
-    </ProfileLayout>
+
+      {/* Clubs gérés */}
+      <div style={{ width: "100%", maxWidth: 480, marginBottom: 32 }}>
+        <Typography
+          level="title-sm"
+          sx={{
+            mb: 2,
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            color: mainColor,
+          }}
+        >
+          Clubs gérés ({managedClubs.length})
+        </Typography>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
+            gap: 12,
+          }}
+        >
+          {managedClubs.map((club) => (
+            <div
+              key={club.id}
+              style={{
+                border: "2px solid",
+                borderColor: mainColor,
+                borderRadius: 8,
+                padding: 12,
+                minHeight: 120,
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                gap: 8,
+              }}
+            >
+              <div>
+                <Typography
+                  level="body-sm"
+                  fontWeight="md"
+                  sx={{ color: mainColor }}
+                >
+                  {club.name}
+                </Typography>
+                <Typography
+                  level="body-xs"
+                  sx={{
+                    color:
+                      theme.palette.mode === "dark"
+                        ? "neutral.400"
+                        : "neutral.600",
+                  }}
+                >
+                  {club.sport} • {club.members} membres
+                </Typography>
+              </div>
+              <Button
+                size="sm"
+                variant="solid"
+                onClick={() => navigate(`/clubs/${club.id}`)}
+                sx={{
+                  backgroundColor: mainColor,
+                  color: theme.palette.mode === "dark" ? "#121212" : "#fff",
+                  boxShadow: 0,
+                  "&:hover": { backgroundColor: mainColor },
+                  "&:focus": {
+                    backgroundColor: mainColor,
+                    boxShadow: "none",
+                  },
+                  "&:active": { backgroundColor: mainColor },
+                }}
+              >
+                Gérer
+              </Button>
+            </div>
+          ))}
+        </div>
+        <Button
+          variant="solid"
+          sx={{
+            mt: 1,
+            backgroundColor: mainColor,
+            color: theme.palette.mode === "dark" ? "#121212" : "#fff",
+            boxShadow: 0,
+            "&:hover": { backgroundColor: mainColor },
+            "&:focus": { backgroundColor: mainColor, boxShadow: "none" },
+            "&:active": { backgroundColor: mainColor },
+          }}
+        >
+          + Nouveau Club
+        </Button>
+      </div>
+    </div>
   );
 }

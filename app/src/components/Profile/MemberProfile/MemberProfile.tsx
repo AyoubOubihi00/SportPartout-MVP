@@ -1,4 +1,3 @@
-import ProfileLayout from "../ProfileLayout";
 import Typography from "@mui/joy/Typography";
 import Avatar from "@mui/joy/Avatar";
 import Button from "@mui/joy/Button";
@@ -40,258 +39,253 @@ export function MemberProfile() {
 
   if (loading) {
     return (
-      <ProfileLayout>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            minHeight: 300,
-          }}
-        >
-          <CircularProgress size="lg" variant="plain" />
-        </div>
-      </ProfileLayout>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: 300,
+        }}
+      >
+        <CircularProgress size="lg" variant="plain" />
+      </div>
     );
   }
 
   return (
-    <ProfileLayout>
-      {/* Profil */}
+    <div
+      style={{
+        margin: "0 auto",
+        padding: "0px 16px",
+        paddingTop: 32,
+      }}
+    >
       <div
         style={{
-          margin: "0 auto",
-          padding: "0px 16px",
-          paddingTop: 32,
+          textAlign: "center",
+          marginBottom: 32,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 24,
         }}
       >
         <div
           style={{
-            textAlign: "center",
-            marginBottom: 32,
             display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 24,
+            justifyContent: "center",
+          }}
+        >
+          <Avatar
+            sx={{
+              "--Avatar-size": "90px",
+              border: "2px solid",
+              borderColor: mainColor,
+              background: bgColor,
+              color: theme.palette.mode === "dark" ? "white" : "black",
+            }}
+          >
+            {(
+              (userData?.firstName?.charAt(0) ?? "") +
+              (userData?.lastName?.charAt(0) ?? "")
+            ).toUpperCase()}
+          </Avatar>
+        </div>
+
+        {/* Infos utilisateur (liste simple sans couche visuelle) */}
+        <div
+          style={{
+            maxWidth: 480,
+            marginInline: "auto",
+            textAlign: "left",
           }}
         >
           <div
             style={{
-              display: "flex",
-              justifyContent: "center",
+              display: "grid",
+              gridTemplateColumns: "120px 1fr",
+              rowGap: 16,
+              columnGap: 16,
+              alignItems: "center",
+              justifyItems: "start",
             }}
           >
-            <Avatar
+            <Typography
+              level="body-sm"
               sx={{
-                "--Avatar-size": "90px",
-                border: "2px solid",
-                borderColor: mainColor,
-                background: bgColor,
-                color: theme.palette.mode === "dark" ? "white" : "black",
+                color: labelColor,
+                fontWeight: 500,
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
               }}
             >
-              {(
-                (userData?.firstName?.charAt(0) ?? "") +
-                (userData?.lastName?.charAt(0) ?? "")
-              ).toUpperCase()}
-            </Avatar>
-          </div>
-
-          {/* Infos utilisateur (liste simple sans couche visuelle) */}
-          <div
-            style={{
-              maxWidth: 480,
-              marginInline: "auto",
-              textAlign: "left",
-            }}
-          >
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "160px 1fr",
-                rowGap: 16,
-                columnGap: 16,
-                alignItems: "center",
-                justifyItems: "start",
-              }}
+              Nom
+            </Typography>
+            <Typography
+              level="body-md"
+              sx={{ color: mainColor, fontWeight: 600 }}
             >
-              <Typography
-                level="body-sm"
-                sx={{
-                  color: labelColor,
-                  fontWeight: 500,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                }}
-              >
-                Nom
-              </Typography>
-              <Typography
-                level="body-md"
-                sx={{ color: mainColor, fontWeight: 600 }}
-              >
-                {(userData?.lastName ?? "").toUpperCase() || "—"}
-              </Typography>
+              {(userData?.lastName ?? "").toUpperCase() || "—"}
+            </Typography>
 
-              <Typography
-                level="body-sm"
-                sx={{
-                  color: labelColor,
-                  fontWeight: 500,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                }}
-              >
-                Prénom
-              </Typography>
-              <Typography
-                level="body-md"
-                sx={{ color: mainColor, fontWeight: 600 }}
-              >
-                {userData?.firstName
-                  ? userData.firstName.charAt(0).toUpperCase() +
-                    userData.firstName.slice(1).toLowerCase()
-                  : "—"}
-              </Typography>
-
-              <Typography
-                level="body-sm"
-                sx={{
-                  color: labelColor,
-                  fontWeight: 500,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                }}
-              >
-                Sexe
-              </Typography>
-              <Typography
-                level="body-md"
-                sx={{ color: mainColor, fontWeight: 600 }}
-              >
-                —
-              </Typography>
-
-              <Typography
-                level="body-sm"
-                sx={{
-                  color: labelColor,
-                  fontWeight: 500,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                }}
-              >
-                Email
-              </Typography>
-              <Typography
-                level="body-md"
-                sx={{ color: mainColor, fontWeight: 600 }}
-              >
-                {userData?.email || "—"}
-              </Typography>
-
-              <Typography
-                level="body-sm"
-                sx={{
-                  color: labelColor,
-                  fontWeight: 500,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                }}
-              >
-                Téléphone
-              </Typography>
-              <Typography
-                level="body-md"
-                sx={{ color: mainColor, fontWeight: 600 }}
-              >
-                {userData?.phone || "—"}
-              </Typography>
-
-              <Typography
-                level="body-sm"
-                sx={{
-                  color: labelColor,
-                  fontWeight: 500,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                }}
-              >
-                Naissance
-              </Typography>
-              <Typography
-                level="body-md"
-                sx={{ color: mainColor, fontWeight: 600 }}
-              >
-                {userData?.birthDate
-                  ? `${new Date(userData.birthDate).toLocaleDateString("fr-FR")} (${getAge(userData.birthDate)} ans)`
-                  : "—"}
-              </Typography>
-
-              <Typography
-                level="body-sm"
-                sx={{
-                  color: labelColor,
-                  fontWeight: 500,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                }}
-              >
-                Membre depuis
-              </Typography>
-              <Typography
-                level="body-md"
-                sx={{ color: mainColor, fontWeight: 600 }}
-              >
-                {userData?.createdAt
-                  ? new Date(userData.createdAt).toLocaleDateString("fr-FR")
-                  : "—"}
-              </Typography>
-            </div>
-          </div>
-          <div
-            style={{
-              width: "100%",
-              maxWidth: 480,
-              marginInline: "auto",
-              display: "flex",
-              flexDirection: "column",
-              gap: 8,
-            }}
-          >
-            <Button
-              fullWidth
-              size="md"
-              onClick={() => navigate("/editmemberprofile")}
-              variant="solid"
+            <Typography
+              level="body-sm"
               sx={{
-                backgroundColor: mainColor,
-                color: theme.palette.mode === "dark" ? "#121212" : "#fff",
-                "&:hover": { backgroundColor: mainColor },
-                "&:focus": { backgroundColor: mainColor, boxShadow: "none" },
-                "&:active": { backgroundColor: mainColor },
+                color: labelColor,
+                fontWeight: 500,
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
               }}
             >
-              Modifier
-            </Button>
-            <Button
-              fullWidth
-              size="md"
-              variant="outlined"
-              color="danger"
-              sx={{ fontWeight: "bold" }}
-              onClick={() => {
-                logout();
-                navigate("/login");
+              Prénom
+            </Typography>
+            <Typography
+              level="body-md"
+              sx={{ color: mainColor, fontWeight: 600 }}
+            >
+              {userData?.firstName
+                ? userData.firstName.charAt(0).toUpperCase() +
+                  userData.firstName.slice(1).toLowerCase()
+                : "—"}
+            </Typography>
+
+            <Typography
+              level="body-sm"
+              sx={{
+                color: labelColor,
+                fontWeight: 500,
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
               }}
             >
-              Se déconnecter
-            </Button>
+              Sexe
+            </Typography>
+            <Typography
+              level="body-md"
+              sx={{ color: mainColor, fontWeight: 600 }}
+            >
+              —
+            </Typography>
+
+            <Typography
+              level="body-sm"
+              sx={{
+                color: labelColor,
+                fontWeight: 500,
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+              }}
+            >
+              Email
+            </Typography>
+            <Typography
+              level="body-md"
+              sx={{ color: mainColor, fontWeight: 600 }}
+            >
+              {userData?.email || "—"}
+            </Typography>
+
+            <Typography
+              level="body-sm"
+              sx={{
+                color: labelColor,
+                fontWeight: 500,
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+              }}
+            >
+              Téléphone
+            </Typography>
+            <Typography
+              level="body-md"
+              sx={{ color: mainColor, fontWeight: 600 }}
+            >
+              {userData?.phone || "—"}
+            </Typography>
+
+            <Typography
+              level="body-sm"
+              sx={{
+                color: labelColor,
+                fontWeight: 500,
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+              }}
+            >
+              Naissance
+            </Typography>
+            <Typography
+              level="body-md"
+              sx={{ color: mainColor, fontWeight: 600 }}
+            >
+              {userData?.birthDate
+                ? `${new Date(userData.birthDate).toLocaleDateString("fr-FR")} (${getAge(userData.birthDate)} ans)`
+                : "—"}
+            </Typography>
+
+            <Typography
+              level="body-sm"
+              sx={{
+                color: labelColor,
+                fontWeight: 500,
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+              }}
+            >
+              Membre depuis
+            </Typography>
+            <Typography
+              level="body-md"
+              sx={{ color: mainColor, fontWeight: 600 }}
+            >
+              {userData?.createdAt
+                ? new Date(userData.createdAt).toLocaleDateString("fr-FR")
+                : "—"}
+            </Typography>
           </div>
         </div>
-
-        {/* Sections supprimées: 'Activité Récente' et '+ Rejoindre un nouveau club' */}
+        <div
+          style={{
+            width: "100%",
+            maxWidth: 480,
+            marginInline: "auto",
+            display: "flex",
+            flexDirection: "column",
+            gap: 8,
+          }}
+        >
+          <Button
+            fullWidth
+            size="md"
+            onClick={() => navigate("/editmemberprofile")}
+            variant="solid"
+            sx={{
+              backgroundColor: mainColor,
+              color: theme.palette.mode === "dark" ? "#121212" : "#fff",
+              "&:hover": { backgroundColor: mainColor },
+              "&:focus": { backgroundColor: mainColor, boxShadow: "none" },
+              "&:active": { backgroundColor: mainColor },
+            }}
+          >
+            Modifier
+          </Button>
+          <Button
+            fullWidth
+            size="md"
+            variant="outlined"
+            color="danger"
+            sx={{ fontWeight: "bold" }}
+            onClick={() => {
+              logout();
+              navigate("/login");
+            }}
+          >
+            Se déconnecter
+          </Button>
+        </div>
       </div>
-    </ProfileLayout>
+
+      {/* Sections supprimées: 'Activité Récente' et '+ Rejoindre un nouveau club' */}
+    </div>
   );
 }

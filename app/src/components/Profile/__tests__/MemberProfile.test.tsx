@@ -69,8 +69,7 @@ describe("MemberProfile (unit)", () => {
       </MemoryRouter>
     );
 
-    expect(await screen.findByTestId("profile-layout")).toBeInTheDocument();
-    // Le nom et le prénom sont rendus dans deux éléments différents (grille label/valeur)
+  // Le nom et le prénom sont rendus dans deux éléments différents (grille label/valeur)
     expect(await screen.findByText("DOE")).toBeInTheDocument();
     expect(await screen.findByText("John")).toBeInTheDocument();
     expect(await screen.findByText(fakeUser.email)).toBeInTheDocument();

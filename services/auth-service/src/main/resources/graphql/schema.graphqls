@@ -4,8 +4,9 @@ extend schema
 scalar DateTime
 
 type Mutation {
-    register(input: RegisterInput!): RegisterResponse!
+    register(input: RegisterInput!): MessageResponse!
     login(input: LoginInput!): AuthPayload!
+    updateUser(input: UpdateUserInput!): MessageResponse!
 }
 
 input RegisterInput {
@@ -17,6 +18,13 @@ input RegisterInput {
     phone: String!
 }
 
+input UpdateUserInput {
+    firstName: String
+    lastName: String
+    birthDate: DateTime
+    phone: String
+}
+
 input LoginInput {
     email: String!
     password: String!
@@ -26,9 +34,11 @@ type AuthPayload {
     token: String!
 }
 
-type RegisterResponse {
+type MessageResponse {
     message: String!
 }
+
+
 
 type User {
     id: ID!

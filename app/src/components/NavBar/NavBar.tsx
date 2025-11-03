@@ -24,14 +24,13 @@ export default function NavBar() {
       icon: <User size={28} />,
       label: "PROFIL",
       paths: [
-        "/memberprofile",
-        "/ownerprofile",
+        "/profile",
+        "/editmemberprofile",
         "/login",
         "/signup",
         "/forgot-password",
         "/resetpassword",
         "/resetpasswordsuccess",
-        "/profile",
       ],
     },
   ];
