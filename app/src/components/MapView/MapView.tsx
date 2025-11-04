@@ -6,6 +6,7 @@ import { SearchFilter } from "../SearchFilter/SearchFilter";
 import ClubCard from "../ClubCard";
 import ClubDetails from "../ClubDetails";
 import BottomSheet from "../BottomSheet";
+import { osm } from "pigeon-maps/providers";
 import { LocateFixed } from "lucide-react";
 import { Button, Sheet, IconButton, Box } from "@mui/joy";
 import { useTheme } from "@mui/joy/styles";
@@ -15,13 +16,6 @@ import { Club } from "../../model/Club";
 import { estimateMapRadius } from "../../services/mapRadiusService";
 import { getClubsNear } from "../../services/clubService";
 import { haversineDistance } from "../../services/distanceService";
-
-function cartoDBProvider(x: number, y: number, z: number, dpr?: number) {
-  const subdomains = ["a", "b", "c", "d"];
-  const s = subdomains[(x + y) % subdomains.length]; // pour répartir un peu les requêtes
-  const retina = dpr! >= 2 ? "@2x" : "";
-  return `https://${s}.basemaps.cartocdn.com/light_all/${z}/${x}/${y}${retina}.png`;
-}
 
 interface ClubFeatureProperties {
   cluster: boolean;
@@ -140,7 +134,7 @@ export default function MapView() {
       </Box>
 
       <Map
-        provider={cartoDBProvider}
+        provider={osm}
         center={center}
         zoom={zoom}
         onClick={() => {

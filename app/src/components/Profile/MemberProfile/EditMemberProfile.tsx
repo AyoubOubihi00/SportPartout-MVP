@@ -181,7 +181,7 @@ export function EditMemberProfile() {
 
   if (loading) {
     return (
-      <ProfileLayout>
+      <ProfileLayout showRoleSwitch={false}>
         <div
           style={{
             display: "flex",
@@ -197,7 +197,7 @@ export function EditMemberProfile() {
   }
 
   return (
-    <ProfileLayout>
+    <ProfileLayout showRoleSwitch={false}>
       <div
         style={{
           margin: "0 auto",

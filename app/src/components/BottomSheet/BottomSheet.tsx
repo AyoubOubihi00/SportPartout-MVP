@@ -90,73 +90,97 @@ export default function BottomSheet({
   }
 
   return (
-    <Box
-      sx={{
-        position: "fixed",
-        left: 0,
-        right: 0,
-        bottom: `${NAVBAR_HEIGHT + 8}px`, // s'arrête juste au-dessus de la NavBar
-        pointerEvents: open ? "auto" : "none",
-        zIndex: 50,
-      }}
-      aria-hidden={!open}
-    >
-      <Sheet
-        variant="plain"
-        sx={(theme) => ({
-          position: "absolute",
+    <>
+      {/* Overlay: capture clicks outside the sheet to close it */}
+      {open && (
+        <Box
+          onPointerDown={() => onClose()}
+          sx={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: `${NAVBAR_HEIGHT + 8}px`, // overlay above the navbar area
+            background: "transparent",
+            zIndex: 40,
+          }}
+          aria-hidden={false}
+        />
+      )}
+
+      <Box
+        sx={{
+          position: "fixed",
           left: 0,
           right: 0,
-          bottom: 0,
-          height: open ? height : 0,
-          background:
-            theme.palette.mode === "dark"
-              ? "linear-gradient(135deg, #0f172a, #1e293b)"
-              : "linear-gradient(135deg, #f8fafc, #e2e8f0)",
-          borderRadius: 0,
-          boxShadow: "md",
-          overflow: "hidden",
-          transition: dragging ? "none" : "height 220ms ease",
-          display: "flex",
-          flexDirection: "column",
-          border: "none",
-          p: 0,
-        })}
-        role="dialog"
-        aria-modal="false"
-        aria-label={typeof title === "string" ? title : "Détails"}
+          bottom: `${NAVBAR_HEIGHT + 8}px`, // s'arrête juste au-dessus de la NavBar
+          pointerEvents: open ? "auto" : "none",
+          zIndex: 50,
+        }}
+        aria-hidden={!open}
       >
-        <Box
-          sx={{
-            p: "8px 12px 8px",
-            touchAction: "none",
-            cursor: "grab",
-            userSelect: "none",
-          }}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
+        <Sheet
+          variant="plain"
+          sx={(theme) => ({
+            position: "absolute",
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: open ? height : 0,
+            borderTop: "10px solid  #5e96ffff",
+            background:
+              theme.palette.mode === "dark"
+                ? "linear-gradient(135deg, #0f172a, #1e293b)"
+                : "linear-gradient(135deg, #f8fafc, #e2e8f0)",
+
+            borderRadius: "24px 24px 0 0",
+
+            boxShadow: "md",
+            overflow: "hidden",
+            transition: dragging ? "none" : "height 220ms ease",
+            display: "flex",
+            flexDirection: "column",
+            border: "none",
+            p: 0,
+          })}
+          role="dialog"
+          aria-modal="false"
+          aria-label={typeof title === "string" ? title : "Détails"}
         >
           <Box
+            sx={(theme) => ({
+              p: "8px 12px 8px",
+              touchAction: "none",
+              cursor: "grab",
+              userSelect: "none",
+              borderTop: `2px solid ${theme.palette.mode === "dark" ? "#fff" : "#222"}`,
+              borderRadius: "24px 24px 0 0",
+            })}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+          >
+            <Box
+              sx={(theme) => ({
+                width: 40,
+                height: 4,
+                bgcolor: theme.palette.mode === "dark" ? "#fff" : "#222",
+                borderRadius: 999,
+                m: "6px auto 6px",
+              })}
+            />
+          </Box>
+          <Box
             sx={{
-              width: 40,
-              height: 4,
-              bgcolor: "neutral.outlinedBorder",
-              borderRadius: 999,
-              m: "6px auto 6px",
+              overflow: "auto",
+              p: "8px 12px 12px",
+              pb: `${NAVBAR_HEIGHT}px`, // Ajoute un padding-bottom égal à la navbar
             }}
-          />
-        </Box>
-        <Box
-          sx={{
-            overflow: "auto",
-            p: "8px 12px 12px",
-            pb: `${NAVBAR_HEIGHT}px`, // Ajoute un padding-bottom égal à la navbar
-          }}
-        >
-          {children}
-        </Box>
-      </Sheet>
-    </Box>
+          >
+            {children}
+          </Box>
+        </Sheet>
+      </Box>
+    </>
   );
 }
