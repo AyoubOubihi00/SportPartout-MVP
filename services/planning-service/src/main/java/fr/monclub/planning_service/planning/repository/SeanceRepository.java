@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public interface SeanceRepository extends JpaRepository<Seance, UUID>, SeanceRepositoryCustom {
@@ -86,4 +87,6 @@ public interface SeanceRepository extends JpaRepository<Seance, UUID>, SeanceRep
     int tryDecrementCapa(@Param("id") UUID id);
 
     List<Seance> findAllByIdSport(UUID idSport);
+
+    List<Seance> findAllByParticipantsContains(UUID userId);
 }

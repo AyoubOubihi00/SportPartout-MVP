@@ -9,7 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.util.UUID;
+import java.util.*;
 
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor @Builder
@@ -73,4 +73,13 @@ public class Seance {
     private OffsetDateTime deletedAt;
 
     private String refusalReason;
+
+    // Liste des participants (ids utilisateurs)
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+            name = "seance_participants",
+            joinColumns = @JoinColumn(name = "seance_id")
+    )
+    @Column(name = "user_id", nullable = true)
+    private Set<UUID> participants = new HashSet<>();
 }

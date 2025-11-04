@@ -12,6 +12,7 @@ import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.graphql.test.tester.GraphQlTester;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import fr.monclub.planning_service.planning.service.GetUser;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -28,6 +29,9 @@ class SeanceControllerIntegrationTest {
 
     @MockitoBean
     private SeanceCatalog catalog;
+
+        @MockitoBean
+        private GetUser getUser;
 
     @Test
     void shouldJoinSeanceMutation() {

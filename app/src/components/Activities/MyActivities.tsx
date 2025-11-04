@@ -18,8 +18,10 @@ import {
 import { CalendarRange, MapPin, Clock, Users, User } from "lucide-react";
 import BaseLayout from "../../layouts/BaseLayout";
 import BottomSheet from "../BottomSheet/BottomSheet";
-import type { Activity } from "../../types/activities";
+import type { Activity, ActivityDto } from "../../types/activities";
 import { useActivities } from "../../services/activities/useActivities";
+import { fetchMySeances } from "../../services/activitiesService";
+import type { SeanceWithAvailability } from "../../services/activitiesService";
 
 function formatDateFR(isoDate: string): string {
   const d = new Date(isoDate);
@@ -140,7 +142,54 @@ function ActivityCard({
 
 export default function MyActivities() {
   // Hook prêt pour la liaison back: mappe des DTO -> Activity
-  const { upcoming, past } = useActivities();
+  // Pour le test: on appelle fetchMySeances et on fournit les DTOs au hook
+  const [remoteDtos, setRemoteDtos] = useState<ActivityDto[] | undefined>(
+    undefined,
+  );
+  const { upcoming, past } = useActivities(remoteDtos);
+
+  // Appel simple pour tester le service planning (exécuté au montage)
+  useEffect(() => {
+    let mounted = true;
+    // Sélection minimale/transformation vers ActivityDto
+    fetchMySeances<SeanceWithAvailability>(
+      `id idClub idTerrain idCoach startTime endTime durationMinutes capacite capaSeance remainingPlaces full idSport nameSport description status createdBy`,
+    )
+      .then((seances) => {
+        if (!mounted) return;
+        const dtos: ActivityDto[] = seances.map(
+          (s: SeanceWithAvailability) => ({
+            id: s.id,
+            title: s.nameSport ?? "Séance",
+            club: s.idClub ?? "",
+            sport: s.nameSport ?? "",
+            startIso: s.startTime,
+            endIso: s.endTime,
+            place: undefined,
+            imageUrl: undefined,
+            capacity:
+              typeof s.capacite === "number" ? s.capacite : s.capaSeance,
+            booked:
+              typeof s.capaSeance === "number" &&
+              typeof s.remainingPlaces === "number"
+                ? Math.max(0, s.capaSeance - s.remainingPlaces)
+                : undefined,
+            coach: s.idCoach ?? undefined,
+            level: undefined,
+            description: s.description ?? undefined,
+          }),
+        );
+        setRemoteDtos(dtos);
+      })
+      .catch((err) => {
+        // pour debug rapide
+
+        console.error("fetchMySeances failed:", err);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
   const [tab, setTab] = useState<number>(0);
   const [detailOpen, setDetailOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<Activity | null>(null);

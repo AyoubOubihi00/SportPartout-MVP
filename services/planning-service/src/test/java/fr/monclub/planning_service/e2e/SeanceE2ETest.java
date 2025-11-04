@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
+import java.util.Base64;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -20,6 +21,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.UUID;
+import java.util.HashSet;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -64,8 +67,10 @@ class SeanceE2ETest {
                 .idCoach(UUID.randomUUID())
                 .startTime(OffsetDateTime.parse("2025-01-01T10:00:00Z"))
                 .endTime(OffsetDateTime.parse("2025-01-01T11:00:00Z"))
-                .capacite(10)
-                .capaSeance(3)
+        .capacite(10)
+        // reflect participants to avoid inconsistencies between capaSeance and participants set
+        .participants(new HashSet<>(List.of(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID())))
+        .capaSeance(3)
                 .idSport(UUID.randomUUID())
                 .nameSport("Foot")
                 .description("Séance E2E")
@@ -160,6 +165,12 @@ class SeanceE2ETest {
     private ResponseEntity<String> postGraphQL(String query, Map<String, Object> variables) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+    // Add header expected by JwtFilter: X-JWT-Claims (base64 encoded JSON)
+    // We provide a simple claims payload with sub (username/email), role and userId
+    String claimsJson = String.format("{\"sub\":\"%s\",\"role\":\"%s\",\"userId\":\"%s\"}",
+        "test@test.com", "USER", "00000000-0000-0000-0000-000000000001");
+    String claimsBase64 = Base64.getEncoder().encodeToString(claimsJson.getBytes());
+    headers.add("X-JWT-Claims", claimsBase64);
         Map<String, Object> body = Map.of(
                 "query", query,
                 "variables", variables

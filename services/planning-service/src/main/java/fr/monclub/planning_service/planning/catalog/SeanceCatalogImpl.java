@@ -7,12 +7,16 @@ import fr.monclub.planning_service.planning.model.Seance;
 import fr.monclub.planning_service.planning.model.SeanceStatus;
 import fr.monclub.planning_service.planning.model.SeanceWithAvailability;
 import fr.monclub.planning_service.planning.repository.SeanceRepository;
+import fr.monclub.planning_service.planning.service.GetUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -20,6 +24,7 @@ import java.util.UUID;
 public class SeanceCatalogImpl implements SeanceCatalog {
 
     private final SeanceRepository repo;
+    private final GetUser getUser;
 
     // ---------- LECTURE ----------
 
@@ -53,11 +58,11 @@ public class SeanceCatalogImpl implements SeanceCatalog {
             UUID clubId, OffsetDateTime start, OffsetDateTime end) {
         return findByClubBetween(clubId, start, end)
                 .stream()
-                .map(SeanceWithAvailability::fromSeance) 
+                .map(SeanceWithAvailability::fromSeance)
                 .toList();
     }
 
-    // ---------- ÉCRITURE ----------
+    // ---------- ECRITURE ----------
 
     @Override
     @Transactional
@@ -80,19 +85,23 @@ public class SeanceCatalogImpl implements SeanceCatalog {
     @Override
     @Transactional
     public Seance join(UUID seanceId) {
-        // Vérifie l’existence d’abord (message d’erreur clair)
-        Seance existing = getById(seanceId);
-        if (existing.getStatus() == SeanceStatus.CANCELED) {
+        // Vérifie l'existence d'abord
+        Seance s = getById(seanceId);
+        if (s.getStatus() == SeanceStatus.CANCELED) {
             throw new fr.monclub.planning_service.core.exception.CapacityFullException("Séance annulée : inscription impossible.");
         }
 
-        int updated = repo.tryIncrementCapa(seanceId);
-        if (updated == 0) {
-            // soit pleine, soit status non ouvert
+        UUID userId = getUser.apply().getId();
+        Set<UUID> participants = s.getParticipants();
+        if (participants.contains(userId)) {
+            ensureBusinessRules(s);
+            return repo.saveAndFlush(s);
+        }
+        if (s.getCapacite() != null && s.getCapaSeance() != null && s.getCapaSeance() >= s.getCapacite()) {
             throw new fr.monclub.planning_service.core.exception.CapacityFullException();
         }
-        // Recharge l’entité, applique les règles (peut passer à FULL) et flush
-        Seance s = getById(seanceId);
+        participants.add(userId);
+        s.setCapaSeance(participants.size());
         ensureBusinessRules(s);
         return repo.saveAndFlush(s);
     }
@@ -100,16 +109,31 @@ public class SeanceCatalogImpl implements SeanceCatalog {
     @Override
     @Transactional
     public Seance leave(UUID seanceId) {
-        // Vérifie l’existence
-        getById(seanceId);
+        Seance s = getById(seanceId);
 
-        int updated = repo.tryDecrementCapa(seanceId);
-        if (updated == 0) {
+        UUID userId = getUser.apply().getId();
+        if (userId == null) {
+            int updated = repo.tryDecrementCapa(seanceId);
+            if (updated == 0) {
+                throw new fr.monclub.planning_service.core.exception.NoRegistrationException();
+            }
+            Seance reloaded = getById(seanceId);
+            ensureBusinessRules(reloaded);
+            return repo.saveAndFlush(reloaded);
+        }
+
+        Set<UUID> participants = s.getParticipants();
+        if (!participants.remove(userId)) {
             throw new fr.monclub.planning_service.core.exception.NoRegistrationException();
         }
-        Seance s = getById(seanceId);
-        ensureBusinessRules(s); // peut repasser à OPEN si n'est plus pleine
+        s.setCapaSeance(participants.size());
+        ensureBusinessRules(s);
         return repo.saveAndFlush(s);
+    }
+
+    @Override
+    public List<Seance> findByUserId(UUID userId) {
+        return repo.findAllByParticipantsContains(userId);
     }
 
     // ---------- Helpers métier ----------
@@ -152,7 +176,7 @@ public class SeanceCatalogImpl implements SeanceCatalog {
      * On vérifie les chevauchements de créneau sur le même terrain et le même coach
      */
     private void checkOverlaps(Seance s) {
-        UUID excludeId = s.getId(); // null en création, non null en mise à jour
+        UUID excludeId = s.getId();
 
         boolean terrainBusy = repo.existsOverlapOnTerrain(
                 s.getIdClub(), s.getIdTerrain(), s.getStartTime(), s.getEndTime(), excludeId

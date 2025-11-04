@@ -8,6 +8,8 @@ import fr.monclub.planning_service.planning.model.Seance;
 import fr.monclub.planning_service.planning.model.SeanceStatus;
 import fr.monclub.planning_service.planning.model.SeanceWithAvailability;
 import fr.monclub.planning_service.planning.repository.SeanceRepository;
+import fr.monclub.planning_service.planning.service.GetUser;
+import fr.monclub.planning_service.config.JWT.UserSimple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +20,8 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.Set;
+import java.util.HashSet;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -29,6 +33,9 @@ class SeanceCatalogImplTest {
 
     @Mock
     private SeanceRepository repo;
+
+        @Mock
+        private GetUser getUser;
 
     @InjectMocks
     private SeanceCatalogImpl catalog;
@@ -43,6 +50,8 @@ class SeanceCatalogImplTest {
 
     @BeforeEach
     void setUp() {
+                // Stub the authenticated user used by SeanceCatalogImpl (lenient to avoid unnecessary stubbing failures)
+                Mockito.lenient().when(getUser.apply()).thenReturn(new UserSimple(UUID.fromString("00000000-0000-0000-0000-000000000001"), "test@test.com"));
         clubId   = UUID.fromString("5a14f7fd-db95-4bd0-a2b9-5f8f1c59d557");
         terrainId= UUID.fromString("ffd046bf-106e-4f40-a47e-b509ce9d9811");
         coachId  = UUID.fromString("1a4bb0ab-68f6-46a1-a638-d175441a6030");
@@ -172,12 +181,29 @@ class SeanceCatalogImplTest {
     @Test
     void join_incrementeCapaciteEtPeutPasserFull() {
         UUID id = UUID.randomUUID();
-        Seance before = baseSeanceBuilder().id(id).capacite(3).capaSeance(2).status(SeanceStatus.OPEN).build();
-        Seance after  = baseSeanceBuilder().id(id).capacite(3).capaSeance(3).status(SeanceStatus.OPEN).build();
+        // Simulate two participants present before join (not including the test user)
+        Set<UUID> beforeParticipants = new HashSet<>(List.of(UUID.randomUUID(), UUID.randomUUID()));
+        Seance before = baseSeanceBuilder()
+                .id(id)
+                .capacite(3)
+                .capaSeance(beforeParticipants.size())
+                .participants(beforeParticipants)
+                .status(SeanceStatus.OPEN)
+                .build();
+
+        // After join, participants contain the previous ones + the test user
+        Set<UUID> afterParticipants = new HashSet<>(beforeParticipants);
+        afterParticipants.add(UUID.fromString("00000000-0000-0000-0000-000000000001"));
+        Seance after = baseSeanceBuilder()
+                .id(id)
+                .capacite(3)
+                .capaSeance(afterParticipants.size())
+                .participants(afterParticipants)
+                .status(SeanceStatus.OPEN)
+                .build();
 
         when(repo.findById(id)).thenReturn(Optional.of(before))  // getById initial
                                .thenReturn(Optional.of(after));  // reload après incrément
-        when(repo.tryIncrementCapa(id)).thenReturn(1);
         when(repo.saveAndFlush(any())).thenAnswer(inv -> inv.getArgument(0));
 
         Seance res = catalog.join(id);
@@ -188,9 +214,16 @@ class SeanceCatalogImplTest {
     @Test
     void join_echoueSiDejaPleine() {
         UUID id = UUID.randomUUID();
-        Seance s = baseSeanceBuilder().id(id).capacite(2).capaSeance(2).status(SeanceStatus.FULL).build();
+        // Simulate two participants already present
+        Set<UUID> participants = new HashSet<>(List.of(UUID.randomUUID(), UUID.randomUUID()));
+        Seance s = baseSeanceBuilder()
+                .id(id)
+                .capacite(2)
+                .capaSeance(participants.size())
+                .participants(participants)
+                .status(SeanceStatus.FULL)
+                .build();
         when(repo.findById(id)).thenReturn(Optional.of(s));
-        when(repo.tryIncrementCapa(id)).thenReturn(0);
 
         assertThatThrownBy(() -> catalog.join(id))
                 .isInstanceOf(fr.monclub.planning_service.core.exception.CapacityFullException.class);
@@ -199,12 +232,32 @@ class SeanceCatalogImplTest {
     @Test
     void leave_decrementeCapaciteEtPeutResterOpen() {
         UUID id = UUID.randomUUID();
-        Seance before = baseSeanceBuilder().id(id).capacite(5).capaSeance(4).status(SeanceStatus.OPEN).build();
-        Seance after  = baseSeanceBuilder().id(id).capacite(5).capaSeance(3).status(SeanceStatus.OPEN).build();
+        // Simulate 4 participants including the test user -> after leave should be 3
+        Set<UUID> beforeParticipants = new HashSet<>(List.of(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()));
+        // include the test user id
+        beforeParticipants.add(UUID.fromString("00000000-0000-0000-0000-000000000001"));
+
+        Seance before = baseSeanceBuilder()
+                .id(id)
+                .capacite(5)
+                .capaSeance(beforeParticipants.size())
+                .participants(beforeParticipants)
+                .status(SeanceStatus.OPEN)
+                .build();
+
+        Set<UUID> afterParticipants = new HashSet<>(beforeParticipants);
+        afterParticipants.remove(UUID.fromString("00000000-0000-0000-0000-000000000001"));
+
+        Seance after  = baseSeanceBuilder()
+                .id(id)
+                .capacite(5)
+                .capaSeance(afterParticipants.size())
+                .participants(afterParticipants)
+                .status(SeanceStatus.OPEN)
+                .build();
 
         when(repo.findById(id)).thenReturn(Optional.of(before))
                                .thenReturn(Optional.of(after));
-        when(repo.tryDecrementCapa(id)).thenReturn(1);
         when(repo.saveAndFlush(any())).thenAnswer(inv -> inv.getArgument(0));
 
         Seance res = catalog.leave(id);
@@ -215,9 +268,8 @@ class SeanceCatalogImplTest {
     @Test
     void leave_echoueSiAucuneInscription() {
         UUID id = UUID.randomUUID();
-        Seance s = baseSeanceBuilder().id(id).capacite(5).capaSeance(0).status(SeanceStatus.OPEN).build();
+        Seance s = baseSeanceBuilder().id(id).capacite(5).capaSeance(0).participants(new HashSet<>()).status(SeanceStatus.OPEN).build();
         when(repo.findById(id)).thenReturn(Optional.of(s));
-        when(repo.tryDecrementCapa(id)).thenReturn(0);
 
         assertThatThrownBy(() -> catalog.leave(id))
                 .isInstanceOf(fr.monclub.planning_service.core.exception.NoRegistrationException.class);
@@ -234,6 +286,7 @@ class SeanceCatalogImplTest {
                 .endTime(t11)
                 .capacite(10)
                 .capaSeance(0)
+                .participants(new HashSet<>())
                 .idSport(sportId)
                 .nameSport("Foot")
                 .status(SeanceStatus.OPEN);

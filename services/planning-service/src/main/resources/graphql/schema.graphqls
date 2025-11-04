@@ -72,6 +72,8 @@ type Query {
     start: DateTime!
     end: DateTime!
   ): [SeanceWithAvailability!]!
+
+    mySeances: [SeanceWithAvailability!]!
 }
 
 type Mutation {

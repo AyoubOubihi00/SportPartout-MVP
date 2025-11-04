@@ -149,6 +149,11 @@ static_resources:
                           requires:
                             provider_name: auth_provider
 
+                        - match:
+                            prefix: "/planning/graphql"
+                          requires:
+                            provider_name: auth_provider
+
                   # 📦 Buffer filter
                   - name: envoy.filters.http.buffer
                     typed_config:
