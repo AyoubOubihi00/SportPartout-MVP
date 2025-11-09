@@ -46,7 +46,7 @@ public class ClubFixtures implements CommandLineRunner {
     public void run(String... args) {
         if (findClubRepository.count() == 0) {
             findClubRepository.save(new Club(
-                    null,
+                    UUID.fromString("0f609278-76d5-4a27-81d5-d2a7a63594f0"),
                     "Club de Football de Paris",
                     4.5,
                     12,
@@ -66,7 +66,7 @@ public class ClubFixtures implements CommandLineRunner {
                     null
             ));
             findClubRepository.save(new Club(
-                    null,
+                    UUID.fromString("76f392b1-ed0f-4ad3-ae6b-631574d634b1"),
                     "Club de Basketball de Lyon",
                     4.0,
                     22,
@@ -86,7 +86,7 @@ public class ClubFixtures implements CommandLineRunner {
                     null
             ));
             findClubRepository.save(new Club(
-                    null,
+                    UUID.fromString("1b7c8461-8d2c-4540-83ca-1eab47b092bd"),
                     "Club de Tennis de Marseille",
                     3.8,
                     9,
@@ -106,7 +106,7 @@ public class ClubFixtures implements CommandLineRunner {
                     null
             ));
             findClubRepository.save(new Club(
-                    null,
+                    UUID.fromString("2c4e6f8a-3b5d-4c9e-9f1a-7e2b8c9d5f4e"),
                     "Club de Tennis de Metz",
                     4.2,
                     21,
@@ -127,7 +127,7 @@ public class ClubFixtures implements CommandLineRunner {
             ));
 
             findClubRepository.save(new Club(
-                    null,
+                    UUID.fromString("89a23eef-7f22-4b46-bf8f-47d5cbec8013"),
                     "Metz Basket Club",
                     4.3,
                     31,
@@ -148,7 +148,7 @@ public class ClubFixtures implements CommandLineRunner {
             ));
 
             findClubRepository.save(new Club(
-                    null,
+                    UUID.fromString("9ccb204c-2cdb-444c-b42b-296891d1e17a"),
                     "Football Club Metz Sud",
                     2.9,
                     29,
@@ -169,7 +169,7 @@ public class ClubFixtures implements CommandLineRunner {
             ));
 
             findClubRepository.save(new Club(
-                    null,
+                    UUID.fromString("db3ce306-52d9-4d8f-81ae-c579b44113c3"),
                     "Club de Natation Metz Plage",
                     4.1,
                     45,
@@ -190,7 +190,7 @@ public class ClubFixtures implements CommandLineRunner {
             ));
 
             findClubRepository.save(new Club(
-                    null,
+                    UUID.fromString("37323ae1-3875-4fec-a648-80aaad25fe9c"),
                     "Metz Judo Académie",
                     4.6,
                     7,
@@ -210,7 +210,7 @@ public class ClubFixtures implements CommandLineRunner {
                     null
             ));
             findClubRepository.save(new Club(
-                    null,
+                    UUID.fromString("3517ebf3-51e1-436a-9a09-0e78f51cce70"),
                     "Nancy Tennis Club",
                     4.4,
                     12,
@@ -231,7 +231,7 @@ public class ClubFixtures implements CommandLineRunner {
             ));
 
             findClubRepository.save(new Club(
-                    null,
+                    UUID.fromString("9459cae6-cc8c-411d-8c89-0feac8348943"),
                     "Nancy Volley Ball",
                     4.0,
                     45,
@@ -252,7 +252,7 @@ public class ClubFixtures implements CommandLineRunner {
             ));
 
             findClubRepository.save(new Club(
-                    null,
+                    UUID.fromString("0fa59129-3bc4-427e-93f1-f95cf0f8edec"),
                     "Nancy Football Club",
                     3.9,
                     25,
@@ -273,7 +273,7 @@ public class ClubFixtures implements CommandLineRunner {
             ));
 
             findClubRepository.save(new Club(
-                    null,
+                    UUID.fromString("f697f6dd-f16b-4057-94e2-dce34297180b"),
                     "Nancy Natation Loisirs",
                     4.2,
                     30,
@@ -294,7 +294,7 @@ public class ClubFixtures implements CommandLineRunner {
             ));
 
             findClubRepository.save(new Club(
-                    null,
+                    UUID.fromString("7f03572a-2f59-452e-9000-27868130a177"),
                     "Nancy Judo Club",
                     2.8,
                     35,
@@ -314,7 +314,7 @@ public class ClubFixtures implements CommandLineRunner {
                     null
             ));
             findClubRepository.save(new Club(
-                    null,
+                    UUID.fromString("defb7a66-7ef3-47a3-b205-bee13c580619"),
                     "Strasbourg Tennis Club",
                     3.7,
                     18,
@@ -335,7 +335,7 @@ public class ClubFixtures implements CommandLineRunner {
             ));
 
             findClubRepository.save(new Club(
-                    null,
+                    UUID.fromString("77101f86-7da5-48f0-ae85-b3920b1a91cf"),
                     "Strasbourg Basket Union",
                     4.5,
                     27,
@@ -356,7 +356,7 @@ public class ClubFixtures implements CommandLineRunner {
             ));
 
             findClubRepository.save(new Club(
-                    null,
+                    UUID.fromString("a0548458-9809-4071-a497-1945e830b2dc"),
                     "Racing Club de Strasbourg",
                     4.8,
                     15,
@@ -377,7 +377,7 @@ public class ClubFixtures implements CommandLineRunner {
             ));
 
             findClubRepository.save(new Club(
-                    null,
+                    UUID.fromString("d9f93ea6-a6ba-4a2f-8ea7-930253108072"),
                     "Strasbourg Natation",
                     2.9,
                     40,
@@ -398,7 +398,7 @@ public class ClubFixtures implements CommandLineRunner {
             ));
 
             findClubRepository.save(new Club(
-                    null,
+                    UUID.fromString("07d16769-4ff3-4195-b65f-6b22a31a03ac"),
                     "Strasbourg Judo Académie",
                     1.9,
                     20,

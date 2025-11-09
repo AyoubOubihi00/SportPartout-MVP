@@ -37,7 +37,7 @@ class SeanceDecisionBffServiceTest {
         UUID userId = UUID.randomUUID();
 
         PlanningGateway.SeanceDto seance = new PlanningGateway.SeanceDto(seanceId, clubId, SeanceStatus.PENDING, null);
-        ClubGateway.ClubDto club = new ClubGateway.ClubDto(clubId, userId, "Club House");
+        ClubGateway.ClubDto club = club(clubId, userId);
         PlanningGateway.SeanceDto accepted = new PlanningGateway.SeanceDto(seanceId, clubId, SeanceStatus.OPEN, null);
 
         when(planningGateway.getSeance(seanceId)).thenReturn(seance);
@@ -58,7 +58,7 @@ class SeanceDecisionBffServiceTest {
         UUID userId = UUID.randomUUID();
 
         PlanningGateway.SeanceDto seance = new PlanningGateway.SeanceDto(seanceId, clubId, SeanceStatus.PENDING, null);
-        ClubGateway.ClubDto club = new ClubGateway.ClubDto(clubId, userId, "Club House");
+        ClubGateway.ClubDto club = club(clubId, userId);
         PlanningGateway.SeanceDto refused = new PlanningGateway.SeanceDto(seanceId, clubId, SeanceStatus.CANCELED, "Coach indisponible");
 
         when(planningGateway.getSeance(seanceId)).thenReturn(seance);
@@ -87,11 +87,29 @@ class SeanceDecisionBffServiceTest {
         UUID userId = UUID.randomUUID();
 
         PlanningGateway.SeanceDto seance = new PlanningGateway.SeanceDto(seanceId, clubId, SeanceStatus.PENDING, null);
-        ClubGateway.ClubDto club = new ClubGateway.ClubDto(clubId, ownerId, "Club House");
+        ClubGateway.ClubDto club = club(clubId, ownerId);
 
         when(planningGateway.getSeance(seanceId)).thenReturn(seance);
         when(clubGateway.getClub(clubId)).thenReturn(club);
 
         assertThrows(ForbiddenOperationException.class, () -> service.accept(seanceId, userId));
+    }
+
+    private ClubGateway.ClubDto club(UUID clubId, UUID ownerId) {
+        return new ClubGateway.ClubDto(
+                clubId,
+                ownerId,
+                "Club House",
+                null,
+                null,
+                "Paris",
+                "1 rue de Paris",
+                "France",
+                null,
+                null,
+                null,
+                0F,
+                0F
+        );
     }
 }

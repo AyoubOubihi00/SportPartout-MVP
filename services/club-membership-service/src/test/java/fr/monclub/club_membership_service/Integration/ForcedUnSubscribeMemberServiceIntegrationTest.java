@@ -1,14 +1,16 @@
 package fr.monclub.club_membership_service.Integration;
 
-import fr.monclub.club_membership_service.catalog.ClubMemberCatalog;
-import fr.monclub.club_membership_service.model.ClubMember;
-import fr.monclub.club_membership_service.service.ForcedUnSubscribeMemberService;
+
+import fr.monclub.club_membership_service.membership.catalog.ClubMemberCatalog;
+import fr.monclub.club_membership_service.membership.model.ClubMember;
+import fr.monclub.club_membership_service.membership.service.ForcedUnSubscribeMemberService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,7 +44,7 @@ public class ForcedUnSubscribeMemberServiceIntegrationTest {
         member.setUserId(UUID.randomUUID());
         member.setIsActif(true);
         member.setHimself(true);
-        member.setDateSubscription(LocalDate.now());
+        member.setDateSubscription(OffsetDateTime.now());
         clubMemberCatalog.save(member);
 
         // Act

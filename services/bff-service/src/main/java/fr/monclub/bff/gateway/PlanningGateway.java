@@ -2,7 +2,10 @@ package fr.monclub.bff.gateway;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.monclub.bff.client.GraphQlClient;
+import fr.monclub.bff.client.GraphQlClientException;
+import fr.monclub.bff.exception.BadRequestException;
 import fr.monclub.bff.exception.ExternalServiceException;
+import fr.monclub.bff.exception.ForbiddenOperationException;
 import fr.monclub.bff.exception.ResourceNotFoundException;
 import fr.monclub.bff.model.SeanceStatus;
 import lombok.RequiredArgsConstructor;
@@ -34,12 +37,16 @@ public class PlanningGateway {
                   }
                 }
                 """.formatted(SEANCE_FRAGMENT);
-        JsonNode data = planningGraphQlClient.execute(query, Map.of("id", seanceId.toString()));
-        JsonNode seanceNode = data.get("seance");
-        if (seanceNode == null || seanceNode.isNull()) {
-            throw new ResourceNotFoundException("Seance %s introuvable".formatted(seanceId));
+        try {
+            JsonNode data = planningGraphQlClient.execute(query, Map.of("id", seanceId.toString()));
+            JsonNode seanceNode = data.get("seance");
+            if (seanceNode == null || seanceNode.isNull()) {
+                throw new ResourceNotFoundException("Seance %s introuvable".formatted(seanceId));
+            }
+            return mapSeance(seanceNode);
+        } catch (GraphQlClientException ex) {
+            throw translatePlanningException(ex, "Seance %s introuvable".formatted(seanceId));
         }
-        return mapSeance(seanceNode);
     }
 
     public SeanceDto accept(UUID seanceId, UUID clubId) {
@@ -50,11 +57,15 @@ public class PlanningGateway {
                   }
                 }
                 """.formatted(SEANCE_FRAGMENT);
-        JsonNode data = planningGraphQlClient.execute(mutation, Map.of(
-                "seanceId", seanceId.toString(),
-                "clubId", clubId.toString()
-        ));
-        return extractDecision(data, "acceptSeance");
+        try {
+            JsonNode data = planningGraphQlClient.execute(mutation, Map.of(
+                    "seanceId", seanceId.toString(),
+                    "clubId", clubId.toString()
+            ));
+            return extractDecision(data, "acceptSeance");
+        } catch (GraphQlClientException ex) {
+            throw translatePlanningException(ex, "Impossible d'accepter la seance %s".formatted(seanceId));
+        }
     }
 
     public SeanceDto refuse(UUID seanceId, UUID clubId, String reason) {
@@ -65,12 +76,16 @@ public class PlanningGateway {
                   }
                 }
                 """.formatted(SEANCE_FRAGMENT);
-        JsonNode data = planningGraphQlClient.execute(mutation, Map.of(
-                "seanceId", seanceId.toString(),
-                "clubId", clubId.toString(),
-                "reason", reason
-        ));
-        return extractDecision(data, "refuseSeance");
+        try {
+            JsonNode data = planningGraphQlClient.execute(mutation, Map.of(
+                    "seanceId", seanceId.toString(),
+                    "clubId", clubId.toString(),
+                    "reason", reason
+            ));
+            return extractDecision(data, "refuseSeance");
+        } catch (GraphQlClientException ex) {
+            throw translatePlanningException(ex, "Impossible de refuser la seance %s".formatted(seanceId));
+        }
     }
 
     private SeanceDto extractDecision(JsonNode data, String field) {
@@ -95,6 +110,19 @@ public class PlanningGateway {
                 status,
                 node.hasNonNull("refusalReason") ? node.get("refusalReason").asText() : null
         );
+    }
+
+    private RuntimeException translatePlanningException(GraphQlClientException ex, String fallbackMessage) {
+        if (ex.hasClassification("NOT_FOUND") || ex.messageContainsIgnoreCase("not found")) {
+            return new ResourceNotFoundException(ex.firstMessageOr(fallbackMessage));
+        }
+        if (ex.hasClassification("UNAUTHORIZED")) {
+            return new ForbiddenOperationException(ex.firstMessageOr(fallbackMessage));
+        }
+        if (ex.hasClassification("BAD_REQUEST")) {
+            return new BadRequestException(ex.firstMessageOr(fallbackMessage));
+        }
+        return ex;
     }
 
     public record SeanceDto(UUID id, UUID clubId, SeanceStatus status, String refusalReason) {

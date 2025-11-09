@@ -8,6 +8,25 @@ enum SeanceStatus {
   FULL
 }
 
+type Club {
+  id: UUID!
+  name: String
+  typeId: UUID
+  typeName: String
+  city: String
+  address: String
+  country: String
+  postalCode: String
+  phoneNumber: String
+  email: String
+  latitude: Float
+  longitude: Float
+  ownerId: UUID
+  createdAt: DateTime
+  updatedAt: DateTime
+  deletedAt: DateTime
+}
+
 type SeanceDecision {
   id: UUID!
   clubId: UUID!
@@ -17,9 +36,40 @@ type SeanceDecision {
 
 type Query {
   _empty: String
+  salut: String
+  myClubs(userId: UUID!): [MemberWithClub!]!
+  managedClubs(ownerId: UUID!): [Club!]!
+}
+
+input UserInput {
+  userId: UUID!
+  firstName: String!
+  lastName: String!
+  birthDate: DateTime!
+  email: String!
+  phoneNumber: String
 }
 
 type Mutation {
   acceptPendingSeance(seanceId: UUID!, userId: UUID!): SeanceDecision!
   refusePendingSeance(seanceId: UUID!, userId: UUID!, reason: String!): SeanceDecision!
+  subscribeToClub(clubId: UUID!, newMember: UserInput!): MemberWithClub
+
 }
+
+
+
+type MemberWithClub {
+  clubId: UUID!
+  userId: UUID!
+  firstName: String!
+  lastName: String!
+  birthDate: DateTime
+  email: String!
+  phoneNumber: String
+  isActif: Boolean
+  dateSubscription: String
+  himself: Boolean
+  club: Club
+}
+

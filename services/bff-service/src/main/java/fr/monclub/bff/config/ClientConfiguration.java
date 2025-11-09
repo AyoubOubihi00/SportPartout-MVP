@@ -1,6 +1,5 @@
 package fr.monclub.bff.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.monclub.bff.client.GraphQlClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +21,15 @@ public class ClientConfiguration {
                                            ExternalServicesProperties properties) {
         return new GraphQlClient(builder
                 .baseUrl(properties.club().graphqlUrl())
+                .build());
+    }
+
+    @Bean(name = "membershipGraphQlClient")
+    public GraphQlClient membershipGraphQlClient(WebClient.Builder builder,
+                                                 ExternalServicesProperties properties) {
+        System.out.println("my urrrrl " + properties.membership().graphqlUrl());
+        return new GraphQlClient(builder
+                .baseUrl(properties.membership().graphqlUrl())
                 .build());
     }
 }

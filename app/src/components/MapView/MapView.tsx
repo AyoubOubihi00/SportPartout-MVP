@@ -16,6 +16,14 @@ import { Club } from "../../model/Club";
 import { estimateMapRadius } from "../../services/mapRadiusService";
 import { getClubsNear } from "../../services/clubService";
 import { haversineDistance } from "../../services/distanceService";
+import { useAuth } from "../shared/useAuth";
+import { useBubble } from "../shared/useBubble";
+import { getMe } from "../../services/auth/authService";
+import {
+  subscribeToClub,
+  type UserInput,
+} from "../../services/membershipService";
+import { useNavigate } from "react-router-dom";
 
 interface ClubFeatureProperties {
   cluster: boolean;
@@ -32,6 +40,9 @@ type ClusterOrPoint = ClusterFeature | PointFeatureType;
 export default function MapView() {
   const [clubs, setClubs] = useState<Club[]>([]);
   const theme = useTheme();
+  const { token } = useAuth();
+  const { showSuccessBubble, showErrorBubble } = useBubble();
+  const navigate = useNavigate();
   const [manualCenter, setManualCenter] = useState(false);
   const [selectedSports, setSelectedSports] = useState<Sport[]>([]);
   // State pour les coins de la carte
@@ -408,15 +419,38 @@ export default function MapView() {
             {...clubs.find((c) => c.id === selectedClub)!}
             onDetails={() => setShowDetails(true)}
             {...clubs.find((club) => club.id === selectedClub)!}
-            onJoin={() => {
-              alert("Join club functionality to be implemented");
-              /*
-                            if (!user) {
-                                navigate("/login", { state: { redirectTo: `/clubs/${selectedClub}/join` } });
-                            } else {
-                                navigate(`/clubs/${selectedClub}/join`);
-                            }
-                            */
+            onJoin={async () => {
+              if (!selectedClub) return;
+              if (!token) {
+                navigate("/login");
+                return;
+              }
+              try {
+                const me = await getMe(token);
+                if (!me) {
+                  navigate("/login");
+                  return;
+                }
+                const input: UserInput = {
+                  userId: me.id,
+                  firstName: me.firstName,
+                  lastName: me.lastName,
+                  birthDate: new Date(me.birthDate).toISOString(),
+                  email: me.email,
+                  phoneNumber: me.phone || undefined,
+                };
+                const res = await subscribeToClub(selectedClub, input);
+                if (res.success) {
+                  showSuccessBubble?.("Inscription au club réussie");
+                } else {
+                  showErrorBubble?.(
+                    res.message || "Erreur lors de l’inscription",
+                  );
+                }
+              } catch (e) {
+                const msg = e instanceof Error ? e.message : String(e);
+                showErrorBubble?.(msg);
+              }
             }}
           />
         )}

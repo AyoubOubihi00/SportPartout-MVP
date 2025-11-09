@@ -15,7 +15,6 @@ import java.util.UUID;
 public class Club {
 
     @Id
-    @GeneratedValue(generator = "UUID")
     private UUID id;
     private String name;
     private double notation;
@@ -46,5 +45,11 @@ public class Club {
     private Date deletedAt;
 
 
+    @PrePersist
+    public void ensureIdExists() {
+        if (this.id == null) {
+            this.id = UUID.randomUUID();
+        }
+    }
 
 }

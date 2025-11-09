@@ -29,7 +29,7 @@ public class ClubCatalogImpl implements ClubCatalog {
     @Override
     public List<Club> getClubsByOwnerId(UUID ownerId) {
         return clubRepository.findAll().stream()
-                .filter(club -> club.getOwnerId().equals(ownerId))
+                .filter(club -> ownerId != null && ownerId.equals(club.getOwnerId()))
                 .toList();
     }
 

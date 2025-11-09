@@ -13,7 +13,7 @@ export default function NavBar() {
   const location = useLocation();
 
   const items = [
-    { icon: <Dumbbell size={28} />, label: "CLUB", paths: ["/random"] },
+    { icon: <Dumbbell size={28} />, label: "CLUB", paths: ["/clubs"] },
     {
       icon: <CalendarRange size={28} />,
       label: "ACTIVITÉS",

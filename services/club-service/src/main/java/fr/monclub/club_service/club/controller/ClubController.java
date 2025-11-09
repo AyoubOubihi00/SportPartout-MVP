@@ -31,6 +31,7 @@ public class ClubController {
 
     @QueryMapping
     public Club clubById(@Argument UUID id) {
+        System.out.println("Fetching club with id: " + id);
         return clubCatalog.getClubById(id);
     }
 

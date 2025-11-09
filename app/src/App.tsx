@@ -10,6 +10,7 @@ import { BubbleProvider } from "./components/shared/SuccessBubbleContext";
 import { AuthProvider } from "./components/shared/AuthContext";
 import ProfileSwitch from "./components/Profile/ProfileSwitch";
 import MyActivities from "./components/Activities/MyActivities";
+import Clubs from "./components/Clubs/Clubs";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
             <Route path="/editmemberprofile" element={<EditMemberProfile />} />
 
             <Route path="/activities" element={<MyActivities />} />
+            <Route path="/clubs" element={<Clubs />} />
           </Routes>
         </Router>
       </BubbleProvider>

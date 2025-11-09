@@ -1,9 +1,9 @@
 package fr.monclub.club_membership_service.Integration;
 
-import fr.monclub.club_membership_service.DTO.UserInput;
-import fr.monclub.club_membership_service.model.ClubMember;
-import fr.monclub.club_membership_service.repository.ClubMemberRepository;
-import fr.monclub.club_membership_service.service.SubscribeMemberService;
+import fr.monclub.club_membership_service.membership.DTO.UserInput;
+import fr.monclub.club_membership_service.membership.model.ClubMember;
+import fr.monclub.club_membership_service.membership.repository.ClubMemberRepository;
+import fr.monclub.club_membership_service.membership.service.SubscribeMemberService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

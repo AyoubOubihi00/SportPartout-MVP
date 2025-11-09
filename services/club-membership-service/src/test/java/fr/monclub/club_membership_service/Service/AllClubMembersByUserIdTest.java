@@ -1,8 +1,9 @@
 package fr.monclub.club_membership_service.Service;
 
-import fr.monclub.club_membership_service.catalog.ClubMemberCatalog;
-import fr.monclub.club_membership_service.model.ClubMember;
-import fr.monclub.club_membership_service.service.AllClubMembersByUserId;
+
+import fr.monclub.club_membership_service.membership.catalog.ClubMemberCatalog;
+import fr.monclub.club_membership_service.membership.model.ClubMember;
+import fr.monclub.club_membership_service.membership.service.AllClubMembersByUserId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -116,6 +116,21 @@ static_resources:
                               max_age: "86400"
                               allow_credentials: true
 
+                        - match:
+                            prefix: "/bff/graphql"
+                          route:
+                            prefix_rewrite: "/graphql"
+                            cluster: bff_service
+                            cors:
+                              allow_origin_string_match:
+                                - prefix: "http://localhost:5173"
+                              allow_methods: "GET, POST, OPTIONS"
+                              allow_headers: "Content-Type, Authorization"
+                              expose_headers: "Authorization"
+                              max_age: "86400"
+                              allow_credentials: true
+
+
                 http_filters:
                   # ⚙️ Le filtre CORS doit être AVANT le routeur
                   - name: envoy.filters.http.cors
@@ -129,6 +144,7 @@ static_resources:
                       providers:
                         auth_provider:
                           issuer: "https://auth.sportpartout.fr"
+                          #forward: true
                           remote_jwks:
                             http_uri:
                               uri: "http://authentification-service:8080/.well-known/jwks.json"
@@ -151,6 +167,11 @@ static_resources:
 
                         - match:
                             prefix: "/planning/graphql"
+                          requires:
+                            provider_name: auth_provider
+
+                        - match:
+                            prefix: "/bff/graphql"
                           requires:
                             provider_name: auth_provider
 
@@ -239,6 +260,21 @@ static_resources:
                   address:
                     socket_address:
                       address: planning-service
+                      port_value: 8080
+
+    # Microservice planning
+    - name: bff_service
+      connect_timeout: 5s
+      type: STRICT_DNS
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: bff_service
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: bff-service
                       port_value: 8080
 
 

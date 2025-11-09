@@ -1,9 +1,9 @@
 package fr.monclub.club_membership_service.Integration;
 
-import fr.monclub.club_membership_service.catalog.ClubMemberCatalog;
-import fr.monclub.club_membership_service.model.ClubMember;
-import fr.monclub.club_membership_service.repository.ClubMemberRepository;
-import fr.monclub.club_membership_service.service.AllMembersService;
+
+import fr.monclub.club_membership_service.membership.catalog.ClubMemberCatalog;
+import fr.monclub.club_membership_service.membership.model.ClubMember;
+import fr.monclub.club_membership_service.membership.service.AllMembersService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,7 +40,7 @@ public class AllMembersServiceIntegrationTest {
         member1.setFirstName("Alice");
         member1.setLastName("Smith");
         member1.setEmail("alice@example.com");
-        member1.setBirthDate(LocalDate.of(1990, 1, 1));
+       // member1.setBirthDate(OffsetDateTime.of(1990, 1, 1));
         member1.setIsActif(true);
 
         ClubMember member2 = new ClubMember();
@@ -48,7 +49,7 @@ public class AllMembersServiceIntegrationTest {
         member2.setFirstName("Bob");
         member2.setLastName("Johnson");
         member2.setEmail("bob@example.com");
-        member2.setBirthDate(LocalDate.of(1985, 5, 5));
+       // member2.setBirthDate(LocalDate.of(1985, 5, 5));
         member2.setIsActif(true);
 
         // Sauvegarde en base

@@ -3,6 +3,7 @@ package fr.monclub.club_service.club.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -14,7 +15,6 @@ import java.util.UUID;
 public class Club {
 
     @Id
-    @GeneratedValue(generator = "UUID")
     private UUID id;
     private String name;
 
@@ -33,11 +33,17 @@ public class Club {
 
     private UUID ownerId;
 
-    private Date createdAt;
-    private Date updatedAt;
-    private Date deletedAt;
+    private OffsetDateTime createdAt;
+    private OffsetDateTime updatedAt;
+    private OffsetDateTime deletedAt;
     private boolean isActive = true;
 
 
+    @PrePersist
+    public void ensureIdExists() {
+        if (this.id == null) {
+            this.id = UUID.randomUUID();
+        }
+    }
 
 }

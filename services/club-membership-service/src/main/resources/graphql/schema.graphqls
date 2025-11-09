@@ -1,33 +1,70 @@
+scalar DateTime
+
+type Club {
+    id: ID
+    ownerId: ID
+    name: String
+    typeId: ID
+    typeName: String
+    city: String
+    address: String
+    country: String
+    postalCode: String
+    phoneNumber: String
+    email: String
+    latitude: Float
+    longitude: Float
+    createdAt: DateTime
+    updatedAt: DateTime
+    deletedAt: DateTime
+}
+
 type ClubMember {
+    userId: ID!
     clubId: ID!
+    firstName: String!
+    lastName: String!
+    birthDate: DateTime
+    email: String!
+    phoneNumber: String
+    isActif: Boolean
+    dateSubscription: DateTime
+    himself: Boolean
+    club: Club
+}
+
+input ClubInput {
+    id: ID
+    ownerId: ID
+    name: String
+    typeId: ID
+    typeName: String
+    city: String
+    address: String
+    country: String
+    postalCode: String
+    phoneNumber: String
+    email: String
+    latitude: Float
+    longitude: Float
+    createdAt: DateTime
+    updatedAt: DateTime
+    deletedAt: DateTime
+}
+
+input UserInput {
     userId: ID!
     firstName: String!
     lastName: String!
-    birthDate: String
-    email: String!
-    phoneNumber: String,
-    isActif : Boolean,
-    dateSubscription : String,
-    himself : Boolean
-}
-
-
-
-input UserInput {
-    userId : ID!
-    firstName: String!
-    lastName: String!
-    birthDate: String!
+    birthDate: DateTime!
     email: String!
     phoneNumber: String
 }
 
-
 type Mutation {
-    subscribeToClub(clubId: ID!, newMember: UserInput!): ClubMember
+    subscribeToClub(clubId: ID!, newMember: UserInput!, club: ClubInput!): ClubMember
     unsubscribeFromClub(clubId: ID!, memberId: ID!): Int
-    forcedUnsubscribe(clubId : ID!, memberId: ID!): Int
-
+    forcedUnsubscribe(clubId: ID!, memberId: ID!): Int
 }
 
 type Query {
@@ -35,6 +72,4 @@ type Query {
     IsNotActiveClubMembersByClubId(clubId: ID!): [ClubMember]
     AllClubMembersByClubId(clubId: ID!): [ClubMember]
     clubMembersByUserId(userId: ID!): [ClubMember]
-
 }
-

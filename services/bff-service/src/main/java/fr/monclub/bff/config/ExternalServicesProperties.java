@@ -4,7 +4,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "monclub")
 public record ExternalServicesProperties(ServiceProperties planning,
-                                         ServiceProperties club) {
+                                         ServiceProperties club,
+                                         ServiceProperties membership) {
 
     public ExternalServicesProperties {
         if (planning == null) {
@@ -12,6 +13,9 @@ public record ExternalServicesProperties(ServiceProperties planning,
         }
         if (club == null) {
             throw new IllegalStateException("monclub.club configuration is missing");
+        }
+        if (membership == null) {
+            throw new IllegalStateException("monclub.membership configuration is missing");
         }
     }
 

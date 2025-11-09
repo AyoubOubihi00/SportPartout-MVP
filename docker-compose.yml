@@ -32,6 +32,8 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db-club:5432/club_db
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
         
     depends_on:
       - rabbitmq
@@ -68,6 +70,8 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db-admin:5432/admin_db
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
         
     depends_on:
       - rabbitmq
@@ -102,6 +106,8 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db-findclub:5432/findclub_db
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
 
     depends_on:
       db-findclub:
@@ -138,6 +144,8 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db-planning:5432/planning_db
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
 
     depends_on:
       db-planning:
@@ -174,6 +182,8 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db-authentification:5432/authentification_db
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
 
     depends_on:
       db-findclub:
@@ -197,6 +207,63 @@ services:
       - authentification-service
     networks:
       - monclub-net
+  
+  club-membership-service:
+    build: ./services/club-membership-service
+    container_name: monclub-club-membership-service
+    env_file:
+      - ./services/club-membership-service/.env
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db-membership:5432/membership_db
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+
+    depends_on:
+      db-membership:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+    ports:
+      - "8086:8080"
+    networks:
+      - monclub-net
+
+  bff-service:
+    build: ./services/bff-service
+    container_name: monclub-bff-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - CLUB_MEMBERSHIP_SERVICE_GRAPHQL_URL=http://club-membership-service:8080/graphql
+      - CLUB_SERVICE_GRAPHQL_URL=http://club-service:8080/graphql
+      - PLANNING_SERVICE_GRAPHQL_URL=http://planning-service:8080/graphql
+
+    depends_on:
+      club-service:
+        condition: service_started
+      planning-service:
+        condition: service_started
+    ports:
+      - "8090:8080"
+    networks:
+      - monclub-net
+
+  db-membership:
+    image: postgis/postgis:16-3.4-alpine
+    container_name: monclub-db-membership
+    env_file:
+      - ./services/club-membership-service/.env
+    ports:
+      - "5438:5432"
+    networks:
+      - monclub-net
+    volumes:
+      - db_membership_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL","pg_isready -U $POSTGRES_USER -d membership_db || exit 1" ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
 
 
 networks:
@@ -209,3 +276,4 @@ volumes:
   db_findclub_data:
   db_planning_data:
   db_authentification_data:
+  db_membership_data:

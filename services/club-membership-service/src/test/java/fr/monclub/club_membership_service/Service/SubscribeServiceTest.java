@@ -1,14 +1,10 @@
 package fr.monclub.club_membership_service.Service;
-
-import fr.monclub.club_membership_service.DTO.UserInput;
-import fr.monclub.club_membership_service.Mapper.ClubMemberMapper;
-import fr.monclub.club_membership_service.catalog.ClubMemberCatalog;
-
-import fr.monclub.club_membership_service.DTO.UserInput;
-import fr.monclub.club_membership_service.Mapper.ClubMemberMapper;
-import fr.monclub.club_membership_service.model.ClubMember;
-import fr.monclub.club_membership_service.repository.ClubMemberRepository;
-import fr.monclub.club_membership_service.service.SubscribeMemberService;
+import fr.monclub.club_membership_service.membership.DTO.ClubInput;
+import fr.monclub.club_membership_service.membership.DTO.UserInput;
+import fr.monclub.club_membership_service.membership.Mapper.ClubMemberMapper;
+import fr.monclub.club_membership_service.membership.catalog.ClubMemberCatalog;
+import fr.monclub.club_membership_service.membership.model.ClubMember;
+import fr.monclub.club_membership_service.membership.service.SubscribeMemberService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +15,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -52,7 +50,7 @@ public class SubscribeServiceTest {
     @Test
     void subscribe_shouldSaveMemberAndReturnEntity() {
         // Arrange : on définit le comportement des mocks
-        when(clubMemberMapper.toClubMemberEntity(clubId, userInput)).thenReturn(clubMember);
+        when(clubMemberMapper.toClubMemberEntity(eq(clubId), eq(userInput), any(ClubInput.class))).thenReturn(clubMember);
 
         when(clubMemberCatalog.save(clubMember)).thenReturn(clubMember);
 
@@ -62,6 +60,6 @@ public class SubscribeServiceTest {
         // Assert : on vérifie le résultat et l’interaction avec les mocks
         assertThat(result).isEqualTo(clubMember);
         verify(clubMemberCatalog).save(clubMember);
-        verify(clubMemberMapper).toClubMemberEntity(clubId, userInput);
+        verify(clubMemberMapper).toClubMemberEntity(eq(clubId), eq(userInput), any(ClubInput.class));
     }
 }

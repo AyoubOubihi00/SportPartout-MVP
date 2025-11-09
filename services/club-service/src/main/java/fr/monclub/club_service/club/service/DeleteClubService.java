@@ -10,6 +10,7 @@ import fr.monclub.club_service.core.exception.ClubNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -30,7 +31,7 @@ public class DeleteClubService {
             throw new ClubAccessDeniedException("Vous n'êtes pas autorisé à modifier ce club.");
         }
 
-        existing.setDeletedAt(new Date());
+        existing.setDeletedAt(OffsetDateTime.now());
         existing.setActive(false);
         clubCatalog.save(existing);
         return true;

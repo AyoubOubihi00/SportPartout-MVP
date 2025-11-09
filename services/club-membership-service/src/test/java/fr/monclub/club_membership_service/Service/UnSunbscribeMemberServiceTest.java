@@ -1,8 +1,9 @@
 package fr.monclub.club_membership_service.Service;
 
-import fr.monclub.club_membership_service.catalog.ClubMemberCatalog;
-import fr.monclub.club_membership_service.model.ClubMember;
-import fr.monclub.club_membership_service.service.UnSunbscribeMemberService;
+
+import fr.monclub.club_membership_service.membership.catalog.ClubMemberCatalog;
+import fr.monclub.club_membership_service.membership.model.ClubMember;
+import fr.monclub.club_membership_service.membership.service.UnSunbscribeMemberService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -42,10 +44,10 @@ class UnSunbscribeMemberServiceTest {
         clubMember.setFirstName("Ahmet");
         clubMember.setLastName("Kaly");
         clubMember.setPhoneNumber("0606060606");
-        clubMember.setBirthDate(LocalDate.now());
+        clubMember.setBirthDate(OffsetDateTime.now());
         clubMember.setClubId(clubId);
         clubMember.setUserId(userId);
-        clubMember.setDateSubscription(LocalDate.now());
+        clubMember.setDateSubscription(OffsetDateTime.now());
 
 
     }

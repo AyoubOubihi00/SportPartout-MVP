@@ -32,7 +32,7 @@ type FullClub {
     ownerId: UUID!
     createdAt: DateTime!
     updatedAt: DateTime!
-    deletedAt: DateTime!
+    deletedAt: DateTime
 
 }
 
