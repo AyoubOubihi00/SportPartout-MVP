@@ -265,6 +265,22 @@ services:
       timeout: 3s
       retries: 20
 
+  pwa-app:
+    image: node:18-slim
+    container_name: monclub-pwa-app
+    working_dir: /usr/src/app
+    volumes:
+      - ./app:/usr/src/app
+      - pwa_node_modules:/usr/src/app/node_modules  # ✅ fixe le problème
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    command: sh -c "npm install --silent && npm run dev -- --host 0.0.0.0 --port 5173"
+    ports:
+      - "5173:5173"
+    networks:
+      - monclub-net
+
+
 
 networks:
   monclub-net:
@@ -277,3 +293,4 @@ volumes:
   db_planning_data:
   db_authentification_data:
   db_membership_data:
+  pwa_node_modules:

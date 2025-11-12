@@ -22,8 +22,15 @@ import {
   TabPanel,
 } from "@mui/joy";
 import FullCalendarSchedule from "../Schedule/FullCalendarSchedule";
-import { getScheduleForClub } from "../../mock/schedule";
-import { useMemo, useState } from "react";
+import type { TimeSlot } from "../Schedule/Schedule";
+import { useState, useEffect } from "react";
+import { getScheduleForClubRemote } from "../../mock/schedule";
+import { joinSeance } from "../../services/activitiesService";
+import { useBubble } from "../shared/useBubble";
+import { useAuth } from "../shared/useAuth";
+import { useNavigate } from "react-router-dom";
+import { getMe } from "../../services/auth/authService";
+import { subscribeToClub, UserInput } from "../../services/membershipService";
 
 type ClubDetailsProps = { club: Club };
 
@@ -40,16 +47,32 @@ function sportEmoji(sport?: string) {
 }
 
 export default function ClubDetails({ club }: ClubDetailsProps) {
+  const { token } = useAuth();
+  const navigate = useNavigate();
   const phoneHref = club.phoneNumber ? `tel:${club.phoneNumber}` : undefined;
   const mailHref = club.email ? `mailto:${club.email}` : undefined;
   const fullAddress = `${club.addresse}${club.city ? `, ${club.city}` : ""}${club.postalCode ? ` ${club.postalCode}` : ""}${club.country ? `, ${club.country}` : ""}`;
 
   const [tab, setTab] = useState(0);
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
-  const scheduleSlots = useMemo(
-    () => getScheduleForClub(club.id, currentDate),
-    [club.id, currentDate],
-  );
+  const [scheduleSlots, setScheduleSlots] = useState<TimeSlot[]>(() => []);
+  const { showSuccessBubble, showErrorBubble } = useBubble();
+
+  useEffect(() => {
+    let mounted = true;
+    // fetch remote schedule from planning service and update slots
+    (async () => {
+      try {
+        const slots = await getScheduleForClubRemote(club.id, currentDate);
+        if (mounted) setScheduleSlots(slots);
+      } catch (err) {
+        console.error("ClubDetails: getScheduleForClubRemote error", err);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [club.id, currentDate]);
   const START_HOUR = 8; // customize here
   const END_HOUR = 20; // customize here
 
@@ -226,7 +249,7 @@ export default function ClubDetails({ club }: ClubDetailsProps) {
       <Tabs
         value={tab}
         onChange={(_, v) => setTab(Number(v))}
-        sx={{ mx: 0.5, mt: 1 }}
+        sx={{ mx: 0.5, mt: 1, background: "transparent" }}
       >
         <TabList
           variant="soft"
@@ -427,7 +450,38 @@ export default function ClubDetails({ club }: ClubDetailsProps) {
                 fontWeight: 700,
                 borderRadius: 10,
               }}
-              onClick={() => alert("Rejoindre le club")}
+              onClick={async () => {
+                if (!token) {
+                  navigate("/login");
+                  return;
+                }
+                try {
+                  const me = await getMe(token);
+                  if (!me) {
+                    navigate("/login");
+                    return;
+                  }
+                  const input: UserInput = {
+                    userId: me.id,
+                    firstName: me.firstName,
+                    lastName: me.lastName,
+                    birthDate: new Date(me.birthDate).toISOString(),
+                    email: me.email,
+                    phoneNumber: me.phone || undefined,
+                  };
+                  const res = await subscribeToClub(club.id, input);
+                  if (res.success) {
+                    showSuccessBubble?.("Inscription au club réussie");
+                  } else {
+                    showErrorBubble?.(
+                      res.message || "Erreur lors de l’inscription",
+                    );
+                  }
+                } catch (e) {
+                  const msg = e instanceof Error ? e.message : String(e);
+                  showErrorBubble?.(msg);
+                }
+              }}
             >
               Rejoindre
             </Button>
@@ -450,14 +504,30 @@ export default function ClubDetails({ club }: ClubDetailsProps) {
                 (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1),
               )
             }
-            onJoin={(slot) =>
-              alert(
-                `Rejoindre la séance ${slot.title ?? ""} à ${String(slot.hour).padStart(2, "0")}:00`,
-              )
-            }
+            onJoin={async (slot) => {
+              if (!token) {
+                navigate("/login");
+                return;
+              }
+              if (!slot?.id) {
+                showErrorBubble?.("Impossible de rejoindre : id manquant");
+                return;
+              }
+
+              try {
+                await joinSeance(slot.id, "id startTime nameSport endTime");
+
+                showSuccessBubble?.("Séance rejointe !");
+              } catch (err) {
+                console.error("joinSeance error", err);
+                showErrorBubble?.(
+                  err instanceof Error ? err.message : String(err),
+                );
+              }
+            }}
             onReserve={(slot) =>
-              alert(
-                `Réserver le créneau à ${String(slot.hour).padStart(2, "0")}:00`,
+              showSuccessBubble?.(
+                `Réserver le créneau à ${String(slot.startHour).padStart(2, "0")}:00`,
               )
             }
           />

@@ -8,7 +8,6 @@ import type { RolesState } from "../../../store/rolesSlice";
 
 const preloaded: RolesState = { roles: ["USER"], viewMode: "USER" };
 
-
 // Stub CSS import used by ProfileLayout without changing Jest config
 jest.mock("../ProfileCommon.css", () => ({}), { virtual: true });
 
@@ -28,10 +27,8 @@ function renderWithStoreAndRouter(ui: React.ReactNode) {
 
   return render(
     <Provider store={store}>
-      <MemoryRouter>
-        {ui}
-      </MemoryRouter>
-    </Provider>
+      <MemoryRouter>{ui}</MemoryRouter>
+    </Provider>,
   );
 }
 
@@ -40,7 +37,7 @@ describe("ProfileLayout (unit)", () => {
     renderWithStoreAndRouter(
       <ProfileLayout>
         <div data-testid="child">content</div>
-      </ProfileLayout>
+      </ProfileLayout>,
     );
 
     expect(screen.getByTestId("child")).toBeInTheDocument();

@@ -9,7 +9,6 @@ import ProfileSwitch from "../ProfileSwitch";
 // Stub CSS import used by ProfileLayout to avoid Jest parsing CSS
 jest.mock("../ProfileCommon.css", () => ({}), { virtual: true });
 
-
 // Mock child profile components to keep the test focused and fast
 jest.mock("../OwnerProfile/OwnerProfile", () => ({
   __esModule: true,
@@ -31,7 +30,7 @@ function renderWithStore(preloaded: RolesState) {
       <MemoryRouter>
         <ProfileSwitch />
       </MemoryRouter>
-    </Provider>
+    </Provider>,
   );
 }
 

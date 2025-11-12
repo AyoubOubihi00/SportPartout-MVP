@@ -82,4 +82,12 @@ public class Seance {
     )
     @Column(name = "user_id", nullable = true)
     private Set<UUID> participants = new HashSet<>();
+
+    private String coachName;
+
+    private String clubName;
+    private String adressSeance;
+    private String citySeance;
+
+    private String terrainName;
 }

@@ -20,74 +20,6 @@ import {
 import { ChevronLeft, ChevronRight, RotateCw } from "lucide-react";
 import type { ScheduleProps, SlotStatus, TimeSlot } from "./Schedule";
 
-/*
-  Backend integration (commented scaffolding)
-  -----------------------------------------
-  Plan to replace `slots` prop with server data when backend is ready.
-
-  Recommended endpoints
-  - GET /clubs/:clubId/schedule?date=YYYY-MM-DD&tz=Europe/Paris
-    -> { slots: BackendSlot[] }
-  - POST /clubs/:clubId/slots/:slotId/join
-  - POST /clubs/:clubId/slots/:slotId/reserve
-
-  Suggested client types
-  // type BackendSlot = {
-  //   id: string;
-  //   start: string; // ISO 8601 in UTC, e.g. "2025-10-18T10:00:00Z"
-  //   end: string;   // ISO 8601 in UTC
-  //   status: 'booked' | 'session' | 'available' | 'closed';
-  //   title?: string;
-  //   capacity?: number;
-  //   reserved?: number;
-  // };
-
-  Example fetcher (axios/fetch)
-  // async function fetchSchedule(clubId: string, dateISO: string, tz = 'Europe/Paris'): Promise<BackendSlot[]> {
-  //   const res = await fetch(`/api/clubs/${clubId}/schedule?date=${dateISO}&tz=${tz}`);
-  //   if (!res.ok) throw new Error('Failed to load schedule');
-  //   const data = await res.json();
-  //   return data.slots as BackendSlot[];
-  // }
-
-  Mapping server -> FullCalendar events
-  // function mapBackendSlotsToEvents(slots: BackendSlot[]) {
-  //   return slots.map((s) => ({
-  //     id: s.id,
-  //     title: s.title || (s.status === 'session' ? 'Séance' : s.status === 'booked' ? 'Pris' : s.status === 'available' ? 'Disponible' : ''),
-  //     start: new Date(s.start),
-  //     end: new Date(s.end),
-  //     classNames: [s.status === 'closed' ? 'fc-closed-slot-bg' : `fc-${s.status}-slot`],
-  //     display: s.status === 'closed' ? 'background' : undefined,
-  //     extendedProps: { status: s.status, slotId: s.id },
-  //   }));
-  // }
-
-  React Query (optional)
-  // import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-  // const q = useQuery({
-  //   queryKey: ['schedule', clubId, dateISO],
-  //   queryFn: () => fetchSchedule(clubId, dateISO),
-  //   staleTime: 60_000,
-  // });
-  // const events = useMemo(() => q.data ? mapBackendSlotsToEvents(q.data) : [], [q.data]);
-
-  Actions
-  // const join = useMutation({
-  //   mutationFn: async (slotId: string) => { await fetch(`/api/clubs/${clubId}/slots/${slotId}/join`, { method: 'POST' }); },
-  //   onSuccess: () => queryClient.invalidateQueries({ queryKey: ['schedule', clubId] }),
-  // });
-  // const reserve = useMutation({
-  //   mutationFn: async (slotId: string) => { await fetch(`/api/clubs/${clubId}/slots/${slotId}/reserve`, { method: 'POST' }); },
-  //   onSuccess: () => queryClient.invalidateQueries({ queryKey: ['schedule', clubId] }),
-  // });
-
-  Notes
-  - Conserver les dates en ISO UTC côté API et transmettre un paramètre tz (Europe/Paris) pour éviter les décalages.
-  - Ici, la vue semaine réplique le pattern de la journée locale. Avec le backend, renvoyer les créneaux pour toute la période demandée.
-  - En cas de chargement/erreur, envisager Skeleton Joy + message d’erreur avec bouton "Réessayer".
-*/
-
 function toTimeStr(h: number) {
   return `${String(h).padStart(2, "0")}:00:00`;
 }
@@ -145,15 +77,17 @@ export default function FullCalendarSchedule({
       title: string;
       start: Date;
       end: Date;
-      extendedProps: { status: SlotStatus; slot?: TimeSlot };
       display?: "background";
-      classNames?: string[];
+      classNames: string[];
+      extendedProps: { status: SlotStatus; slot?: TimeSlot };
     }> = [];
+
     const days = view === "timeGridWeek" ? 7 : 1;
-    // find Monday of the week for FR locale
+
+    // Trouver le lundi de la semaine
     const monday = new Date(base);
-    const day = (monday.getDay() + 6) % 7; // 0 for Monday
-    monday.setDate(monday.getDate() - day);
+    const dayOffset = (monday.getDay() + 6) % 7;
+    monday.setDate(monday.getDate() - dayOffset);
 
     for (let d = 0; d < days; d++) {
       const theDay =
@@ -164,60 +98,67 @@ export default function FullCalendarSchedule({
               monday.getDate() + d,
             )
           : base;
+
+      // 1) Créneaux fermés (background) par heure non couverte
       for (let h = startHour; h < endHour; h++) {
-        const slot = slots.find((s) => s.hour === h);
-        const st: SlotStatus = slot?.status ?? "closed";
-        const start = new Date(
-          theDay.getFullYear(),
-          theDay.getMonth(),
-          theDay.getDate(),
-          h,
-          0,
-          0,
+        const start = new Date(theDay);
+        start.setHours(h, 0, 0);
+
+        const end = new Date(theDay);
+        end.setHours(h + 1, 0, 0);
+
+        const isCovered = slots.some(
+          (s) => h >= s.startHour! && h < s.endHour && s.status !== "closed",
         );
-        const end = new Date(
-          theDay.getFullYear(),
-          theDay.getMonth(),
-          theDay.getDate(),
-          h + 1,
-          0,
-          0,
-        );
-        if (st === "closed") {
-          // Grise les créneaux indisponibles en arrière-plan (jour + semaine)
+
+        if (!isCovered) {
           arr.push({
-            id: `d${d}-h${h}`,
+            id: `closed-${d}-${h}`,
             title: "",
             start,
             end,
             display: "background",
             classNames: ["fc-closed-slot-bg"],
-            extendedProps: { status: st },
-          });
-        } else {
-          const title =
-            slot?.title ||
-            (st === "session"
-              ? "Séance"
-              : st === "booked"
-                ? "Pris"
-                : "Disponible");
-          arr.push({
-            id: `d${d}-h${h}`,
-            title,
-            start,
-            end,
-            classNames: [`fc-${st}-slot`],
-            extendedProps: { status: st, slot },
+            extendedProps: { status: "closed" },
           });
         }
       }
+
+      // 2) Créneaux réels multi-heures
+      for (const slot of slots) {
+        const { startHour, endHour, status } = slot;
+
+        const start = new Date(theDay);
+        start.setHours(startHour, 0, 0);
+
+        const end = new Date(theDay);
+        end.setHours(endHour, 0, 0);
+
+        const title =
+          slot.title ??
+          (status === "session"
+            ? "Séance"
+            : status === "booked"
+              ? "Pris"
+              : "Disponible");
+
+        arr.push({
+          id: `slot-${d}-${startHour}-${endHour}`,
+          title,
+          start,
+          end,
+          classNames: [`fc-${status}-slot`],
+          extendedProps: { status, slot },
+        });
+      }
     }
+
     return arr;
   }, [date, startHour, endHour, slots, view]);
 
   useEffect(() => {
     const api = calRef.current?.getApi?.();
+    console.log("Navigating to date:", date);
     if (api) api.gotoDate(date);
   }, [date]);
 
@@ -289,7 +230,10 @@ export default function FullCalendarSchedule({
   }
 
   return (
-    <Sheet variant="soft" sx={{ p: 1.25, borderRadius: 12 }}>
+    <Sheet
+      variant="soft"
+      sx={{ p: 1.25, borderRadius: 12, background: "transparent" }}
+    >
       <Stack direction="column" sx={{ mb: 1, gap: 0.5 }}>
         <Stack
           direction="row"
@@ -425,7 +369,7 @@ export default function FullCalendarSchedule({
           const showReserve = isDay && status === "available" && slot;
           const subtitle: string | undefined = slot?.subtitle;
           if (isDay) {
-            // Vue Jour: contenu aligné à gauche, sous-titre sur la même ligne: "Séance — Entraînement U17"
+            // Vue Jour: titre + sous-titre empilés (sous-titre en dessous)
             return (
               <div
                 style={{
@@ -437,15 +381,25 @@ export default function FullCalendarSchedule({
                   color: "var(--joy-palette-text-primary)",
                 }}
               >
-                <span
+                <div
                   style={{
                     display: "flex",
-                    alignItems: "baseline",
-                    gap: 6,
+                    flexDirection: "column",
+                    gap: 4,
                     minWidth: 0,
+                    overflow: "hidden",
                   }}
                 >
-                  <span style={{ fontSize: "0.92em", fontWeight: 800 }}>
+                  <span
+                    style={{
+                      fontSize: "0.95em",
+                      fontWeight: 800,
+                      lineHeight: 1.1,
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
                     {arg.event.title}
                   </span>
                   {subtitle ? (
@@ -458,10 +412,10 @@ export default function FullCalendarSchedule({
                         textOverflow: "ellipsis",
                       }}
                     >
-                      — {subtitle}
+                      {subtitle}
                     </span>
                   ) : null}
-                </span>
+                </div>
                 {showJoin ? (
                   <Button
                     size="sm"
@@ -504,17 +458,27 @@ export default function FullCalendarSchedule({
               {isMobile ? (
                 <span
                   style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 2,
                     fontSize: "0.8em",
-                    fontWeight: 800,
                     textAlign: "center",
-                    whiteSpace: "nowrap",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                     maxWidth: "100%",
                   }}
                 >
-                  {arg.event.title}
-                  {subtitle ? ` — ${subtitle}` : ""}
+                  <span style={{ fontWeight: 800 }}>{arg.event.title}</span>
+                  {subtitle ? (
+                    <span
+                      style={{
+                        fontSize: "0.75em",
+                        color: "var(--joy-palette-text-secondary)",
+                      }}
+                    >
+                      {subtitle}
+                    </span>
+                  ) : null}
                 </span>
               ) : (
                 <span
@@ -571,7 +535,7 @@ export default function FullCalendarSchedule({
         .fc .fc-col-header { position: sticky; top: 0; z-index: 2; background: var(--joy-palette-neutral-100); }
         .fc .fc-timegrid-axis { background: var(--joy-palette-neutral-100); }
         .fc .fc-col-header-cell-cushion { display: block; padding: 6px 8px; font-weight: 600; text-transform: capitalize; }
-        .fc .fc-timegrid-slot { height: 32px; }
+  .fc .fc-timegrid-slot { height: 40px; }
         .fc .fc-timegrid-axis-cushion, .fc .fc-scrollgrid-shrink-cushion { padding: 6px 8px; color: var(--joy-palette-text-secondary); }
         .fc .fc-timegrid-divider { border-left: 1px solid var(--fc-border-color); }
         .fc .fc-timegrid-slot:hover { background: rgba(0,0,0,0.03); }
@@ -593,10 +557,43 @@ export default function FullCalendarSchedule({
 
         /* Responsive tweaks for small screens */
         @media (max-width: 640px) {
-          .fc .fc-timegrid-slot { height: 28px; }
+          .fc .fc-timegrid-slot { height: 36px; }
           .fc .fc-col-header-cell-cushion { padding: 4px 6px; font-size: 0.95em; }
           .fc .fc-event { padding: 2px 4px; }
         }
+        .fc .fc-timegrid-slot {
+          background: transparent !important;
+        }
+
+        .fc .fc-timegrid-axis {
+          background: transparent !important;
+        }
+
+        .fc .fc-scrollgrid,
+        .fc .fc-timegrid-slots {
+          background: transparent !important;
+        }
+
+        .fc .fc-timegrid-slot:hover {
+          background: transparent !important;
+        }
+
+        /* En-tête des colonnes (jours/dates) transparent */
+.fc .fc-col-header,
+.fc .fc-col-header .fc-scrollgrid-sync-table,
+.fc .fc-col-header-cell {
+  color: remain inherit !important;
+  background: transparent !important;
+}
+
+.fc .fc-scrollgrid-section-sticky > * {
+  background: transparent !important;      
+}
+
+.fc-col-header-cell-cushion{
+  color: var(--joy-palette-text-primary) !important;
+}
+
       `}</style>
     </Sheet>
   );

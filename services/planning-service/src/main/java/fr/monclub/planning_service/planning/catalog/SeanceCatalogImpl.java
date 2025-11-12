@@ -132,8 +132,11 @@ public class SeanceCatalogImpl implements SeanceCatalog {
     }
 
     @Override
-    public List<Seance> findByUserId(UUID userId) {
-        return repo.findAllByParticipantsContains(userId);
+    public List<Seance> findByUserId(UUID userId, OffsetDateTime start, OffsetDateTime end) {
+        if (start == null || end == null) {
+            return repo.findAllByParticipantsContains(userId);
+        }
+        return repo.findAllByParticipantsContainsAndStartTimeBetween(userId, start, end);
     }
 
     // ---------- Helpers métier ----------

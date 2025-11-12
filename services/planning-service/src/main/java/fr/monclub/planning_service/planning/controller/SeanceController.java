@@ -5,6 +5,7 @@ import fr.monclub.planning_service.planning.model.Seance;
 import fr.monclub.planning_service.planning.model.SeanceWithAvailability;
 import fr.monclub.planning_service.planning.service.GetUser;
 import lombok.RequiredArgsConstructor;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -60,21 +61,23 @@ public class SeanceController {
 
     // Inscription à une séance
     @MutationMapping
+    @PreAuthorize("hasRole('ROLE_USER')")
     public Seance joinSeance(@Argument UUID id) {
         return catalog.join(id);
     }
 
     // Désinscription d'une séance
     @MutationMapping
+    @PreAuthorize("hasRole('ROLE_USER')")
     public Seance leaveSeance(@Argument UUID id) {
         return catalog.leave(id);
     }
 
     @QueryMapping
     @PreAuthorize("hasRole('ROLE_USER')")
-    public List<SeanceWithAvailability> mySeances(){
+    public List<SeanceWithAvailability> mySeances(@Argument OffsetDateTime start, @Argument OffsetDateTime end) {
         System.out.println(getUser.apply().getId());
-        return catalog.findByUserId(getUser.apply().getId())
+        return catalog.findByUserId(getUser.apply().getId(),start,end)
                 .stream()
                 .map(SeanceWithAvailability::fromSeance)
                 .toList();

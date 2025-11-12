@@ -23,7 +23,6 @@ jest.mock("../../shared/useAuth", () => ({
 // Stub CSS import used by ProfileLayout to avoid Jest parsing CSS
 jest.mock("../../Profile/ProfileCommon.css", () => ({}), { virtual: true });
 
-
 // Mock useNavigate to assert navigation intent
 jest.mock("react-router-dom", () => {
   const actualRouter = jest.requireActual("react-router-dom");
@@ -68,13 +67,13 @@ describe("EditMemberProfile (unit)", () => {
             <EditMemberProfile />
           </BubbleProvider>
         </MemoryRouter>
-      </Provider>
+      </Provider>,
     );
 
-  // Le switch ne doit pas apparaître sur l'écran d'édition
-  await screen.findByText(/Modifier mon profil/i);
-  expect(screen.queryByText(/Mode Membre/i)).not.toBeInTheDocument();
-  expect(screen.queryByText(/Mode Gérant/i)).not.toBeInTheDocument();
+    // Le switch ne doit pas apparaître sur l'écran d'édition
+    await screen.findByText(/Modifier mon profil/i);
+    expect(screen.queryByText(/Mode Membre/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Mode Gérant/i)).not.toBeInTheDocument();
 
     // Champs pré-remplis
     const lastNameInput = await screen.findByPlaceholderText("Votre nom");
@@ -113,7 +112,7 @@ describe("EditMemberProfile (unit)", () => {
             <EditMemberProfile />
           </BubbleProvider>
         </MemoryRouter>
-      </Provider>
+      </Provider>,
     );
 
     const lastNameInput = await screen.findByPlaceholderText("Votre nom");
@@ -127,7 +126,7 @@ describe("EditMemberProfile (unit)", () => {
     fireEvent.click(saveBtn);
 
     const matches = await screen.findAllByText(
-      "Le prénom, le nom et l’email sont obligatoires."
+      "Le prénom, le nom et l’email sont obligatoires.",
     );
     expect(matches.length).toBeGreaterThan(0);
   });
@@ -159,7 +158,7 @@ describe("EditMemberProfile (unit)", () => {
             <EditMemberProfile />
           </BubbleProvider>
         </MemoryRouter>
-      </Provider>
+      </Provider>,
     );
 
     // Annuler

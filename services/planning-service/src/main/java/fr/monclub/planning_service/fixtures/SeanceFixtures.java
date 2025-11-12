@@ -12,17 +12,22 @@ import java.util.List;
 import java.util.UUID;
 
 @Component
-@Profile("dev")
+@Profile({"dev", "prod"})
 public class SeanceFixtures implements CommandLineRunner {
 
     public static final UUID CLUB_PARIS   = UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1");
     public static final UUID CLUB_LYON    = UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa2");
     public static final UUID TERRAIN_1    = UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb1");
+    public static String TERRAIN_NAME_1 = "Terrain Salle Europe";
     public static final UUID TERRAIN_2    = UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb2");
+    public static String TERRAIN_NAME_2 = "Terrain Salle Alsace";
     public static final UUID COACH_ALICE  = UUID.fromString("cccccccc-cccc-cccc-cccc-ccccccccccc1");
     public static final UUID COACH_BOB    = UUID.fromString("cccccccc-cccc-cccc-cccc-ccccccccccc2");
     public static final UUID SPORT_FOOT   = UUID.fromString("dddddddd-dddd-dddd-dddd-ddddddddddd1");
     public static final UUID SPORT_TENNIS = UUID.fromString("dddddddd-dddd-dddd-dddd-ddddddddddd2");
+    public static final UUID SPORT_BASKET  = UUID.fromString("123e4567-e89b-12d3-a456-426614174002");
+    public static final String BOB  = "Bob Bobson";
+    public static final String ALICE = "Alice Aliceton";
 
     private final SeanceRepository repo;
 
@@ -40,7 +45,12 @@ public class SeanceFixtures implements CommandLineRunner {
         Seance s1 = Seance.builder()
                 .idClub(CLUB_PARIS)
                 .idTerrain(TERRAIN_1)
+                .clubName("Paris Sports Club")
+                .terrainName(TERRAIN_NAME_1)
                 .idCoach(COACH_ALICE)
+                .coachName(ALICE)
+                .citySeance("Paris")
+                .adressSeance("10 rue des Lilas, 75000 Paris")
                 .startTime(now.withHour(18).withMinute(0).withSecond(0).withNano(0))
                 .endTime(now.withHour(19).withMinute(0).withSecond(0).withNano(0))
                 .capacite(20)
@@ -55,8 +65,13 @@ public class SeanceFixtures implements CommandLineRunner {
         // Séance de tennis demain 10h–11h à Paris (terrain 2, coach Bob)
         Seance s2 = Seance.builder()
                 .idClub(CLUB_PARIS)
+                .clubName("Paris Sports Club")
                 .idTerrain(TERRAIN_2)
+                .terrainName(TERRAIN_NAME_2)
                 .idCoach(COACH_BOB)
+                .coachName(BOB)
+                .citySeance("Paris")
+                .adressSeance("15 avenue des Champs, 75000 Paris")
                 .startTime(now.plusDays(1).withHour(10).withMinute(0).withSecond(0).withNano(0))
                 .endTime(now.plusDays(1).withHour(11).withMinute(0).withSecond(0).withNano(0))
                 .capacite(4)
@@ -72,7 +87,12 @@ public class SeanceFixtures implements CommandLineRunner {
         Seance s3 = Seance.builder()
                 .idClub(CLUB_LYON)
                 .idTerrain(TERRAIN_1)
+                .clubName("Lyon Sports Club")
+                .terrainName(TERRAIN_NAME_1)
                 .idCoach(COACH_ALICE)
+                .coachName(ALICE)
+                .adressSeance("10 rue des Lilas, 69000 Lyon")
+                .citySeance("Lyon")
                 .startTime(now.plusDays(2).withHour(15).withMinute(0).withSecond(0).withNano(0))
                 .endTime(now.plusDays(2).withHour(16).withMinute(0).withSecond(0).withNano(0))
                 .capacite(16)
@@ -87,8 +107,13 @@ public class SeanceFixtures implements CommandLineRunner {
         // Séance annulée (exemple de statut CANCELED)
         Seance s4 = Seance.builder()
                 .idClub(CLUB_LYON)
+                .clubName("Lyon Sports Club")
                 .idTerrain(TERRAIN_2)
+                .terrainName(TERRAIN_NAME_2)
                 .idCoach(COACH_BOB)
+                .coachName(BOB)
+                .adressSeance("10 rue des Lilas, 69000 Lyon")
+                .citySeance("Lyon")
                 .startTime(now.minusDays(1).withHour(17).withMinute(0).withSecond(0).withNano(0))
                 .endTime(now.minusDays(1).withHour(18).withMinute(0).withSecond(0).withNano(0))
                 .capacite(10)
@@ -100,6 +125,27 @@ public class SeanceFixtures implements CommandLineRunner {
                 .createdBy(UUID.fromString("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeee1"))
                 .build();
 
-        repo.saveAll(List.of(s1, s2, s3, s4));
+
+        Seance s5 = Seance.builder()
+                .idClub(UUID.fromString("89a23eef-7f22-4b46-bf8f-47d5cbec8013"))
+                .clubName("Metz Basket Club")
+                .idTerrain(TERRAIN_2)
+                .terrainName(TERRAIN_NAME_2)
+                .idCoach(COACH_BOB)
+                .coachName(BOB)
+                .adressSeance("123 avenue de la République, 57000 Metz")
+                .citySeance("Metz")
+                .startTime(now.plusDays(1).withHour(17).withMinute(0).withSecond(0).withNano(0))
+                .endTime(now.plusDays(1).withHour(18).withMinute(0).withSecond(0).withNano(0))
+                .capacite(10)
+                .capaSeance(0)
+                .idSport(SPORT_BASKET)
+                .nameSport("Tennis")
+                .description("Ouverture nouvelle séance")
+                .status(SeanceStatus.OPEN)
+                .createdBy(UUID.fromString("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeee1"))
+                .build();
+
+        repo.saveAll(List.of(s1, s2, s3, s4, s5));
     }
 }

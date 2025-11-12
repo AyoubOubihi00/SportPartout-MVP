@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import {
   Sheet,
   Stack,
@@ -15,13 +15,36 @@ import {
   AspectRatio,
   LinearProgress,
 } from "@mui/joy";
-import { CalendarRange, MapPin, Clock, Users, User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import {
+  CalendarRange,
+  MapPin,
+  Clock,
+  Users,
+  User,
+  ChevronLeft,
+  ChevronRight,
+  HomeIcon,
+} from "lucide-react";
 import BaseLayout from "../../layouts/BaseLayout";
 import BottomSheet from "../BottomSheet/BottomSheet";
-import type { Activity, ActivityDto } from "../../types/activities";
-import { useActivities } from "../../services/activities/useActivities";
-import { fetchMySeances } from "../../services/activitiesService";
-import type { SeanceWithAvailability } from "../../services/activitiesService";
+import type {
+  Activity,
+  ActivityDto,
+  ActivityFull,
+} from "../../types/activities";
+import {
+  fetchMySeances,
+  leaveSeance,
+  fetchSeanceById,
+} from "../../services/activitiesService";
+import type {
+  Seance,
+  SeanceWithAvailability,
+} from "../../services/activitiesService";
+import { useBubble } from "../shared/useBubble";
+import { useAuth } from "../shared/useAuth";
+import { mapDtoToActivity, mapSeanceToActivity } from "../../types/activities";
 
 function formatDateFR(isoDate: string): string {
   const d = new Date(isoDate);
@@ -32,12 +55,22 @@ function formatDateFR(isoDate: string): string {
   });
 }
 
+function formatHoursFR(isoDate: string): string {
+  const d = new Date(isoDate);
+  return d.toLocaleTimeString("fr-FR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 function ActivityCard({
   a,
   onDetails,
+  onLeave,
 }: {
   a: Activity;
   onDetails: (a: Activity) => void;
+  onLeave?: (a: Activity) => void | Promise<void>;
 }) {
   const isPast = a.status === "past";
   return (
@@ -119,7 +152,14 @@ function ActivityCard({
             Détails
           </Button>
           {!isPast && (
-            <Button size="sm" variant="soft" color="danger">
+            <Button
+              size="sm"
+              variant="soft"
+              color="danger"
+              onClick={() => {
+                if (onLeave) onLeave(a);
+              }}
+            >
               Se désinscrire
             </Button>
           )}
@@ -143,17 +183,45 @@ function ActivityCard({
 export default function MyActivities() {
   // Hook prêt pour la liaison back: mappe des DTO -> Activity
   // Pour le test: on appelle fetchMySeances et on fournit les DTOs au hook
+  const { token } = useAuth();
+  const navigate = useNavigate();
+
   const [remoteDtos, setRemoteDtos] = useState<ActivityDto[] | undefined>(
     undefined,
   );
-  const { upcoming, past } = useActivities(remoteDtos);
+  // DTOs récupérés pour le mois affiché (historique)
+  const [monthDtos, setMonthDtos] = useState<ActivityDto[] | undefined>(
+    undefined,
+  );
+
+  const activities = useMemo(
+    () => (remoteDtos ?? []).map((d) => mapDtoToActivity(d)),
+    [remoteDtos],
+  );
+
+  const upcoming = useMemo(
+    () => activities.filter((a) => a.status === "upcoming"),
+    [activities],
+  );
+
+  const past = useMemo(
+    () => activities.filter((a) => a.status === "past"),
+    [activities],
+  );
 
   // Appel simple pour tester le service planning (exécuté au montage)
   useEffect(() => {
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
     let mounted = true;
     // Sélection minimale/transformation vers ActivityDto
     fetchMySeances<SeanceWithAvailability>(
       `id idClub idTerrain idCoach startTime endTime durationMinutes capacite capaSeance remainingPlaces full idSport nameSport description status createdBy`,
+      null,
+      null,
     )
       .then((seances) => {
         if (!mounted) return;
@@ -189,17 +257,111 @@ export default function MyActivities() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [navigate, token]);
   const [tab, setTab] = useState<number>(0);
+  // Mois affiché dans l'historique (1er jour du mois)
+  const [displayedMonth, setDisplayedMonth] = useState<Date>(() => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  });
+  const { showSuccessBubble, showErrorBubble } = useBubble();
   const [detailOpen, setDetailOpen] = useState<boolean>(false);
-  const [selected, setSelected] = useState<Activity | null>(null);
+  const [selected, setSelected] = useState<ActivityFull | null>(null);
   const [sheetTopOffset, setSheetTopOffset] = useState<number>(0);
   const tabsAnchorRef = useRef<HTMLDivElement | null>(null);
 
-  const openDetails = (a: Activity) => {
-    setSelected(a);
-    setDetailOpen(true);
+  const openDetails = async (a: Activity) => {
+    try {
+      const seance: Seance = await fetchSeanceById(a.id);
+      if (!seance) return;
+      setSelected(mapSeanceToActivity(seance));
+      setDetailOpen(true);
+    } catch (err) {
+      console.error("fetchSeanceById error", err);
+      showErrorBubble?.(err instanceof Error ? err.message : String(err));
+    }
   };
+
+  const formatMonthYear = (d: Date) =>
+    d.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+
+  const goPrevMonth = () =>
+    setDisplayedMonth((m) => new Date(m.getFullYear(), m.getMonth() - 1, 1));
+  const goNextMonth = () =>
+    setDisplayedMonth((m) => new Date(m.getFullYear(), m.getMonth() + 1, 1));
+
+  // Interdire d'aller au-delà du mois courant
+  const now = new Date();
+  const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  // Activities mappées depuis les DTOs du mois sélectionné
+  const monthActivities = useMemo(
+    () => (monthDtos ?? []).map((d) => mapDtoToActivity(d)),
+    [monthDtos],
+  );
+
+  // Lorsque l'utilisateur affiche l'onglet Historique, charger les séances du mois sélectionné
+  useEffect(() => {
+    if (tab !== 1) return;
+    if (!token) return;
+
+    let mounted = true;
+    const selection =
+      "id idClub idTerrain idCoach startTime endTime durationMinutes capacite capaSeance remainingPlaces full idSport nameSport description status createdBy";
+
+    const startDate = new Date(
+      displayedMonth.getFullYear(),
+      displayedMonth.getMonth(),
+      1,
+    );
+    const endDate = new Date(
+      displayedMonth.getFullYear(),
+      displayedMonth.getMonth() + 1,
+      0,
+      23,
+      59,
+      59,
+      999,
+    );
+
+    const startIso = startDate.toISOString();
+    const endIso = endDate.toISOString();
+
+    fetchMySeances<SeanceWithAvailability>(selection, startIso, endIso)
+      .then((seances) => {
+        if (!mounted) return;
+        const dtos: ActivityDto[] = seances.map(
+          (s: SeanceWithAvailability) => ({
+            id: s.id,
+            title: s.nameSport ?? "Séance",
+            club: s.idClub ?? "",
+            sport: s.nameSport ?? "",
+            startIso: s.startTime,
+            endIso: s.endTime,
+            place: undefined,
+            imageUrl: undefined,
+            capacity:
+              typeof s.capacite === "number" ? s.capacite : s.capaSeance,
+            booked:
+              typeof s.capaSeance === "number" &&
+              typeof s.remainingPlaces === "number"
+                ? Math.max(0, s.capaSeance - s.remainingPlaces)
+                : undefined,
+            coach: s.idCoach ?? undefined,
+            level: undefined,
+            description: s.description ?? undefined,
+          }),
+        );
+        setMonthDtos(dtos);
+      })
+      .catch((err) => {
+        console.error("fetchMySeances (month) failed:", err);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [displayedMonth, tab, token]);
 
   // Calcule la hauteur maximale du BottomSheet pour qu'il s'arrête sous les onglets
   useEffect(() => {
@@ -329,7 +491,25 @@ export default function MyActivities() {
                 }}
               >
                 {upcoming.map((a) => (
-                  <ActivityCard key={a.id} a={a} onDetails={openDetails} />
+                  <ActivityCard
+                    key={a.id}
+                    a={a}
+                    onDetails={openDetails}
+                    onLeave={async (act) => {
+                      try {
+                        await leaveSeance(act.id);
+                        setRemoteDtos((prev) =>
+                          prev ? prev.filter((d) => d.id !== act.id) : prev,
+                        );
+                        showSuccessBubble?.("Désinscription réussie.");
+                      } catch (err) {
+                        console.error("leaveSeance error", err);
+                        showErrorBubble?.(
+                          err instanceof Error ? err.message : String(err),
+                        );
+                      }
+                    }}
+                  />
                 ))}
                 {upcoming.length === 0 && (
                   <Card variant="soft" sx={{ p: 1.5 }}>
@@ -345,6 +525,40 @@ export default function MyActivities() {
               value={1}
               sx={{ px: 0, pt: 1, background: "transparent" }}
             >
+              {/* Navigation mois */}
+              <Stack
+                direction="row"
+                alignItems="center"
+                justifyContent="center"
+                gap={1}
+                sx={{ mb: 1 }}
+              >
+                <Button
+                  size="sm"
+                  variant="plain"
+                  color="neutral"
+                  onClick={goPrevMonth}
+                >
+                  <ChevronLeft size={16} />
+                </Button>
+                <Typography level="body-md" sx={{ fontWeight: 800 }}>
+                  {formatMonthYear(displayedMonth)}
+                </Typography>
+                <Button
+                  size="sm"
+                  variant="plain"
+                  color="neutral"
+                  onClick={goNextMonth}
+                  disabled={
+                    displayedMonth.getFullYear() ===
+                      currentMonthStart.getFullYear() &&
+                    displayedMonth.getMonth() === currentMonthStart.getMonth()
+                  }
+                >
+                  <ChevronRight size={16} />
+                </Button>
+              </Stack>
+
               <Box
                 sx={{
                   display: "grid",
@@ -357,13 +571,13 @@ export default function MyActivities() {
                   alignItems: "start",
                 }}
               >
-                {past.map((a) => (
+                {monthActivities.map((a) => (
                   <ActivityCard key={a.id} a={a} onDetails={openDetails} />
                 ))}
-                {past.length === 0 && (
+                {monthActivities.length === 0 && (
                   <Card variant="soft" sx={{ p: 1.5 }}>
                     <Typography level="body-sm">
-                      Pas d’historique pour le moment.
+                      Pas d’historique pour ce mois.
                     </Typography>
                   </Card>
                 )}
@@ -411,8 +625,9 @@ export default function MyActivities() {
                 <Stack direction="row" gap={0.5} alignItems="center">
                   <CalendarRange size={14} />
                   <Typography level="body-sm">
-                    {formatDateFR(selected.date)} • {selected.start} –{" "}
-                    {selected.end}
+                    {formatDateFR(selected.startIso)} •{" "}
+                    {formatHoursFR(selected.startIso)} –{" "}
+                    {formatHoursFR(selected.endIso)}
                   </Typography>
                 </Stack>
               </Stack>
@@ -422,11 +637,17 @@ export default function MyActivities() {
                 alignItems="center"
                 sx={{ color: "text.secondary", mt: 0.5 }}
               >
+                <HomeIcon size={14} />
+                <Typography level="body-sm">{selected.club}</Typography>
+              </Stack>
+              <Stack
+                direction="row"
+                gap={0.5}
+                alignItems="center"
+                sx={{ color: "text.secondary", mt: 0.5 }}
+              >
                 <MapPin size={14} />
-                <Typography level="body-sm">
-                  {selected.club}
-                  {selected.place ? ` — ${selected.place}` : ""}
-                </Typography>
+                <Typography level="body-sm">{selected.place}</Typography>
               </Stack>
 
               {(typeof selected.capacity === "number" ||
@@ -500,7 +721,28 @@ export default function MyActivities() {
                     <Button size="sm" variant="outlined" color="neutral">
                       Se rendre au club
                     </Button>
-                    <Button size="sm" variant="soft" color="danger">
+                    <Button
+                      size="sm"
+                      variant="soft"
+                      color="danger"
+                      onClick={async () => {
+                        try {
+                          await leaveSeance(selected.id);
+                          setRemoteDtos((prev) =>
+                            prev
+                              ? prev.filter((d) => d.id !== selected.id)
+                              : prev,
+                          );
+                          setDetailOpen(false);
+                          showSuccessBubble?.("Désinscription réussie.");
+                        } catch (err) {
+                          console.error("leaveSeance error", err);
+                          showErrorBubble?.(
+                            err instanceof Error ? err.message : String(err),
+                          );
+                        }
+                      }}
+                    >
                       Se désinscrire
                     </Button>
                   </>

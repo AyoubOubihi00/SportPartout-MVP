@@ -173,7 +173,6 @@ export default function MapView() {
           const radiusKm = estimateMapRadius([lat, lng], topLeft);
           getClubsNear(lat, lng, radiusKm)
             .then((data) => {
-              console.log("clubsNear data:", data);
               const mapped = data.map((club) => {
                 const clubPosition: [number, number] = [
                   club.latitude,
@@ -193,7 +192,6 @@ export default function MapView() {
                   position: clubPosition,
                 };
               });
-              console.log("Mapped clubsNear:", mapped);
               setClubs(mapped);
             })
             .catch((err) => {

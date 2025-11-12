@@ -12,7 +12,9 @@ jest.mock("../../../services/auth/authService", () => ({
 // Mock ProfileLayout to isolate OwnerProfile rendering
 jest.mock("../ProfileLayout", () => ({
   __esModule: true,
-  default: ({ children }: { children: React.ReactNode }) => <div data-testid="profile-layout">{children}</div>,
+  default: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="profile-layout">{children}</div>
+  ),
 }));
 
 // Mock useAuth to provide a token and a spyable logout
@@ -60,7 +62,7 @@ describe("OwnerProfile (unit)", () => {
     render(
       <MemoryRouter>
         <OwnerProfile />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     // OwnerProfile no longer wraps itself in ProfileLayout; just assert the content
@@ -84,7 +86,7 @@ describe("OwnerProfile (unit)", () => {
     render(
       <MemoryRouter>
         <OwnerProfile />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     const editBtn = await screen.findByRole("button", { name: /Modifier/i });

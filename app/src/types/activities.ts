@@ -1,3 +1,5 @@
+import { Seance } from "../services/activitiesService";
+
 export type ActivityStatus = "upcoming" | "past";
 
 export interface Activity {
@@ -35,6 +37,23 @@ export interface ActivityDto {
   description?: string;
 }
 
+export interface ActivityFull {
+  id: string;
+  title: string;
+  club: string;
+  sport: string;
+  startIso: string;
+  endIso: string;
+  place?: string;
+  imageUrl?: string;
+  capacity?: number;
+  booked?: number;
+  coach?: string;
+  level?: string;
+  description?: string;
+  status: string;
+}
+
 function pad2(n: number): string {
   return String(n).padStart(2, "0");
 }
@@ -67,5 +86,26 @@ export function mapDtoToActivity(
     coach: dto.coach,
     level: dto.level,
     description: dto.description,
+  };
+}
+
+export function mapSeanceToActivity(seance: Seance): ActivityFull {
+  const now = new Date();
+  const end = new Date(seance.endTime);
+  const status: ActivityStatus =
+    end.getTime() < now.getTime() ? "past" : "upcoming";
+  return {
+    id: seance.id,
+    title: seance.nameSport ?? "Séance",
+    coach: seance.coachName ?? "Coach non indiqué",
+    club: seance.clubName ?? "Club",
+    place: `${seance.adressSeance ?? ""}, ${seance.citySeance ?? ""}`,
+    sport: seance.nameSport ?? "Sport",
+    startIso: seance.startTime,
+    endIso: seance.endTime,
+    capacity: seance.capacite,
+    booked: seance.capaSeance,
+    description: seance.description ?? "",
+    status: status,
   };
 }

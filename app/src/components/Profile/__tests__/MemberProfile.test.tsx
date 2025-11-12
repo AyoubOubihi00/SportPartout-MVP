@@ -66,10 +66,10 @@ describe("MemberProfile (unit)", () => {
     render(
       <MemoryRouter>
         <MemberProfile />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
-  // Le nom et le prénom sont rendus dans deux éléments différents (grille label/valeur)
+    // Le nom et le prénom sont rendus dans deux éléments différents (grille label/valeur)
     expect(await screen.findByText("DOE")).toBeInTheDocument();
     expect(await screen.findByText("John")).toBeInTheDocument();
     expect(await screen.findByText(fakeUser.email)).toBeInTheDocument();
@@ -93,7 +93,7 @@ describe("MemberProfile (unit)", () => {
     render(
       <MemoryRouter>
         <MemberProfile />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     const editBtn = await screen.findByRole("button", { name: /Modifier/i });

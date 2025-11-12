@@ -12,21 +12,26 @@ enum SeanceStatus {
 
 # ----- Types -----
 type Seance {
-  id: UUID!
-  idClub: UUID!
-  idTerrain: UUID!
-  idCoach: UUID
-  startTime: DateTime!
-  endTime: DateTime!
-  capacite: Int!
-  capaSeance: Int!
-  idSport: UUID!
-  nameSport: String!
-  description: String
-  status: SeanceStatus!
-  createdBy: UUID        # <- nullable pour coller à l’audit
-  createdAt: DateTime
-  updatedAt: DateTime
+    id: UUID!
+    idClub: UUID!
+    clubName: String!
+    adressSeance: String!
+    citySeance: String!
+    idTerrain: UUID!
+    terrainName: String!
+    idCoach: UUID
+    coachName: String
+    startTime: DateTime!
+    endTime: DateTime!
+    capacite: Int!
+    capaSeance: Int!
+    idSport: UUID!
+    nameSport: String!
+    description: String
+    status: SeanceStatus!
+    createdBy: UUID
+    createdAt: DateTime
+    updatedAt: DateTime
     refusalReason: String
 }
 
@@ -73,7 +78,9 @@ type Query {
     end: DateTime!
   ): [SeanceWithAvailability!]!
 
-    mySeances: [SeanceWithAvailability!]!
+    mySeances(start : DateTime
+    , end : DateTime
+    ): [SeanceWithAvailability!]!
 }
 
 type Mutation {

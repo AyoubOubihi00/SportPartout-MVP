@@ -11,7 +11,9 @@ import {
 export type SlotStatus = "booked" | "session" | "closed" | "available";
 
 export type TimeSlot = {
-  hour: number; // 0-23
+  id?: string;
+  startHour: number;
+  endHour: number;
   status: SlotStatus;
   title?: string;
   // Optional extra info for display (e.g., "Entraînement U17", "Seniors 1")
@@ -65,7 +67,7 @@ export default function Schedule({
   const hours: number[] = [];
   for (let h = startHour; h < endHour; h++) hours.push(h);
 
-  const findSlot = (h: number) => slots.find((s) => s.hour === h);
+  const findSlot = (h: number) => slots.find((s) => s.startHour === h);
 
   const labelForDate = (d: Date) => {
     const today = new Date();

@@ -31,5 +31,5 @@ public interface SeanceCatalog {
     // business: désinscription d'une séance (capacité + statut)
     Seance leave(UUID seanceId);
 
-    List<Seance> findByUserId(UUID userId);
+    List<Seance> findByUserId(UUID userId, OffsetDateTime start, OffsetDateTime end);
 }

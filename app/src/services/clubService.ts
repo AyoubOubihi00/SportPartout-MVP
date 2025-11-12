@@ -38,7 +38,6 @@ export async function getClubsNear(
     body: JSON.stringify({ query, variables }),
   });
   const result = await response.json();
-  console.log("getClubsNear result:", result);
   if (result.errors)
     throw new Error(result.errors[0]?.message || "Erreur API clubsNear");
   return result.data?.clubsNear || [];

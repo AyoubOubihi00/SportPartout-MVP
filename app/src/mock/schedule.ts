@@ -1,56 +1,75 @@
 import type { TimeSlot } from "../components/Schedule/Schedule";
+import { SeanceWithAvailability } from "../services/activitiesService";
 
-// Simple fixtures by club id for today's schedule
-// You can adapt to fetch from API later.
-export function getScheduleForClub(clubId: string, date: Date): TimeSlot[] {
-  // Deterministic sample based on club id + date
-  const daySeed =
-    date.getFullYear() * 1000 + date.getMonth() * 50 + date.getDate();
-  const base = Math.abs(hashCode(clubId) + daySeed) % 4; // 0..3
-  const slots: TimeSlot[] = [];
+/**
+ * getScheduleForClubRemote
+ * ------------------------
+ * Fetches seances for a club from the planning service and maps them to
+ * the local TimeSlot[] shape. This module is intentionally not providing
+ * any deterministic/mock schedule; on error the function returns an empty
+ * array (no fallback mock).
+ */
+export async function getScheduleForClubRemote(
+  clubId: string,
+  date: Date,
+): Promise<TimeSlot[]> {
+  const dayStart = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+    0,
+    0,
+    0,
+    0,
+  );
+  const dayEnd = new Date(dayStart);
+  dayEnd.setDate(dayEnd.getDate() + 1);
 
-  const sessionDetails = [
-    "Entraînement U17",
-    "Entraînement Seniors 1",
-    "Entraînement Seniors 2",
-    "Cours découverte",
-    "Atelier technique",
-  ];
+  try {
+    const { seancesByClubBetween } = await import(
+      "../services/activitiesService"
+    );
+    const seances = await seancesByClubBetween(
+      clubId,
+      dayStart.toISOString(),
+      dayEnd.toISOString(),
+      "id startTime endTime nameSport capacite remainingPlaces status",
+    );
 
-  for (let h = 8; h < 20; h++) {
-    const mod = (h + base) % 8;
-    if (mod === 0) {
-      slots.push({
-        hour: h,
-        status: "booked",
-        title: "Privé",
-        subtitle: "Salle réservée",
+    if (!Array.isArray(seances)) return [];
+
+    const slots: TimeSlot[] = (seances as SeanceWithAvailability[])
+      .filter((s) => s && s.startTime)
+      .map((s) => {
+        const start = new Date(s.startTime as string);
+        const end = s.endTime
+          ? new Date(s.endTime as string)
+          : new Date(start.getTime() + 60 * 60000);
+        const hour = start.getHours();
+        const durationMinutes = Math.max(
+          0,
+          Math.round((end.getTime() - start.getTime()) / 60000),
+        );
+        const status: TimeSlot["status"] =
+          s.status === "FULL"
+            ? "booked"
+            : s.status === "OPEN" || s.status === "PENDING"
+              ? "session"
+              : "available";
+
+        return {
+          id: s.id,
+          startHour: hour,
+          endHour: end.getHours(),
+          status,
+          title: `Séance de ${s.nameSport || "sport"}${durationMinutes ? ` (${durationMinutes} min)` : ""}`,
+          subtitle: `Places restantes: ${s.remainingPlaces ?? "?"} / ${s.capacite ?? "?"}`,
+        };
       });
-    } else if (mod === 2 || mod === 5) {
-      const detail = sessionDetails[(h + base) % sessionDetails.length];
-      slots.push({
-        hour: h,
-        status: "session",
-        title: "Séance",
-        subtitle: detail,
-      });
-    } else if (mod === 3 || mod === 6) {
-      slots.push({
-        hour: h,
-        status: "available",
-        title: "Disponible",
-        subtitle: "Créneau libre",
-      });
-    } else {
-      slots.push({ hour: h, status: "closed" });
-    }
+
+    return slots;
+  } catch (err) {
+    console.error("getScheduleForClubRemote error", err);
+    return [];
   }
-  return slots;
-}
-
-function hashCode(s: string): number {
-  let h = 0;
-  for (let i = 0; i < s.length; i++)
-    h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
-  return h;
 }

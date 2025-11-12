@@ -13,6 +13,7 @@ export default tseslint.config(
       "**/*Test.{ts,tsx,js,jsx}",
       "**/*.test.{ts,tsx,js,jsx}",
       "**/*config*.{ts,tsx,js,jsx,cjs}",
+      "**/*.{cjs,mjs}",
     ],
   },
   {

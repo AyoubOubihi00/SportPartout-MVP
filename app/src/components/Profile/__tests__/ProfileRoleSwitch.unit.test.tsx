@@ -13,7 +13,7 @@ function setup(preloaded: RolesState) {
   const utils = render(
     <Provider store={store}>
       <ProfileRoleSwitch />
-    </Provider>
+    </Provider>,
   );
   return { store, ...utils };
 }
@@ -21,8 +21,12 @@ function setup(preloaded: RolesState) {
 describe("ProfileRoleSwitch (unit)", () => {
   test("n'affiche rien si l'utilisateur n'a pas OWNER", () => {
     setup({ roles: ["USER"], viewMode: "USER" });
-    expect(screen.queryByRole("button", { name: /Mode Membre/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /Mode Gérant/i })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /Mode Membre/i }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /Mode Gérant/i }),
+    ).not.toBeInTheDocument();
   });
 
   test("affiche les boutons et change viewMode au clic", () => {
