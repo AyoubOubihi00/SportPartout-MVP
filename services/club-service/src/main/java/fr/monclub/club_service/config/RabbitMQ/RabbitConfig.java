@@ -38,10 +38,50 @@ public class RabbitConfig {
     }
 
     @Bean
-    public Binding sportTypeBindingClubService(TopicExchange appEventsExchange, Queue sportTypeQueueD) {
+    public Binding sportTypeBindingClubService(TopicExchange appEventsExchange, Queue sportTypeQueueClubService) {
         return BindingBuilder
-                .bind(sportTypeQueueD)
+                .bind(sportTypeQueueClubService)
                 .to(appEventsExchange)
                 .with("sporttype.updated");
     }
+
+    @Bean
+    public Queue clubUpdatedQueueMembershipService() {
+        return new AnonymousQueue();
+    }
+
+    @Bean
+    public Binding clubUpdatedBinding(TopicExchange appEventsExchange, Queue clubUpdatedQueueMembershipService) {
+        return BindingBuilder
+                .bind(clubUpdatedQueueMembershipService)
+                .to(appEventsExchange)
+                .with("club.updated");
+    }
+
+    @Bean
+    public Queue clubDisabledQueue() {
+        return new AnonymousQueue();
+    }
+
+    @Bean
+    public Binding clubDisabledBinding(TopicExchange appEventsExchange, Queue clubDisabledQueue) {
+        return BindingBuilder
+                .bind(clubDisabledQueue)
+                .to(appEventsExchange)
+                .with("club.disabled");
+    }
+
+    @Bean
+    public Queue clubReactived() {
+        return new AnonymousQueue();
+    }
+
+    @Bean
+    public Binding clubReactivedBinding(TopicExchange appEventsExchange, Queue clubDisabledQueue) {
+        return BindingBuilder
+                .bind(clubDisabledQueue)
+                .to(appEventsExchange)
+                .with("club.reactived");
+    }
+
 }

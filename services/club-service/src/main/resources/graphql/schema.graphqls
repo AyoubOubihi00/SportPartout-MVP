@@ -48,6 +48,7 @@ input UpdateClubInput {
     email: String
     latitude: Float
     longitude: Float
+    updatedAt: DateTime
 }
 
 type Query {
@@ -60,4 +61,5 @@ type Mutation {
     updateClub(id: UUID!, data: UpdateClubInput!, ownerId: UUID!): FullClub
     createClub(data: UpdateClubInput!, ownerId: UUID!): FullClub
     disableClub(id: UUID!, ownerId: UUID!): Boolean
+    reactivateClub(id: UUID!, ownerId: UUID!) : Boolean
 }

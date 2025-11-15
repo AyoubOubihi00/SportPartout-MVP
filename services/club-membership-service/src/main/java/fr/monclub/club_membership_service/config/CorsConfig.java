@@ -14,8 +14,11 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/graphql") // ou "/**" pour toutes les routes
-                        .allowedOrigins("http://localhost:3000") // ton front
+                        .allowedOrigins("http://localhost:3000",
+                         
+                                "http://localhost:5173") // ton front
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedHeaders("*")
                         .allowCredentials(true);
             }
         };

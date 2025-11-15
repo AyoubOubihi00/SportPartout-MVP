@@ -49,6 +49,8 @@ public class ClubMember {
 
     private Boolean isActif = true;
     private OffsetDateTime dateSubscription = OffsetDateTime.now();
+    private OffsetDateTime dateUnsubscription;
     private Boolean himself = false;
+    private Boolean ClubActive = true;
 
 }

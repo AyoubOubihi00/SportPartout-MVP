@@ -5,7 +5,7 @@ import Typography from "@mui/joy/Typography";
 import Button from "@mui/joy/Button";
 import Divider from "@mui/joy/Divider";
 import Box from "@mui/joy/Box";
-import { MapPin, Phone, Mail, Briefcase } from "lucide-react";
+import { MapPin, Phone, Mail, Briefcase, Power } from "lucide-react";
 import type { ClubSnapshot } from "../../services/membershipService";
 
 type ManagedClubDetailProps = {
@@ -57,9 +57,16 @@ export default function ManagedClubDetail({
           >
             {club.name ?? "Club sans nom"}
           </Typography>
-          <Chip color="success" variant="soft" size="sm">
-            Gérant
-          </Chip>
+          <Stack direction="row" gap={1} alignItems="center">
+            <Chip
+              color={club.deletedAt ? "danger" : "success"}
+              variant="soft"
+              size="sm"
+              startDecorator={<Power size={14} />}
+            >
+              {club.deletedAt ? "Inactif" : "Actif"}
+            </Chip>
+          </Stack>
         </Stack>
 
         <Stack
@@ -71,7 +78,7 @@ export default function ManagedClubDetail({
           {club.typeName && (
             <Chip
               size="sm"
-              variant="solid"
+              variant="soft"
               color="primary"
               startDecorator={<Briefcase size={14} />}
             >

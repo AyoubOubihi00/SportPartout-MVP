@@ -7,11 +7,13 @@ import fr.monclub.club_service.fixtures.ClubFixtures;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.Map;
 import java.util.UUID;
@@ -29,6 +31,9 @@ class ClubE2ETest {
     private ClubCatalog clubCatalog;
 
     private UUID clubId;
+
+    @MockitoBean
+    private RabbitTemplate rabbitTemplate;
 
     @BeforeEach
     @Transactional
@@ -370,4 +375,3 @@ class ClubE2ETest {
 
 
 }
-

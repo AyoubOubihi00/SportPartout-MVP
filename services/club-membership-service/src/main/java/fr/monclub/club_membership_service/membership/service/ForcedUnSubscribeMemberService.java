@@ -6,6 +6,7 @@ import fr.monclub.club_membership_service.membership.catalog.ClubMemberCatalog;
 import fr.monclub.club_membership_service.membership.model.ClubMember;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Service
@@ -25,10 +26,10 @@ public class ForcedUnSubscribeMemberService {
         clubMember.setIsActif(false);
         clubMember.setDateSubscription(null);
         clubMember.setHimself(false);
+        clubMember.setDateUnsubscription(OffsetDateTime.now());
 
         try {
             return clubMemberCatalog.deactivateClubMemberById(clubMember.getId());
-            // L'opération a réussi, on retourne true.
         } catch (Exception e) {
             System.err.println("Erreur lors de la suppression du membre : " + e.getMessage());
             return 0;

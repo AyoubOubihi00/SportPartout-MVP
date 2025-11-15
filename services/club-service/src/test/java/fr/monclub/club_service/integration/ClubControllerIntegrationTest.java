@@ -5,6 +5,7 @@ import fr.monclub.club_service.club.catalog.ClubCatalog;
 import fr.monclub.club_service.club.model.Club;
 import fr.monclub.club_service.club.service.AddClubService;
 import fr.monclub.club_service.club.service.DeleteClubService;
+import fr.monclub.club_service.club.service.ReactivateClubService;
 import fr.monclub.club_service.club.service.UpdateClubService;
 import fr.monclub.club_service.config.GraphQLConfig;
 import org.junit.jupiter.api.MethodOrderer;
@@ -20,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -45,6 +45,9 @@ class ClubControllerIntegrationTest {
 
     @MockitoBean
     private AddClubService addClubService;
+
+    @MockitoBean
+    private ReactivateClubService reactivateClubService;
 
 
     @Test

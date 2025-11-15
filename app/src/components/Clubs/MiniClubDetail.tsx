@@ -88,7 +88,7 @@ export default function MiniClubDetail({
           sx={{ color: "text.secondary" }}
         >
           {club?.typeName && (
-            <Chip size="sm" variant="solid" color="primary">
+            <Chip size="sm" variant="soft" color="primary">
               {club.typeName}
             </Chip>
           )}

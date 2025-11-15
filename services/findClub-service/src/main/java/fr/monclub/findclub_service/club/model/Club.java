@@ -3,6 +3,7 @@ package fr.monclub.findclub_service.club.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -40,9 +41,11 @@ public class Club {
     @Column(name = "owner_id")
     private UUID ownerId;
 
-    private Date createdAt;
-    private Date updatedAt;
-    private Date deletedAt;
+    private OffsetDateTime createdAt;
+    private OffsetDateTime updatedAt;
+    private OffsetDateTime deletedAt;
+    private boolean isActive = true;
+
 
 
     @PrePersist

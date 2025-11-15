@@ -7,9 +7,9 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
-
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Component
@@ -38,10 +38,11 @@ public class ClubFixtures implements CommandLineRunner {
         this.findClubRepository = findClubRepository;
     }
 
-    private static Date daysAgo(int days) {
-        return Date.from(Instant.now().minus(days, ChronoUnit.DAYS));
+    private static OffsetDateTime daysAgo(int days) {
+        return Instant.now()
+                .minus(days, ChronoUnit.DAYS)
+                .atOffset(ZoneOffset.UTC);
     }
-
     @Override
     public void run(String... args) {
         if (findClubRepository.count() == 0) {
@@ -63,7 +64,8 @@ public class ClubFixtures implements CommandLineRunner {
                     UUID.randomUUID(),
                     daysAgo(30),
                     daysAgo(2),
-                    null
+                    null,
+                    true
             ));
             findClubRepository.save(new Club(
                     UUID.fromString("76f392b1-ed0f-4ad3-ae6b-631574d634b1"),
@@ -83,7 +85,8 @@ public class ClubFixtures implements CommandLineRunner {
                     UUID.randomUUID(),
                     daysAgo(70),
                     daysAgo(7),
-                    null
+                    null,
+                    true
             ));
             findClubRepository.save(new Club(
                     UUID.fromString("1b7c8461-8d2c-4540-83ca-1eab47b092bd"),
@@ -103,7 +106,8 @@ public class ClubFixtures implements CommandLineRunner {
                     UUID.randomUUID(),
                     daysAgo(47),
                     daysAgo(7),
-                    null
+                    null,
+                    true
             ));
             findClubRepository.save(new Club(
                     UUID.fromString("2c4e6f8a-3b5d-4c9e-9f1a-7e2b8c9d5f4e"),
@@ -123,7 +127,8 @@ public class ClubFixtures implements CommandLineRunner {
                     UUID.randomUUID(),
                     daysAgo(35),
                     daysAgo(5),
-                    null
+                    null,
+                    true
             ));
 
             findClubRepository.save(new Club(
@@ -144,7 +149,8 @@ public class ClubFixtures implements CommandLineRunner {
                     UUID.randomUUID(),
                     daysAgo(60),
                     daysAgo(10),
-                    null
+                    null,
+                    true
             ));
 
             findClubRepository.save(new Club(
@@ -165,7 +171,8 @@ public class ClubFixtures implements CommandLineRunner {
                     UUID.randomUUID(),
                     daysAgo(22),
                     daysAgo(3),
-                    null
+                    null,
+                    true
             ));
 
             findClubRepository.save(new Club(
@@ -186,7 +193,8 @@ public class ClubFixtures implements CommandLineRunner {
                     UUID.randomUUID(),
                     daysAgo(75),
                     daysAgo(12),
-                    null
+                    null,
+                    true
             ));
 
             findClubRepository.save(new Club(
@@ -207,7 +215,8 @@ public class ClubFixtures implements CommandLineRunner {
                     UUID.randomUUID(),
                     daysAgo(40),
                     daysAgo(9),
-                    null
+                    null,
+                    true
             ));
             findClubRepository.save(new Club(
                     UUID.fromString("3517ebf3-51e1-436a-9a09-0e78f51cce70"),
@@ -227,7 +236,8 @@ public class ClubFixtures implements CommandLineRunner {
                     UUID.randomUUID(),
                     daysAgo(33),
                     daysAgo(6),
-                    null
+                    null,
+                    true
             ));
 
             findClubRepository.save(new Club(
@@ -248,7 +258,8 @@ public class ClubFixtures implements CommandLineRunner {
                     UUID.randomUUID(),
                     daysAgo(52),
                     daysAgo(8),
-                    null
+                    null,
+                    true
             ));
 
             findClubRepository.save(new Club(
@@ -269,7 +280,8 @@ public class ClubFixtures implements CommandLineRunner {
                     UUID.randomUUID(),
                     daysAgo(45),
                     daysAgo(2),
-                    null
+                    null,
+                    true
             ));
 
             findClubRepository.save(new Club(
@@ -290,7 +302,8 @@ public class ClubFixtures implements CommandLineRunner {
                     UUID.randomUUID(),
                     daysAgo(25),
                     daysAgo(4),
-                    null
+                    null,
+                    true
             ));
 
             findClubRepository.save(new Club(
@@ -311,7 +324,8 @@ public class ClubFixtures implements CommandLineRunner {
                     UUID.randomUUID(),
                     daysAgo(70),
                     daysAgo(11),
-                    null
+                    null,
+                    true
             ));
             findClubRepository.save(new Club(
                     UUID.fromString("defb7a66-7ef3-47a3-b205-bee13c580619"),
@@ -331,7 +345,8 @@ public class ClubFixtures implements CommandLineRunner {
                     UUID.randomUUID(),
                     daysAgo(38),
                     daysAgo(5),
-                    null
+                    null,
+                    true
             ));
 
             findClubRepository.save(new Club(
@@ -352,7 +367,8 @@ public class ClubFixtures implements CommandLineRunner {
                     UUID.randomUUID(),
                     daysAgo(41),
                     daysAgo(6),
-                    null
+                    null,
+                    true
             ));
 
             findClubRepository.save(new Club(
@@ -373,7 +389,8 @@ public class ClubFixtures implements CommandLineRunner {
                     UUID.randomUUID(),
                     daysAgo(18),
                     daysAgo(2),
-                    null
+                    null,
+                    true
             ));
 
             findClubRepository.save(new Club(
@@ -394,7 +411,8 @@ public class ClubFixtures implements CommandLineRunner {
                     UUID.randomUUID(),
                     daysAgo(29),
                     daysAgo(4),
-                    null
+                    null,
+                    true
             ));
 
             findClubRepository.save(new Club(
@@ -415,7 +433,8 @@ public class ClubFixtures implements CommandLineRunner {
                     UUID.randomUUID(),
                     daysAgo(55),
                     daysAgo(9),
-                    null
+                    null,
+                    true
             ));
 
 

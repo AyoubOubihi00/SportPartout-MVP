@@ -42,7 +42,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 Object userIdClaim = claims.get("userId");
                 // Assurez-vous que userId est un Long (ou String, selon la façon dont il est encodé)
                 UUID userId = UUID.fromString(userIdClaim.toString());
-
+                System.out.println("Extracted Claims - Username: " + username + ", Role: " + role + ", UserId: " + userId);
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
                     // **Création d'un Principal personnalisé contenant l'ID**
@@ -52,6 +52,7 @@ public class JwtFilter extends OncePerRequestFilter {
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                     SecurityContextHolder.getContext().setAuthentication(authentication);
+                    System.out.println("finish jwt filter");
                 }
             } catch (Exception e) {
                 System.err.println("Erreur de traitement des claims Envoy : " + e.getMessage());

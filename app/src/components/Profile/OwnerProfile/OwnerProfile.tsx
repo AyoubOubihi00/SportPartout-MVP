@@ -40,25 +40,6 @@ export default function OwnerProfile() {
   }, [token, navigate]);
   if (!token) return null;
 
-  const managedClubs = [
-    {
-      id: 1,
-      name: "Tennis Club Parisien",
-      sport: "Tennis",
-      members: 142,
-      maxCapacity: 200,
-      revenue: 3200,
-    },
-    {
-      id: 2,
-      name: "Football Club Nord",
-      sport: "Football",
-      members: 89,
-      maxCapacity: 150,
-      revenue: 2100,
-    },
-  ];
-
   if (loading) {
     return (
       <div
@@ -310,99 +291,6 @@ export default function OwnerProfile() {
             Se déconnecter
           </Button>
         </div>
-      </div>
-
-      {/* Clubs gérés */}
-      <div style={{ width: "100%", maxWidth: 480, marginBottom: 32 }}>
-        <Typography
-          level="title-sm"
-          sx={{
-            mb: 2,
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-            color: mainColor,
-          }}
-        >
-          Clubs gérés ({managedClubs.length})
-        </Typography>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
-            gap: 12,
-          }}
-        >
-          {managedClubs.map((club) => (
-            <div
-              key={club.id}
-              style={{
-                border: "2px solid",
-                borderColor: mainColor,
-                borderRadius: 8,
-                padding: 12,
-                minHeight: 120,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                gap: 8,
-              }}
-            >
-              <div>
-                <Typography
-                  level="body-sm"
-                  fontWeight="md"
-                  sx={{ color: mainColor }}
-                >
-                  {club.name}
-                </Typography>
-                <Typography
-                  level="body-xs"
-                  sx={{
-                    color:
-                      theme.palette.mode === "dark"
-                        ? "neutral.400"
-                        : "neutral.600",
-                  }}
-                >
-                  {club.sport} • {club.members} membres
-                </Typography>
-              </div>
-              <Button
-                size="sm"
-                variant="solid"
-                onClick={() => navigate(`/clubs/${club.id}`)}
-                sx={{
-                  backgroundColor: mainColor,
-                  color: theme.palette.mode === "dark" ? "#121212" : "#fff",
-                  boxShadow: 0,
-                  "&:hover": { backgroundColor: mainColor },
-                  "&:focus": {
-                    backgroundColor: mainColor,
-                    boxShadow: "none",
-                  },
-                  "&:active": { backgroundColor: mainColor },
-                }}
-              >
-                Gérer
-              </Button>
-            </div>
-          ))}
-        </div>
-        <Button
-          variant="solid"
-          sx={{
-            mt: 1,
-            backgroundColor: mainColor,
-            color: theme.palette.mode === "dark" ? "#121212" : "#fff",
-            boxShadow: 0,
-            "&:hover": { backgroundColor: mainColor },
-            "&:focus": { backgroundColor: mainColor, boxShadow: "none" },
-            "&:active": { backgroundColor: mainColor },
-          }}
-        >
-          + Nouveau Club
-        </Button>
       </div>
     </div>
   );

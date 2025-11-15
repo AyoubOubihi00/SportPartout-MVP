@@ -15,6 +15,7 @@ public record SubscribeResult(
         String phoneNumber,
         Boolean isActif,
         OffsetDateTime dateSubscription,
+        OffsetDateTime dateUnsubscription,
         Boolean himself,
         ClubGateway.ClubDto club
 ) {}

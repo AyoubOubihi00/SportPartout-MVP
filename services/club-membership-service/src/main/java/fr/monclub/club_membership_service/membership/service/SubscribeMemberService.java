@@ -33,15 +33,18 @@ public class SubscribeMemberService {
         {
             return null;
         }
-            ClubMember newMember = clubMemberMapper.toClubMemberEntity(clubId, userInput, club);
+        ClubMember newMember = clubMemberMapper.toClubMemberEntity(clubId, userInput, club);
         newMember.setDateSubscription(OffsetDateTime.now());
+        newMember.setIsActif(true);
+        newMember.setHimself(false);
+        newMember.setDateUnsubscription(null);
+
         try
         {
             return clubMemberCatalog.save(newMember);
         }
         catch (Exception e)
         {
-            System.out.println("LAAA ERROR ");
             System.err.println("Erreur lors de la sauvegarde du membre : " + e.getMessage());
             return null;
         }

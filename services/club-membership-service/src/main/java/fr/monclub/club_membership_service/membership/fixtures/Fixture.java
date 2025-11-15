@@ -9,24 +9,23 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 @Component
-@Profile("dev")
+@Profile("prod")
 public class Fixture implements CommandLineRunner {
-    private final ClubMemberCatalog clubMemberCatalog;
-
-    public Fixture(ClubMemberCatalog clubMemberCatalog) {
-        this.clubMemberCatalog = clubMemberCatalog;
-    }
-
     @Override
     public void run(String... args) throws Exception {
-        System.out.println("coucou");
+
     }
+
 
 
     /*
+    private final ClubMemberCatalog clubMemberCatalog;
+
+
     public Fixture(ClubMemberCatalog clubMemberCatalog) {
         this.clubMemberCatalog = clubMemberCatalog;
     }
@@ -43,11 +42,10 @@ public class Fixture implements CommandLineRunner {
     @Override
     public void run(String... args) {
         // Création des membres en base
-        createIfNotExists(jeanUUID, "Jean", "Dupont", OffsetDateTime.of(), "jean.dupont@email.com", clubUUID, "0601020304");
-        createIfNotExists(marieUUID, "Marie", "Durand", OffsetDateTime.of(1992, 2, 2), "marie.durand@email.com", clubUUID, "0605060708");
-        createIfNotExists(paulUUID, "Paul", "Martin", OffsetDateTime.of(1988, 3, 3), "paul.martin@email.com", clubUUID, "0608091011");
-        createIfNotExists(ahmetUUID, "Ahmet", "Kalyoncu", OffsetDateTime.of(1998, 10, 30), "ahmet@example.com", club2UUID, "0123456789");
-        createIfNotExists(ahmetUUID, "Ahmet", "Kalyoncu", OffsetDateTime.of(1998, 10, 30), "ahmet@example.com", clubUUID, "0123456789");
+        createIfNotExists(jeanUUID, "Jean", "Dupont", OffsetDateTime.of(1979,3,23,0,0,0,0,ZoneOffset.UTC), "jean.dupont@email.com", clubUUID, "0601020304");
+        createIfNotExists(marieUUID, "Marie", "Durand", OffsetDateTime.of(1992, 2, 2,0,0,0,0, ZoneOffset.UTC), "marie.durand@email.com", clubUUID, "0605060708");
+        createIfNotExists(paulUUID, "Paul", "Martin", OffsetDateTime.of(1988, 3, 3,0,0,0,0,ZoneOffset.UTC), "paul.martin@email.com", clubUUID, "0608091011");
+        createIfNotExists(ahmetUUID, "Ahmet", "Kalyoncu", OffsetDateTime.of(1998, 10, 30,0,0,0,0,ZoneOffset.UTC), "ahmet@example.com", club2UUID, "0123456789");
 
         System.out.println("Fixture GraphQL initialisée. Club id : " + clubUUID);
         System.out.println("Fixture GraphQL initialisée. Club2 id : " + club2UUID);
@@ -77,5 +75,7 @@ public class Fixture implements CommandLineRunner {
 
 
      */
+
+
 
 }

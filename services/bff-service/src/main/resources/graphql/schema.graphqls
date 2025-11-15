@@ -39,6 +39,8 @@ type Query {
   salut: String
   myClubs(userId: UUID!): [MemberWithClub!]!
   managedClubs(ownerId: UUID!): [Club!]!
+  clubMembersByClubId(clubId: UUID!): [MemberWithClub!]!
+  clubById(id: UUID!): Club
 }
 
 input UserInput {
@@ -54,6 +56,10 @@ type Mutation {
   acceptPendingSeance(seanceId: UUID!, userId: UUID!): SeanceDecision!
   refusePendingSeance(seanceId: UUID!, userId: UUID!, reason: String!): SeanceDecision!
   subscribeToClub(clubId: UUID!, newMember: UserInput!): MemberWithClub
+  forcedUnsubscribe(clubId: UUID!, memberId: UUID!): Int
+  updateClub(id: UUID!, data: UpdateClubInput!, ownerId: UUID!): Club
+  disableClub(id: UUID!, ownerId: UUID!): Boolean
+  reactivateClub(id: UUID!, ownerId: UUID!): Boolean
 
 }
 
@@ -69,7 +75,23 @@ type MemberWithClub {
   phoneNumber: String
   isActif: Boolean
   dateSubscription: String
+  dateUnsubscription: String
   himself: Boolean
   club: Club
+}
+
+input UpdateClubInput {
+  name: String
+  typeId: UUID
+  typeName: String
+  city: String
+  address: String
+  country: String
+  phoneNumber: String
+  postalCode: String
+  email: String
+  latitude: Float
+  longitude: Float
+  updatedAt: DateTime
 }
 

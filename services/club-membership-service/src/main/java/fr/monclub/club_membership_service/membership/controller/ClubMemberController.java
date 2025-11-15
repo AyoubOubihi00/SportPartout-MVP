@@ -15,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import java.util.List;
 import java.util.UUID;
 
+
 @Controller
 @AllArgsConstructor
 public class ClubMemberController {
@@ -30,9 +31,6 @@ public class ClubMemberController {
     public ClubMember subscribeToClub(@Argument UUID clubId,
                                       @Argument("newMember") UserInput newMember,
                                       @Argument("club") ClubInput club) {
-        System.out.println("Subscribe to club inside");
-        System.out.println(club.getOwnerId());
-        System.out.println(club.getEmail());
 
         return subscribeMemberService.subscribe(clubId, newMember, club);
 
@@ -46,7 +44,7 @@ public class ClubMemberController {
 
     @MutationMapping
     @PreAuthorize("hasRole('OWNER')")
-    public int forcedUnsubscription(@Argument UUID clubId,@Argument("memberId") UUID memberId) {
+    public int forcedUnsubscribe(@Argument UUID clubId,@Argument UUID memberId) {
         return forcedUnSubscribeMemberService.forcedUnsubscription(clubId,memberId);
     }
 
@@ -72,6 +70,7 @@ public class ClubMemberController {
     @QueryMapping
     @PreAuthorize("hasRole('OWNER')")
     public List<ClubMember> AllClubMembersByClubId(@Argument UUID clubId) {
+        System.out.println("ClubMemberController appelé avec clubId=" + clubId);
         return allMembersService.getMembersByClub(clubId);
     }
 

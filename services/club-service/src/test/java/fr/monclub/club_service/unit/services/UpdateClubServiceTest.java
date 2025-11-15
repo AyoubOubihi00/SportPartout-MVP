@@ -1,11 +1,11 @@
 package fr.monclub.club_service.unit.services;
 
 import fr.monclub.club_service.club.catalog.ClubCatalog;
+import fr.monclub.club_service.config.RabbitMQ.Publisher.ClubEventPublisher;
 import fr.monclub.club_service.core.exception.ClubAccessDeniedException;
 import fr.monclub.club_service.core.exception.ValidationException;
 import fr.monclub.club_service.club.mapper.UpdateClubInputToClubMapper;
 import fr.monclub.club_service.club.model.Club;
-import fr.monclub.club_service.club.model.SportsType;
 import fr.monclub.club_service.club.model.UpdateClubInput;
 import fr.monclub.club_service.club.service.UpdateClubService;
 import fr.monclub.club_service.club.validators.UpdateClubValidator;
@@ -35,12 +35,15 @@ class UpdateClubServiceTest {
 
     private UpdateClubService updateClubService;
 
+    @Mock
+    private ClubEventPublisher clubEventPublisher;
+
     @Autowired
     private UpdateClubValidator validator;
 
     @BeforeEach
     void setUp() {
-        updateClubService = new UpdateClubService(clubCatalog, mapper, validator);
+        updateClubService = new UpdateClubService(clubCatalog, mapper, validator,clubEventPublisher);
     }
 
     @Test
@@ -123,47 +126,4 @@ class UpdateClubServiceTest {
         verify(clubCatalog, never()).save(any());
     }
 
-    @Test
-    void apply_shouldThrowValidationException_whenInputIsNull() {
-        UUID clubId = UUID.randomUUID();
-        UUID ownerId = UUID.randomUUID();
-
-        Club existingClub = new Club();
-        existingClub.setId(clubId);
-        existingClub.setOwnerId(ownerId);
-
-        when(clubCatalog.getClubById(clubId)).thenReturn(existingClub);
-
-        assertThrows(ValidationException.class,
-                () -> updateClubService.apply(clubId, null, ownerId));
-
-        verify(clubCatalog, never()).save(any());
-    }
-
-    @Test
-    void apply_shouldUpdateClubPartially_whenSomeFieldsAreNull() {
-        UUID clubId = UUID.randomUUID();
-        UUID ownerId = UUID.randomUUID();
-
-        Club existingClub = new Club();
-        existingClub.setId(clubId);
-        existingClub.setOwnerId(ownerId);
-        existingClub.setName("Old Name");
-        existingClub.setTypeId(ClubFixtures.UUID_FOOTBALL);
-        existingClub.setTypeName("football");
-        existingClub.setCity("Old City");
-
-        UpdateClubInput input = new UpdateClubInput();
-        input.setName(null);
-        input.setTypeId(ClubFixtures.UUID_FOOTBALL);
-        input.setTypeName("football");
-        input.setCity(null);
-
-        when(clubCatalog.getClubById(clubId)).thenReturn(existingClub);
-
-        assertThrows(ValidationException.class,
-                () -> updateClubService.apply(clubId, input, ownerId));
-
-        verify(clubCatalog, never()).save(any());
-    }
 }

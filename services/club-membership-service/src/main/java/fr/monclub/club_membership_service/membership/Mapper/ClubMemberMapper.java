@@ -39,6 +39,7 @@ public interface ClubMemberMapper {
     @Mapping(target = "clubCreatedAt", source = "club.createdAt")
     @Mapping(target = "clubUpdatedAt", source = "club.updatedAt")
     @Mapping(target = "clubDeletedAt", source = "club.deletedAt")
+    @BeanMapping(ignoreByDefault = true)
     ClubMember toClubMemberEntity(UUID clubId, UserInput userInput, ClubInput club);
 
     // Backward-compatible overload for existing tests/usages without club snapshot

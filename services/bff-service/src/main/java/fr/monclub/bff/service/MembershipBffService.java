@@ -37,10 +37,16 @@ public class MembershipBffService {
                 m.email(),
                 m.phoneNumber(),
                 m.isActif(),
-                m.dateSubscription(),
+            m.dateSubscription(),
+            null,
                 m.himself(),
                 club
         );
+    }
+
+    public int forcedUnsubscribe(UUID clubId, UUID memberId) {
+        System.out.println("MembershipBffService: forcedUnsubscribe clubId=" + clubId + ", memberId=" + memberId);
+        return membershipGateway.forcedUnsubscribe(clubId, memberId);
     }
 
     public List<SubscribeResult> myClubs(UUID userId) {
@@ -65,6 +71,36 @@ public class MembershipBffService {
                     membership.phoneNumber(),
                     membership.isActif(),
                     membership.dateSubscription(),
+                    membership.dateUnsubscription(),
+                    membership.himself(),
+                    club
+            ));
+        }
+        return results;
+    }
+
+    public List<SubscribeResult> clubMembersByClubId(UUID clubId) {
+        List<MembershipGateway.MemberWithClubDto> memberships = membershipGateway.clubMembersByClubId(clubId);
+        List<SubscribeResult> results = new ArrayList<>(memberships.size());
+        for (MembershipGateway.MemberWithClubDto membership : memberships) {
+            ClubGateway.ClubDto club = membership.club();
+            if (club == null && membership.clubId() != null) {
+                try {
+                    club = clubGateway.getClub(membership.clubId());
+                } catch (ResourceNotFoundException ignored) {
+                }
+            }
+            results.add(new SubscribeResult(
+                    membership.clubId(),
+                    membership.userId(),
+                    membership.firstName(),
+                    membership.lastName(),
+                    membership.birthDate(),
+                    membership.email(),
+                    membership.phoneNumber(),
+                    membership.isActif(),
+                    membership.dateSubscription(),
+                    membership.dateUnsubscription(),
                     membership.himself(),
                     club
             ));

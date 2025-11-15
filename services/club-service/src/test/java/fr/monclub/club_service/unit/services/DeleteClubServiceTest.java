@@ -7,6 +7,7 @@ import fr.monclub.club_service.club.model.UpdateClubInput;
 import fr.monclub.club_service.club.service.AddClubService;
 import fr.monclub.club_service.club.service.DeleteClubService;
 import fr.monclub.club_service.club.validators.UpdateClubValidator;
+import fr.monclub.club_service.config.RabbitMQ.Publisher.ClubDisabledPublisher;
 import fr.monclub.club_service.core.exception.ClubAccessDeniedException;
 import fr.monclub.club_service.core.exception.ClubNotFoundException;
 import fr.monclub.club_service.core.exception.ValidationException;
@@ -14,9 +15,11 @@ import fr.monclub.club_service.fixtures.ClubFixtures;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.UUID;
 
@@ -35,9 +38,15 @@ class DeleteClubServiceTest {
 
     private DeleteClubService deleteClubService;
 
+    @Autowired
+    private ClubDisabledPublisher clubDisabledPublisher;
+
+    @MockitoBean
+    private RabbitTemplate rabbitTemplate;
+
     @BeforeEach
     void setUp() {
-        deleteClubService = new DeleteClubService(clubCatalog);
+        deleteClubService = new DeleteClubService(clubCatalog, clubDisabledPublisher);
     }
 
     @Test

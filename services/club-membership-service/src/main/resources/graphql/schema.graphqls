@@ -29,6 +29,7 @@ type ClubMember {
     phoneNumber: String
     isActif: Boolean
     dateSubscription: DateTime
+    dateUnsubscription: DateTime
     himself: Boolean
     club: Club
 }

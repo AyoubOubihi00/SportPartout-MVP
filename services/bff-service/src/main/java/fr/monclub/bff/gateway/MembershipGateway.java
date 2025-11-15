@@ -137,6 +137,31 @@ public class MembershipGateway {
         }
     }
 
+    public int forcedUnsubscribe(UUID clubId, UUID memberId) {
+        String mutation = """
+            mutation($clubId: ID!, $memberId: ID!) {
+              forcedUnsubscribe(clubId: $clubId, memberId: $memberId)
+            }
+            """;
+        try {
+            Map<String, Object> variables = Map.of(
+                    "clubId", clubId.toString(),
+                    "memberId", memberId.toString()
+            );
+            JsonNode data = membershipGraphQlClient.execute(mutation, variables);
+            JsonNode value = data != null ? data.get("forcedUnsubscribe") : null;
+            return value != null && value.isInt() ? value.asInt() : 0;
+        } catch (GraphQlClientException ex) {
+            if (ex.hasClassification("UNAUTHORIZED")) {
+                throw new ForbiddenOperationException(ex.firstMessageOr("Accès refusé pour la désinscription forcée"));
+            }
+            if (ex.hasClassification("NOT_FOUND")) {
+                throw new ResourceNotFoundException(ex.firstMessageOr("Club ou membre introuvable"));
+            }
+            throw ex;
+        }
+    }
+
     public List<MemberWithClubDto> clubMembersByUserId(UUID userId) {
         String query = """
             query($userId: ID!) {
@@ -150,6 +175,7 @@ public class MembershipGateway {
                 phoneNumber
                 isActif
                 dateSubscription
+                                dateUnsubscription
                 himself
                 club {
                   id
@@ -183,19 +209,22 @@ public class MembershipGateway {
                     JsonNode clubNode = n.get("club");
                     if (clubNode != null && !clubNode.isNull()) {
                         club = new ClubGateway.ClubDto(
-                                readUuid(clubNode, "id"),
-                                readUuid(clubNode, "ownerId"),
-                                clubNode.hasNonNull("name") ? clubNode.get("name").asText() : null,
-                                readUuid(clubNode, "typeId"),
-                                clubNode.hasNonNull("typeName") ? clubNode.get("typeName").asText() : null,
-                                clubNode.hasNonNull("city") ? clubNode.get("city").asText() : null,
-                                clubNode.hasNonNull("address") ? clubNode.get("address").asText() : null,
-                                clubNode.hasNonNull("country") ? clubNode.get("country").asText() : null,
-                                clubNode.hasNonNull("postalCode") ? clubNode.get("postalCode").asText() : null,
-                                clubNode.hasNonNull("phoneNumber") ? clubNode.get("phoneNumber").asText() : null,
-                                clubNode.hasNonNull("email") ? clubNode.get("email").asText() : null,
-                                readFloat(clubNode, "latitude"),
-                                readFloat(clubNode, "longitude")
+                            readUuid(clubNode, "id"),
+                            readUuid(clubNode, "ownerId"),
+                            clubNode.hasNonNull("name") ? clubNode.get("name").asText() : null,
+                            readUuid(clubNode, "typeId"),
+                            clubNode.hasNonNull("typeName") ? clubNode.get("typeName").asText() : null,
+                            clubNode.hasNonNull("city") ? clubNode.get("city").asText() : null,
+                            clubNode.hasNonNull("address") ? clubNode.get("address").asText() : null,
+                            clubNode.hasNonNull("country") ? clubNode.get("country").asText() : null,
+                            clubNode.hasNonNull("postalCode") ? clubNode.get("postalCode").asText() : null,
+                            clubNode.hasNonNull("phoneNumber") ? clubNode.get("phoneNumber").asText() : null,
+                            clubNode.hasNonNull("email") ? clubNode.get("email").asText() : null,
+                            readFloat(clubNode, "latitude"),
+                            readFloat(clubNode, "longitude"),
+                            readOdt(clubNode, "createdAt"),
+                            readOdt(clubNode, "updatedAt"),
+                            readOdt(clubNode, "deletedAt")
                         );
                     }
                     result.add(new MemberWithClubDto(
@@ -208,6 +237,7 @@ public class MembershipGateway {
                             n.hasNonNull("phoneNumber") ? n.get("phoneNumber").asText() : null,
                             n.hasNonNull("isActif") ? n.get("isActif").asBoolean() : null,
                             readOdt(n, "dateSubscription"),
+                            readOdt(n, "dateUnsubscription"),
                             n.hasNonNull("himself") ? n.get("himself").asBoolean() : null,
                             club
                     ));
@@ -217,6 +247,96 @@ public class MembershipGateway {
         } catch (GraphQlClientException ex) {
             if (ex.hasClassification("UNAUTHORIZED")) {
                 throw new ForbiddenOperationException(ex.firstMessageOr("Accès refusé pour la consultation des adhésions"));
+            }
+            throw ex;
+        }
+    }
+
+    public List<MemberWithClubDto> clubMembersByClubId(UUID clubId) {
+        String query = """
+            query($clubId: ID!) {
+              AllClubMembersByClubId(clubId: $clubId) {
+                userId
+                clubId
+                firstName
+                lastName
+                birthDate
+                email
+                phoneNumber
+                isActif
+                dateSubscription
+                dateUnsubscription
+                himself
+                club {
+                  id
+                  ownerId
+                  name
+                  typeId
+                  typeName
+                  city
+                  address
+                  country
+                  postalCode
+                  phoneNumber
+                  email
+                  latitude
+                  longitude
+                  createdAt
+                  updatedAt
+                  deletedAt
+                }
+              }
+            }
+            """;
+        try {
+            Map<String, Object> variables = Map.of("clubId", clubId.toString());
+            JsonNode data = membershipGraphQlClient.execute(query, variables);
+            List<MemberWithClubDto> result = new ArrayList<>();
+            JsonNode arr = data != null ? data.get("AllClubMembersByClubId") : null;
+            if (arr != null && arr.isArray()) {
+                for (JsonNode n : arr) {
+                    ClubGateway.ClubDto club = null;
+                    JsonNode clubNode = n.get("club");
+                    if (clubNode != null && !clubNode.isNull()) {
+                        club = new ClubGateway.ClubDto(
+                            readUuid(clubNode, "id"),
+                            readUuid(clubNode, "ownerId"),
+                            clubNode.hasNonNull("name") ? clubNode.get("name").asText() : null,
+                            readUuid(clubNode, "typeId"),
+                            clubNode.hasNonNull("typeName") ? clubNode.get("typeName").asText() : null,
+                            clubNode.hasNonNull("city") ? clubNode.get("city").asText() : null,
+                            clubNode.hasNonNull("address") ? clubNode.get("address").asText() : null,
+                            clubNode.hasNonNull("country") ? clubNode.get("country").asText() : null,
+                            clubNode.hasNonNull("postalCode") ? clubNode.get("postalCode").asText() : null,
+                            clubNode.hasNonNull("phoneNumber") ? clubNode.get("phoneNumber").asText() : null,
+                            clubNode.hasNonNull("email") ? clubNode.get("email").asText() : null,
+                            readFloat(clubNode, "latitude"),
+                            readFloat(clubNode, "longitude"),
+                            readOdt(clubNode, "createdAt"),
+                            readOdt(clubNode, "updatedAt"),
+                            readOdt(clubNode, "deletedAt")
+                        );
+                    }
+                    result.add(new MemberWithClubDto(
+                            readUuid(n, "clubId"),
+                            readUuid(n, "userId"),
+                            n.hasNonNull("firstName") ? n.get("firstName").asText() : null,
+                            n.hasNonNull("lastName") ? n.get("lastName").asText() : null,
+                            readOdt(n, "birthDate"),
+                            n.hasNonNull("email") ? n.get("email").asText() : null,
+                            n.hasNonNull("phoneNumber") ? n.get("phoneNumber").asText() : null,
+                            n.hasNonNull("isActif") ? n.get("isActif").asBoolean() : null,
+                            readOdt(n, "dateSubscription"),
+                            readOdt(n, "dateUnsubscription"),
+                            n.hasNonNull("himself") ? n.get("himself").asBoolean() : null,
+                            club
+                    ));
+                }
+            }
+            return result;
+        } catch (GraphQlClientException ex) {
+            if (ex.hasClassification("UNAUTHORIZED")) {
+                throw new ForbiddenOperationException(ex.firstMessageOr("Accès refusé pour la consultation des membres du club"));
             }
             throw ex;
         }
@@ -264,7 +384,7 @@ public class MembershipGateway {
             Boolean himself
     ) {}
 
-    public record MemberWithClubDto(
+        public record MemberWithClubDto(
             UUID clubId,
             UUID userId,
             String firstName,
@@ -274,6 +394,7 @@ public class MembershipGateway {
             String phoneNumber,
             Boolean isActif,
             OffsetDateTime dateSubscription,
+            OffsetDateTime dateUnsubscription,
             Boolean himself,
             ClubGateway.ClubDto club
     ) {}

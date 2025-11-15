@@ -1,8 +1,11 @@
 package fr.monclub.club_membership_service.membership.catalog;
 
+import fr.monclub.club_membership_service.RabbitMQ.ClubDisabledEvent;
+import fr.monclub.club_membership_service.RabbitMQ.ClubReactivedEvent;
 import fr.monclub.club_membership_service.membership.model.ClubMember;
 import org.springframework.stereotype.Component;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,4 +27,12 @@ public interface ClubMemberCatalog {
 
     List<ClubMember> findClubMembersByUserId(UUID userId);
 
+    public void updateClubInfo(UUID clubId, String name, UUID typeId, String typeName,
+                               String city, String address, String country, String postalCode,
+                               String phoneNumber, String email, Double latitude, Double longitude,
+                             OffsetDateTime updatedAt);
+
+    public boolean disableClub(ClubDisabledEvent clubDisabledEvent);
+
+    public boolean reactiveClub(ClubReactivedEvent clubReactivedEvent);
 }

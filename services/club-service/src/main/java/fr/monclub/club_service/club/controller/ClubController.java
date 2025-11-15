@@ -5,6 +5,7 @@ import fr.monclub.club_service.club.model.Club;
 import fr.monclub.club_service.club.model.UpdateClubInput;
 import fr.monclub.club_service.club.service.AddClubService;
 import fr.monclub.club_service.club.service.DeleteClubService;
+import fr.monclub.club_service.club.service.ReactivateClubService;
 import fr.monclub.club_service.club.service.UpdateClubService;
 import lombok.AllArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -23,6 +24,7 @@ public class ClubController {
     private final UpdateClubService updateClub;
     private final AddClubService addClub;
     private final DeleteClubService deleteClubService;
+    private final ReactivateClubService reactivateClubService;
 
     @QueryMapping
     public List<Club> clubs() {
@@ -55,6 +57,10 @@ public class ClubController {
         return deleteClubService.apply(id, ownerId);
     }
 
+    @MutationMapping
+    public Boolean reactivateClub(@Argument UUID id, @Argument UUID ownerId) {
+        return reactivateClubService.apply(id, ownerId);
+    }
 
 
 

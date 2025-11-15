@@ -47,27 +47,6 @@ describe("OwnerProfile (unit)", () => {
     getMeMock.mockReset();
   });
 
-  it("rend le titre 'Clubs gérés'", async () => {
-    getMeMock.mockResolvedValue({
-      id: "1",
-      email: "owner@example.com",
-      createdAt: new Date("2024-01-10").toISOString(),
-      role: "OWNER",
-      firstName: "Pierre",
-      lastName: "Martin",
-      birthDate: "1990-01-01T00:00:00Z",
-      phone: "0000000000",
-    });
-
-    render(
-      <MemoryRouter>
-        <OwnerProfile />
-      </MemoryRouter>,
-    );
-
-    // OwnerProfile no longer wraps itself in ProfileLayout; just assert the content
-    expect(await screen.findByText(/Clubs gérés/i)).toBeInTheDocument();
-  });
 
   it("navigue vers /editmemberprofile en cliquant sur 'Modifier'", async () => {
     const navigateMock = jest.fn();

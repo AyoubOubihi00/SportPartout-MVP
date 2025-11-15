@@ -27,4 +27,5 @@ public interface ClubMemberRepository extends JpaRepository<ClubMember, UUID> {
     List<ClubMember> findClubMembersByUserId(UUID userId);
 
 
+
 }

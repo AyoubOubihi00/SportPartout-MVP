@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/joy/styles";
 import BaseLayout from "../../layouts/BaseLayout";
 import MiniClubDetail from "./MiniClubDetail";
 import ManagedClubDetail from "./ManagedClubDetail";
+import { getFullClub } from "../../services/clubService";
 import { useAuth } from "../shared/useAuth";
 import {
   fetchMyClubs,
@@ -23,6 +24,7 @@ import { ChevronRight } from "lucide-react";
 export default function Clubs() {
   const { token } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const theme = useTheme();
   const mainColor = theme.palette.mode === "dark" ? "#fff" : "#000";
   const labelColor =
@@ -56,8 +58,42 @@ export default function Clubs() {
         }
         if (profile.role?.toUpperCase() === "OWNER") {
           const managed = await fetchManagedClubs(profile.id);
+          // Enrichir l'état actif/inactif avec la source des détails (évite tout décalage de BFF)
+          let enriched = managed;
+          try {
+            const fulls = await Promise.all(
+              managed.map(async (c) => {
+                if (!c.id) return null;
+                try {
+                  const fc = await getFullClub(c.id, token);
+                  return { id: c.id, deletedAt: fc.deletedAt ?? null } as {
+                    id: string;
+                    deletedAt: string | null;
+                  };
+                } catch {
+                  return null;
+                }
+              }),
+            );
+            const byId = new Map(
+              fulls.filter(Boolean).map((x) => [x!.id, x!.deletedAt]),
+            );
+            enriched = managed.map((c) =>
+              c.id && byId.has(c.id)
+                ? { ...c, deletedAt: byId.get(c.id) ?? null }
+                : c,
+            );
+          } catch {
+            // Si enrichissement échoue, on garde les données BFF telles quelles
+          }
           if (!cancelled) {
-            setManagedClubs(managed);
+            // Trier par nom pour un ordre stable (les clubs modifiés restent à leur place)
+            enriched.sort((a, b) => {
+              const nameA = a.name?.toLowerCase() || "";
+              const nameB = b.name?.toLowerCase() || "";
+              return nameA.localeCompare(nameB);
+            });
+            setManagedClubs(enriched);
           }
         } else if (!cancelled) {
           setManagedClubs([]);
@@ -82,7 +118,7 @@ export default function Clubs() {
     return () => {
       cancelled = true;
     };
-  }, [token, navigate]);
+  }, [token, navigate, location.key]);
 
   const hasClubs = useMemo(() => memberships.length > 0, [memberships]);
   const hasManagedClubs = useMemo(
@@ -216,7 +252,9 @@ export default function Clubs() {
               <ManagedClubDetail
                 key={club.id}
                 club={club}
-                onViewDetails={() => navigate("/")}
+                onViewDetails={() =>
+                  navigate(`/clubs/manage`, { state: { clubId: club.id } })
+                }
               />
             ))}
           </Stack>

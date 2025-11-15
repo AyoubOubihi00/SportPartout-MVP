@@ -38,6 +38,7 @@ export interface MemberWithClub {
   phoneNumber?: string | null;
   isActif?: boolean | null;
   dateSubscription?: string | null;
+  dateUnsubscription?: string | null;
   himself?: boolean | null;
   club?: ClubSnapshot | null;
 }
@@ -210,6 +211,7 @@ export async function fetchManagedClubs(
     email
     latitude
     longitude
+    deletedAt
   }
 }`;
 
@@ -220,4 +222,107 @@ export async function fetchManagedClubs(
   );
 
   return data.managedClubs ?? [];
+}
+
+export async function fetchClubMembers(
+  clubId: string,
+  token?: string | null,
+): Promise<MemberWithClub[]> {
+  const authToken = token || getAuthToken();
+  if (!authToken) {
+    throw new Error("Utilisateur non authentifie");
+  }
+
+  const query = `query ClubMembersByClubId($clubId: UUID!) {
+  clubMembersByClubId(clubId: $clubId) {
+    userId
+    clubId
+    firstName
+    lastName
+    birthDate
+    email
+    phoneNumber
+    isActif
+    dateSubscription
+    dateUnsubscription
+    himself
+    club {
+      id
+      ownerId
+      name
+      typeId
+      typeName
+      city
+      address
+      country
+      postalCode
+      phoneNumber
+      email
+      latitude
+      longitude
+      createdAt
+      updatedAt
+      deletedAt
+    }
+  }
+}`;
+
+  const variables = { clubId };
+  const response = await fetch(`${BFF_BASE_URL}/graphql`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${authToken}`,
+    },
+    body: JSON.stringify({ query, variables }),
+  });
+
+  if (!response.ok) {
+    const payload = await response.text().catch(() => "");
+    throw new Error(`HTTP ${response.status}: ${payload}`);
+  }
+
+  const result = await response.json();
+  if (process.env.NODE_ENV !== "production") {
+    try {
+      const sample = (result?.data?.AllClubMembersByClubId ?? []).slice(0, 3);
+      console.log("[DEBUG] Raw GraphQL members sample:", sample);
+      if (sample[0]) {
+        console.log("[DEBUG] First member keys:", Object.keys(sample[0]));
+      }
+    } catch (err) {
+      console.warn("[DEBUG] Failed to introspect GraphQL result:", err);
+    }
+  }
+  if (result.errors?.length) {
+    throw new Error(result.errors[0]?.message || "Erreur API fetchClubMembers");
+  }
+
+  return result.data?.clubMembersByClubId ?? [];
+}
+
+export async function forcedUnsubscribe(
+  clubId: string,
+  memberId: string,
+): Promise<number> {
+  const authToken = getAuthToken();
+  if (!authToken) {
+    throw new Error("Utilisateur non authentifie");
+  }
+
+  console.log("[BFF] forcedUnsubscribe clubId=", clubId, "memberId=", memberId);
+  const mutation = `mutation ForcedUnsubscribe($clubId: UUID!, $memberId: UUID!) {\n  forcedUnsubscribe(clubId: $clubId, memberId: $memberId)\n}`;
+  const response = await fetch(`${BFF_BASE_URL}/graphql`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${authToken}`,
+    },
+    body: JSON.stringify({ query: mutation, variables: { clubId, memberId } }),
+  });
+  const result = await response.json();
+  if (result.errors) {
+    throw new Error(result.errors[0].message);
+  }
+  return result.data?.forcedUnsubscribe ?? 0;
 }
