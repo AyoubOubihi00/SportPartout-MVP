@@ -7,10 +7,13 @@ import Divider from "@mui/joy/Divider";
 import Box from "@mui/joy/Box";
 import { CalendarRange, MapPin, ShieldCheck } from "lucide-react";
 import type { MemberWithClub } from "../../services/membershipService";
+import { useTheme } from "@mui/joy/styles";
 
 type MiniClubDetailProps = {
   membership: MemberWithClub;
   onViewDetails?: (clubId: string) => void;
+  onUnsubscribe?: () => void;
+  unsubscribing?: boolean;
 };
 
 function formatMembershipDate(date?: string | null): string | null {
@@ -27,11 +30,11 @@ function formatMembershipDate(date?: string | null): string | null {
   }
 }
 
-import { useTheme } from "@mui/joy/styles";
-
 export default function MiniClubDetail({
   membership,
   onViewDetails,
+  onUnsubscribe,
+  unsubscribing = false,
 }: MiniClubDetailProps) {
   const club = membership.club;
   const joinDate = formatMembershipDate(membership.dateSubscription);
@@ -190,22 +193,55 @@ export default function MiniClubDetail({
           )}
         </Box>
 
-        {onViewDetails && membership.clubId && (
-          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-            <Button
-              size="sm"
-              variant="solid"
-              onClick={() => onViewDetails(membership.clubId)}
-              sx={{
-                backgroundColor: mainColor,
-                color: theme.palette.mode === "dark" ? "#121212" : "#fff",
-                fontWeight: 600,
-                boxShadow: "none",
-                "&:hover": { backgroundColor: mainColor },
-              }}
-            >
-              Voir le club
-            </Button>
+        {membership.clubId && (onViewDetails || onUnsubscribe) && (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: 1,
+              flexWrap: "wrap",
+            }}
+          >
+            {onUnsubscribe && (
+              <Button
+                size="sm"
+                variant="outlined"
+                color="danger"
+                onClick={onUnsubscribe}
+                loading={unsubscribing}
+                disabled={unsubscribing}
+                sx={{
+                  borderColor:
+                    theme.palette.mode === "dark" ? "danger.500" : "danger.300",
+                  color:
+                    theme.palette.mode === "dark" ? "danger.300" : "danger.600",
+                  "&:hover": {
+                    borderColor:
+                      theme.palette.mode === "dark"
+                        ? "danger.400"
+                        : "danger.500",
+                  },
+                }}
+              >
+                Se désinscrire
+              </Button>
+            )}
+            {onViewDetails && (
+              <Button
+                size="sm"
+                variant="solid"
+                onClick={() => onViewDetails(membership.clubId)}
+                sx={{
+                  backgroundColor: mainColor,
+                  color: theme.palette.mode === "dark" ? "#121212" : "#fff",
+                  fontWeight: 600,
+                  boxShadow: "none",
+                  "&:hover": { backgroundColor: mainColor },
+                }}
+              >
+                Voir le club
+              </Button>
+            )}
           </Box>
         )}
       </Stack>

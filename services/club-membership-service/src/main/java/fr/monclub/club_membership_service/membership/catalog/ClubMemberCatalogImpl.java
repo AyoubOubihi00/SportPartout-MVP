@@ -59,12 +59,6 @@ public class ClubMemberCatalogImpl implements ClubMemberCatalog {
         return m;
     }
 
-    @Override
-    public int deactivateClubMemberById(UUID memberId) {
-        return this.clubMemberRepository.deactivateClubMemberById(memberId);
-    }
-
-
     public List<ClubMember>  findClubMembersByUserId(UUID userId)
     {
         return this.clubMemberRepository.findClubMembersByUserId(userId);
@@ -146,6 +140,11 @@ public class ClubMemberCatalogImpl implements ClubMemberCatalog {
         System.out.println("Club réactivé pour tous les membres du club : " + clubReactivedEvent.getClubId());
         return true;
 
+    }
+
+    @Override
+    public int deactivateClubMemberById(UUID memberId) {
+        return this.clubMemberRepository.deactivateClubMemberById(memberId);
     }
 
 

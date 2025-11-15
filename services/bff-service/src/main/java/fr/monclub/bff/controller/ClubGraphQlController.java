@@ -21,13 +21,6 @@ public class ClubGraphQlController {
     private final ClubListingBffService clubListingService;
     private final ClubGateway clubGateway;
 
-    @QueryMapping
-    public List<ClubListingBffService.ClubSummary> clubs(@Argument UUID userId) {
-        if (userId == null) {
-            throw new BadRequestException("Le parametre userId est obligatoire");
-        }
-        return clubListingService.clubsForUser(userId);
-    }
 
     @QueryMapping
     public List<ClubListingBffService.ClubSummary> managedClubs(@Argument UUID ownerId) {

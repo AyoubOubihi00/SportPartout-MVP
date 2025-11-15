@@ -25,23 +25,21 @@ public class UnSubscribeMemberServiceIntegrationTest {
 
     @Test
     void unSubscribe_shouldDeactivateMember() {
-        // Arrange : créer un membre dans la DB
         ClubMember member = new ClubMember();
         member.setClubId(UUID.randomUUID());
         member.setUserId(UUID.randomUUID());
         member.setIsActif(true);
         clubMemberRepository.save(member);
 
-        // Act
         int result = unSunbscribeMemberService.unSubscribe(member.getClubId(), member.getUserId());
 
-        // Assert
-        assertThat(result).isEqualTo(1);  // 1 = désactivation réussie
+        assertThat(result).isEqualTo(1);
 
-        // Récupérer le membre depuis la DB
         ClubMember updatedMember = clubMemberRepository.findById(member.getId()).orElseThrow();
-        assertThat(updatedMember.getIsActif()).isFalse();  // Vérifie qu'il est désactivé
-        assertThat(updatedMember.getDateSubscription()).isNull(); // Vérifie que la date de souscription est null
+        assertThat(updatedMember.getIsActif()).isFalse();
+        assertThat(updatedMember.getDateSubscription()).isNull();
+        assertThat(updatedMember.getHimself()).isTrue();
+        assertThat(updatedMember.getDateUnsubscription()).isNotNull();
     }
 
     @Test
@@ -51,6 +49,6 @@ public class UnSubscribeMemberServiceIntegrationTest {
 
         int result = unSunbscribeMemberService.unSubscribe(unknownClubId, unknownUserId);
 
-        assertThat(result).isEqualTo(0);  // 0 = membre introuvable
+        assertThat(result).isEqualTo(0);
     }
 }

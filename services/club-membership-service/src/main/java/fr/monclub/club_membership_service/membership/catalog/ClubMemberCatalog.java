@@ -22,9 +22,6 @@ public interface ClubMemberCatalog {
 
     ClubMember save(ClubMember clubMember);
 
-    int deactivateClubMemberById(UUID memberId);
-
-
     List<ClubMember> findClubMembersByUserId(UUID userId);
 
     public void updateClubInfo(UUID clubId, String name, UUID typeId, String typeName,
@@ -35,4 +32,5 @@ public interface ClubMemberCatalog {
     public boolean disableClub(ClubDisabledEvent clubDisabledEvent);
 
     public boolean reactiveClub(ClubReactivedEvent clubReactivedEvent);
+    int deactivateClubMemberById(UUID memberId);
 }

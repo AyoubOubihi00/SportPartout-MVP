@@ -59,12 +59,12 @@ export default function ManagedClubDetail({
           </Typography>
           <Stack direction="row" gap={1} alignItems="center">
             <Chip
-              color={club.deletedAt ? "danger" : "success"}
+              color={club.isActive ? "success" : "danger"}
               variant="soft"
               size="sm"
               startDecorator={<Power size={14} />}
             >
-              {club.deletedAt ? "Inactif" : "Actif"}
+              {club.isActive ? "Actif" : "Inactif"}
             </Chip>
           </Stack>
         </Stack>

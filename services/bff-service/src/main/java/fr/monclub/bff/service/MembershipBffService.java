@@ -37,8 +37,8 @@ public class MembershipBffService {
                 m.email(),
                 m.phoneNumber(),
                 m.isActif(),
-            m.dateSubscription(),
-            null,
+                m.dateSubscription(),
+                null,
                 m.himself(),
                 club
         );
@@ -106,5 +106,9 @@ public class MembershipBffService {
             ));
         }
         return results;
+    }
+
+    public boolean unsubscribeFromClub(UUID clubId, UUID memberId) {
+        return membershipGateway.unsubscribeFromClub(clubId, memberId);
     }
 }

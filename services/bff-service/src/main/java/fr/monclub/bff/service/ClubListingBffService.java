@@ -17,28 +17,6 @@ import java.util.UUID;
 public class ClubListingBffService {
 
     private final ClubGateway clubGateway;
-    private final MembershipGateway membershipGateway;
-
-    public List<ClubSummary> clubsForUser(UUID userId) {
-        List<MembershipGateway.MemberWithClubDto> memberships = membershipGateway.clubMembersByUserId(userId);
-        Set<UUID> uniqueClubIds = new LinkedHashSet<>();
-        for (MembershipGateway.MemberWithClubDto membership : memberships) {
-            if (Boolean.TRUE.equals(membership.isActif()) && membership.clubId() != null) {
-                uniqueClubIds.add(membership.clubId());
-            }
-        }
-
-        List<ClubSummary> clubs = new ArrayList<>();
-        for (UUID clubId : uniqueClubIds) {
-            try {
-                ClubGateway.ClubDto club = clubGateway.getClub(clubId);
-                clubs.add(ClubSummary.from(club));
-            } catch (ResourceNotFoundException ignored) {
-                // Ignore stale memberships that reference non-existent clubs.
-            }
-        }
-        return clubs;
-    }
 
     public List<ClubSummary> clubsManagedBy(UUID ownerId) {
         List<ClubGateway.ClubDto> clubs = clubGateway.getClubsByOwnerId(ownerId);
@@ -63,7 +41,9 @@ public class ClubListingBffService {
                               String phoneNumber,
                               String email,
                               Float latitude,
-                              Float longitude) {
+                              Float longitude,
+                              Boolean isActive
+    ) {
         public static ClubSummary from(ClubGateway.ClubDto club) {
             return new ClubSummary(
                     club.id(),
@@ -78,7 +58,8 @@ public class ClubListingBffService {
                     club.phoneNumber(),
                     club.email(),
                     club.latitude(),
-                    club.longitude()
+                    club.longitude(),
+                    club.isActive()
             );
         }
     }

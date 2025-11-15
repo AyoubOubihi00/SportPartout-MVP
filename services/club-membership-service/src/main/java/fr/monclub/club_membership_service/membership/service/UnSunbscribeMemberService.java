@@ -5,7 +5,6 @@ import fr.monclub.club_membership_service.membership.Mapper.ClubMemberMapper;
 import fr.monclub.club_membership_service.membership.catalog.ClubMemberCatalog;
 import fr.monclub.club_membership_service.membership.model.ClubMember;
 import org.springframework.stereotype.Service;
-
 import java.time.OffsetDateTime;
 import java.util.UUID;
 

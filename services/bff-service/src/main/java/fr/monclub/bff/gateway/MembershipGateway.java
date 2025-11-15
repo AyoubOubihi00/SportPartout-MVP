@@ -175,7 +175,7 @@ public class MembershipGateway {
                 phoneNumber
                 isActif
                 dateSubscription
-                                dateUnsubscription
+                dateUnsubscription
                 himself
                 club {
                   id
@@ -224,7 +224,8 @@ public class MembershipGateway {
                             readFloat(clubNode, "longitude"),
                             readOdt(clubNode, "createdAt"),
                             readOdt(clubNode, "updatedAt"),
-                            readOdt(clubNode, "deletedAt")
+                            readOdt(clubNode, "deletedAt"),
+                                false
                         );
                     }
                     result.add(new MemberWithClubDto(
@@ -314,7 +315,8 @@ public class MembershipGateway {
                             readFloat(clubNode, "longitude"),
                             readOdt(clubNode, "createdAt"),
                             readOdt(clubNode, "updatedAt"),
-                            readOdt(clubNode, "deletedAt")
+                            readOdt(clubNode, "deletedAt"),
+                                false
                         );
                     }
                     result.add(new MemberWithClubDto(
@@ -371,6 +373,31 @@ public class MembershipGateway {
         }
     }
 
+    public boolean unsubscribeFromClub(UUID clubId, UUID memberId) {
+        String mutation = """
+            mutation($clubId: ID!, $memberId: ID!) {
+              unsubscribeFromClub(clubId: $clubId, memberId: $memberId)
+            }
+            """;
+        try {
+            Map<String, Object> variables = new java.util.HashMap<>();
+            variables.put("clubId", clubId != null ? clubId.toString() : null);
+            variables.put("memberId", memberId != null ? memberId.toString() : null);
+            JsonNode data = membershipGraphQlClient.execute(mutation, variables);
+            JsonNode node = data != null ? data.get("unsubscribeFromClub") : null;
+            int affected = node != null ? node.asInt(0) : 0;
+            return affected > 0;
+        } catch (GraphQlClientException ex) {
+            if (ex.hasClassification("UNAUTHORIZED")) {
+                throw new ForbiddenOperationException(ex.firstMessageOr("Acces refuse pour la desinscription du club"));
+            }
+            if (ex.hasClassification("NOT_FOUND")) {
+                throw new ResourceNotFoundException(ex.firstMessageOr("Adhesion introuvable"));
+            }
+            throw ex;
+        }
+    }
+
     public record MemberDto(
             UUID clubId,
             UUID userId,
@@ -384,7 +411,7 @@ public class MembershipGateway {
             Boolean himself
     ) {}
 
-        public record MemberWithClubDto(
+    public record MemberWithClubDto(
             UUID clubId,
             UUID userId,
             String firstName,

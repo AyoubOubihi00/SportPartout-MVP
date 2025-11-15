@@ -19,12 +19,6 @@ public class MembershipGraphQlController {
     private final MembershipBffService membershipService;
 
     @QueryMapping
-    public String salut() {
-        System.out.println("salut has been called ");
-        return "salut from membership BFF";
-    }
-
-    @QueryMapping
     public List<SubscribeResult> myClubs(@Argument UUID userId) {
         System.out.println("myClubs has been called for userId=" + userId);
         return membershipService.myClubs(userId);
@@ -47,5 +41,11 @@ public class MembershipGraphQlController {
     public Integer forcedUnsubscribe(@Argument UUID clubId, @Argument UUID memberId) {
         System.out.println("forcedUnsubscribe has been called clubId=" + clubId + ", memberId=" + memberId);
         return membershipService.forcedUnsubscribe(clubId, memberId);
+    }
+
+    @MutationMapping
+    public boolean unsubscribeFromClub(@Argument UUID clubId,
+                                       @Argument("memberId") UUID memberId) {
+        return membershipService.unsubscribeFromClub(clubId, memberId);
     }
 }

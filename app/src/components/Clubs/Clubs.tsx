@@ -1,14 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTheme } from "@mui/joy/styles";
 import BaseLayout from "../../layouts/BaseLayout";
 import MiniClubDetail from "./MiniClubDetail";
 import ManagedClubDetail from "./ManagedClubDetail";
-import { getFullClub } from "../../services/clubService";
 import { useAuth } from "../shared/useAuth";
 import {
   fetchMyClubs,
   fetchManagedClubs,
+  unsubscribeFromClub,
   type ClubSnapshot,
   type MemberWithClub,
 } from "../../services/membershipService";
@@ -19,7 +19,14 @@ import Stack from "@mui/joy/Stack";
 import LinearProgress from "@mui/joy/LinearProgress";
 import Alert from "@mui/joy/Alert";
 import Button from "@mui/joy/Button";
+import Box from "@mui/joy/Box";
+import Modal from "@mui/joy/Modal";
+import ModalDialog from "@mui/joy/ModalDialog";
+import ModalClose from "@mui/joy/ModalClose";
 import { ChevronRight } from "lucide-react";
+import ClubDetails from "../ClubDetails";
+import { fetchClubById } from "../../api/club";
+import type { Club as UiClub } from "../../model/Club";
 
 export default function Clubs() {
   const { token } = useAuth();
@@ -34,9 +41,20 @@ export default function Clubs() {
   const [managedClubs, setManagedClubs] = useState<ClubSnapshot[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [leavingMemberships, setLeavingMemberships] = useState<Set<string>>(
+    () => new Set<string>(),
+  );
+
+  const [clubDetailsOpen, setClubDetailsOpen] = useState(false);
+  const [clubDetails, setClubDetails] = useState<UiClub | null>(null);
+  const [clubDetailsLoading, setClubDetailsLoading] = useState(false);
+  const [clubDetailsError, setClubDetailsError] = useState<string | null>(null);
+  const clubDetailsRequestRef = useRef(0);
+  const [isOwner, setIsOwner] = useState(false);
 
   useEffect(() => {
     if (!token) {
+      setIsOwner(false);
       navigate("/login");
       return;
     }
@@ -49,51 +67,25 @@ export default function Clubs() {
       try {
         const profile = await getMe(token);
         if (!profile || Array.isArray(profile)) {
+          setIsOwner(false);
           navigate("/login");
           return;
         }
+        setIsOwner(profile.role?.toUpperCase() === "OWNER");
         const membershipsData = await fetchMyClubs(profile.id);
         if (!cancelled) {
           setMemberships(membershipsData);
         }
         if (profile.role?.toUpperCase() === "OWNER") {
-          const managed = await fetchManagedClubs(profile.id);
-          // Enrichir l'état actif/inactif avec la source des détails (évite tout décalage de BFF)
-          let enriched = managed;
-          try {
-            const fulls = await Promise.all(
-              managed.map(async (c) => {
-                if (!c.id) return null;
-                try {
-                  const fc = await getFullClub(c.id, token);
-                  return { id: c.id, deletedAt: fc.deletedAt ?? null } as {
-                    id: string;
-                    deletedAt: string | null;
-                  };
-                } catch {
-                  return null;
-                }
-              }),
-            );
-            const byId = new Map(
-              fulls.filter(Boolean).map((x) => [x!.id, x!.deletedAt]),
-            );
-            enriched = managed.map((c) =>
-              c.id && byId.has(c.id)
-                ? { ...c, deletedAt: byId.get(c.id) ?? null }
-                : c,
-            );
-          } catch {
-            // Si enrichissement échoue, on garde les données BFF telles quelles
-          }
+          const managed = await fetchManagedClubs(profile.id);          
           if (!cancelled) {
             // Trier par nom pour un ordre stable (les clubs modifiés restent à leur place)
-            enriched.sort((a, b) => {
+            managed.sort((a, b) => {
               const nameA = a.name?.toLowerCase() || "";
               const nameB = b.name?.toLowerCase() || "";
               return nameA.localeCompare(nameB);
             });
-            setManagedClubs(enriched);
+            setManagedClubs(managed);
           }
         } else if (!cancelled) {
           setManagedClubs([]);
@@ -104,6 +96,7 @@ export default function Clubs() {
             err instanceof Error
               ? err.message
               : "Impossible de charger les clubs";
+          setIsOwner(false);
           setError(message);
         }
       } finally {
@@ -125,6 +118,101 @@ export default function Clubs() {
     () => managedClubs.length > 0,
     [managedClubs],
   );
+
+  const membershipKey = (membership: MemberWithClub) =>
+    `${membership.clubId}-${membership.userId}`;
+
+  const handleUnsubscribe = async (membership: MemberWithClub) => {
+    if (!membership.clubId || !membership.userId) {
+      return;
+    }
+
+    const clubName = membership.club?.name ?? "ce club";
+    const confirmed = window.confirm(
+      `Voulez-vous vraiment vous désinscrire de ${clubName} ?`,
+    );
+    if (!confirmed) {
+      return;
+    }
+
+    const key = membershipKey(membership);
+    setLeavingMemberships((prev) => {
+      const next = new Set(prev);
+      next.add(key);
+      return next;
+    });
+
+    try {
+      const success = await unsubscribeFromClub(
+        membership.clubId,
+        membership.userId,
+      );
+      if (!success) {
+        throw new Error("La désinscription a échoué, veuillez réessayer.");
+      }
+      setMemberships((prev) =>
+        prev.filter((item) => membershipKey(item) !== key),
+      );
+      setError(null);
+    } catch (err) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Impossible de se désinscrire du club.";
+      setError(message);
+    } finally {
+      setLeavingMemberships((prev) => {
+        const next = new Set(prev);
+        next.delete(key);
+        return next;
+      });
+    }
+  };
+
+  const loadClubDetails = async (clubId: string) => {
+    setClubDetailsOpen(true);
+    setClubDetails(null);
+    setClubDetailsError(null);
+    setClubDetailsLoading(true);
+    const requestId = ++clubDetailsRequestRef.current;
+    try {
+      const detail = await fetchClubById(clubId);
+      if (clubDetailsRequestRef.current !== requestId) {
+        return;
+      }
+      if (detail) {
+        setClubDetails(detail);
+        setClubDetailsError(null);
+      } else {
+        setClubDetailsError("Club introuvable");
+      }
+    } catch (err) {
+      if (clubDetailsRequestRef.current !== requestId) {
+        return;
+      }
+      setClubDetailsError(
+        err instanceof Error
+          ? err.message
+          : "Impossible de charger les details du club",
+      );
+    } finally {
+      if (clubDetailsRequestRef.current === requestId) {
+        setClubDetailsLoading(false);
+      }
+    }
+  };
+
+  const handleViewClubDetails = (clubId: string) => {
+    void loadClubDetails(clubId);
+  };
+
+  const closeClubDetails = () => {
+    clubDetailsRequestRef.current += 1;
+    setClubDetailsOpen(false);
+    setClubDetails(null);
+    setClubDetailsError(null);
+    setClubDetailsLoading(false);
+  };
 
   return (
     <BaseLayout>
@@ -197,14 +285,13 @@ export default function Clubs() {
               level="body-md"
               sx={{ color: mainColor, fontWeight: 600 }}
             >
-              Vous n&apos;avez rejoint aucun club pour le moment.
+              {isOwner ? "Vous ne gerez aucun club pour le moment." : "Vous n'avez rejoint aucun club pour le moment."}
             </Typography>
             <Typography
               level="body-sm"
               sx={{ color: labelColor, maxWidth: 360, lineHeight: 1.4 }}
             >
-              Rejoignez un club pour le retrouver ici et accéder rapidement à
-              ses informations.
+              {isOwner ? "Ajoutez ou importez un club pour le retrouver ici et acceder rapidement a sa gestion." : "Rejoignez un club pour le retrouver ici et acc�der rapidement � ses informations."}
             </Typography>
             <Button
               variant="solid"
@@ -229,7 +316,9 @@ export default function Clubs() {
               <MiniClubDetail
                 key={`${membership.clubId}-${membership.userId}`}
                 membership={membership}
-                onViewDetails={() => navigate("/")}
+                onUnsubscribe={() => handleUnsubscribe(membership)}
+                unsubscribing={leavingMemberships.has(membershipKey(membership))}
+                onViewDetails={handleViewClubDetails}
               />
             ))}
           </Stack>
@@ -260,6 +349,113 @@ export default function Clubs() {
           </Stack>
         )}
       </div>
+
+      <Modal open={clubDetailsOpen} onClose={closeClubDetails}>
+        <ModalDialog
+          aria-labelledby="club-details-modal-title"
+          sx={{
+            p: 0,
+            maxWidth: 760,
+            width: "min(760px, 96vw)",
+            maxHeight: "90vh",
+            bgcolor: "transparent",
+          }}
+        >
+          <ModalClose
+            variant="plain"
+            onClick={closeClubDetails}
+            sx={{ position: "absolute", top: 8, right: 8, zIndex: 1 }}
+          />
+          <Box
+            sx={{
+              width: "100%",
+              pt: 3,
+              maxHeight: "90vh",
+              overflowY: "auto",
+              pr: 1,
+            }}
+          >
+            <Box
+              sx={{
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                mb: 2,
+                position: "sticky",
+                top: 0,
+                zIndex: 2,
+                pointerEvents: "none",
+              }}
+            >
+              <Box
+                sx={{
+                  width: 60,
+                  height: 5,
+                  borderRadius: 999,
+                  backgroundColor:
+                    theme.palette.mode === "dark"
+                      ? "neutral.700"
+                      : "neutral.400",
+                  boxShadow:
+                    theme.palette.mode === "dark"
+                      ? "0 1px 3px rgba(0,0,0,0.4)"
+                      : "0 1px 3px rgba(0,0,0,0.15)",
+                }}
+              />
+            </Box>
+            {clubDetails ? (
+              <Box
+                sx={{
+                  background:
+                    theme.palette.mode === "dark"
+                        ? "linear-gradient(180deg, rgba(15,23,42,0.9), rgba(15,23,42,0.7))"
+                      : "linear-gradient(180deg, #f7f9fc, #edf1f7)",
+                  borderRadius: 16,
+                  boxShadow:
+                    theme.palette.mode === "dark"
+                      ? "0 20px 40px rgba(0,0,0,0.4)"
+                      : "0 24px 45px rgba(15,23,42,0.12)",
+                  p: { xs: 1.5, sm: 2 },
+                }}
+              >
+                <ClubDetails club={clubDetails} disableJoin={isOwner} />
+              </Box>
+            ) : (
+              <Sheet
+                variant="outlined"
+                sx={{
+                  borderRadius: 16,
+                  p: 4,
+                  textAlign: "center",
+                  minHeight: 200,
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  gap: 2,
+                  bgcolor:
+                    theme.palette.mode === "dark"
+                      ? "neutral.900"
+                      : "background.body",
+                }}
+              >
+                <Typography level="body-md" sx={{ color: mainColor }}>
+                  {clubDetailsError ??
+                    (clubDetailsLoading
+                      ? "Chargement du club..."
+                      : "Club introuvable.")}
+                </Typography>
+                {clubDetailsLoading && (
+                  <LinearProgress
+                    variant="soft"
+                    color="primary"
+                    sx={{ borderRadius: 8 }}
+                  />
+                )}
+              </Sheet>
+            )}
+          </Box>
+        </ModalDialog>
+      </Modal>
     </BaseLayout>
   );
 }

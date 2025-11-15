@@ -11,7 +11,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -36,7 +35,7 @@ public class ForcedUnSubscribeMemberServiceTest {
         clubId = UUID.randomUUID();
         userId = UUID.randomUUID();
 
-        // Création d'un ClubMember fictif
+        // Creation d'un ClubMember fictif
         clubMember = new ClubMember();
         clubMember.setId(UUID.randomUUID());
         clubMember.setIsActif(true);
@@ -53,11 +52,11 @@ public class ForcedUnSubscribeMemberServiceTest {
         when(clubMemberCatalog.findByClubIdAndUserId(clubId, userId))
                 .thenReturn(clubMember);
         when(clubMemberCatalog.deactivateClubMemberById(clubMember.getId()))
-                .thenReturn(1); // simulate update: 1 ligne affectée
+                .thenReturn(1);
     }
 
     @Test
-    void forcedUnsubscription_shouldDeactivateAndDeleteMember() {
+    void forcedUnsubscription_shouldDeactivateMember() {
         // Appel de la méthode à tester
         int result = service.forcedUnsubscription(clubId, userId);
 
@@ -81,6 +80,6 @@ public class ForcedUnSubscribeMemberServiceTest {
 
         assertThat(result).isEqualTo(0);
         verify(clubMemberCatalog).findByClubIdAndUserId(clubId, unknownUserId);
-        verify(clubMemberCatalog, never()).deactivateClubMemberById(any());
+        verify(clubMemberCatalog, never()).save(any());
     }
 }

@@ -32,7 +32,7 @@ import { useNavigate } from "react-router-dom";
 import { getMe } from "../../services/auth/authService";
 import { subscribeToClub, UserInput } from "../../services/membershipService";
 
-type ClubDetailsProps = { club: Club };
+type ClubDetailsProps = { club: Club; disableJoin?: boolean };
 
 function sportEmoji(sport?: string) {
   const s = (sport || "").toLowerCase();
@@ -46,9 +46,12 @@ function sportEmoji(sport?: string) {
   return "🏅";
 }
 
-export default function ClubDetails({ club }: ClubDetailsProps) {
-  const { token } = useAuth();
-  const navigate = useNavigate();
+export default function ClubDetails({
+  club,
+  disableJoin = false,
+}: ClubDetailsProps) {
+    const { token } = useAuth();
+    const navigate = useNavigate();
   const phoneHref = club.phoneNumber ? `tel:${club.phoneNumber}` : undefined;
   const mailHref = club.email ? `mailto:${club.email}` : undefined;
   const fullAddress = `${club.addresse}${club.city ? `, ${club.city}` : ""}${club.postalCode ? ` ${club.postalCode}` : ""}${club.country ? `, ${club.country}` : ""}`;
@@ -444,14 +447,18 @@ export default function ClubDetails({ club }: ClubDetailsProps) {
               fullWidth
               variant="solid"
               color="neutral"
+              disabled={disableJoin}
               sx={{
                 bgcolor: "#0a0a0a",
                 color: "#fff",
                 fontWeight: 700,
                 borderRadius: 10,
+                opacity: disableJoin ? 0.5 : 1,
               }}
               onClick={async () => {
-                if (!token) {
+                  if (disableJoin) return;
+
+                  if (!token) {
                   navigate("/login");
                   return;
                 }

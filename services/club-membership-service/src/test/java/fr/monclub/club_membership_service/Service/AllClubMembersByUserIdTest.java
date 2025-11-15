@@ -1,6 +1,5 @@
 package fr.monclub.club_membership_service.Service;
 
-
 import fr.monclub.club_membership_service.membership.catalog.ClubMemberCatalog;
 import fr.monclub.club_membership_service.membership.model.ClubMember;
 import fr.monclub.club_membership_service.membership.service.AllClubMembersByUserId;
@@ -17,7 +16,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,22 +39,25 @@ public class AllClubMembersByUserIdTest {
     }
 
     @Test
-    void findClubIdsByUserId_shouldReturnListOfClubMembers() {
-            // Arrange : le catalogue retourne des ClubMember
-            ClubMember m1 = new ClubMember();
-            m1.setClubId(club1);
-            ClubMember m2 = new ClubMember();
-            m2.setClubId(club2);
+    void findClubIdsByUserId_shouldReturnOnlyActiveClubMembers() {
+        ClubMember m1 = new ClubMember();
+        m1.setClubId(club1);
+        m1.setIsActif(true);
 
-            List<ClubMember> memberships = Arrays.asList(m1, m2);
-            when(clubMemberCatalog.findClubMembersByUserId(userId)).thenReturn(memberships);
+        ClubMember m2 = new ClubMember();
+        m2.setClubId(club2);
+        m2.setIsActif(true);
 
-            // Act : appeler la méthode du service
-            List<ClubMember> result = service.findClubIdsByUserId(userId);
+        ClubMember inactive = new ClubMember();
+        inactive.setClubId(UUID.randomUUID());
+        inactive.setIsActif(false);
 
-            // Assert
-            List<UUID> ids = result.stream().map(ClubMember::getClubId).collect(Collectors.toList());
-            assertThat(ids).isEqualTo(Arrays.asList(club1, club2));
-        }
+        List<ClubMember> memberships = Arrays.asList(m1, m2, inactive);
+        when(clubMemberCatalog.findClubMembersByUserId(userId)).thenReturn(memberships);
+
+        List<ClubMember> result = service.findClubIdsByUserId(userId);
+
+        List<UUID> ids = result.stream().map(ClubMember::getClubId).collect(Collectors.toList());
+        assertThat(ids).isEqualTo(Arrays.asList(club1, club2));
     }
-
+}

@@ -1,7 +1,6 @@
 package fr.monclub.club_membership_service.membership.service;
 
 
-import fr.monclub.club_membership_service.membership.Mapper.ClubMemberMapper;
 import fr.monclub.club_membership_service.membership.catalog.ClubMemberCatalog;
 import fr.monclub.club_membership_service.membership.model.ClubMember;
 import org.springframework.stereotype.Service;
@@ -15,7 +14,7 @@ public class ForcedUnSubscribeMemberService {
     private final ClubMemberCatalog clubMemberCatalog;
 
 
-    public ForcedUnSubscribeMemberService(ClubMemberCatalog clubMemberCatalog, ClubMemberMapper mapper) {
+    public ForcedUnSubscribeMemberService(ClubMemberCatalog clubMemberCatalog) {
         this.clubMemberCatalog = clubMemberCatalog;
     }
 

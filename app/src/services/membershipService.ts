@@ -26,6 +26,7 @@ export interface ClubSnapshot {
   createdAt?: string | null;
   updatedAt?: string | null;
   deletedAt?: string | null;
+  isActive?: boolean | null;
 }
 
 export interface MemberWithClub {
@@ -102,6 +103,7 @@ export async function subscribeToClub(
     phoneNumber
     isActif
     dateSubscription
+    dateUnsubscription
     himself
     club {
       id
@@ -157,6 +159,7 @@ export async function fetchMyClubs(userId: string): Promise<MemberWithClub[]> {
     phoneNumber
     isActif
     dateSubscription
+    dateUnsubscription
     himself
     club {
       id
@@ -188,6 +191,28 @@ export async function fetchMyClubs(userId: string): Promise<MemberWithClub[]> {
   return data.myClubs ?? [];
 }
 
+export async function unsubscribeFromClub(
+  clubId: string,
+  memberId: string,
+): Promise<boolean> {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error("Utilisateur non authentifie");
+  }
+
+  const mutation = `mutation UnsubscribeFromClub($clubId: UUID!, $memberId: UUID!) {
+  unsubscribeFromClub(clubId: $clubId, memberId: $memberId)
+}`;
+
+  const data = await executeGraphql<{ unsubscribeFromClub?: boolean }>(
+    mutation,
+    { clubId, memberId },
+    token,
+  );
+
+  return Boolean(data.unsubscribeFromClub);
+}
+
 export async function fetchManagedClubs(
   ownerId: string,
 ): Promise<ClubSnapshot[]> {
@@ -212,6 +237,7 @@ export async function fetchManagedClubs(
     latitude
     longitude
     deletedAt
+    isActive
   }
 }`;
 

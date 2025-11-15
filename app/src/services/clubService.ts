@@ -93,8 +93,8 @@ export async function getFullClub(
 // --- Update club ----------------------------------------------------
 export interface UpdateClubInput {
   name?: string;
-  typeId?: string | null;
-  typeName?: string | null;
+  typeId?: string;
+  typeName?: string;
   city?: string;
   address?: string;
   country?: string;

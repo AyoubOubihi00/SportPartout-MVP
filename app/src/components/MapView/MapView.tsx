@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { Map, Marker } from "pigeon-maps";
 import useGeolocalisation from "../../hooks/useGeolocalisation";
 import { mapCenterService } from "../../services/mapCenterService";
@@ -8,11 +8,19 @@ import ClubDetails from "../ClubDetails";
 import BottomSheet from "../BottomSheet";
 import { osm } from "pigeon-maps/providers";
 import { LocateFixed } from "lucide-react";
-import { Button, Sheet, IconButton, Box } from "@mui/joy";
+import {
+  Button,
+  Sheet,
+  IconButton,
+  Box,
+  LinearProgress,
+  Typography,
+} from "@mui/joy";
 import { useTheme } from "@mui/joy/styles";
 import Supercluster, { PointFeature } from "supercluster";
 import { Sport } from "../../model/Sport";
 import { Club } from "../../model/Club";
+import { fetchClubById } from "../../api/club";
 import { estimateMapRadius } from "../../services/mapRadiusService";
 import { getClubsNear } from "../../services/clubService";
 import { haversineDistance } from "../../services/distanceService";
@@ -65,6 +73,58 @@ export default function MapView() {
   );
   const [selectedClub, setSelectedClub] = useState<string | null>(null);
   const [showDetails, setShowDetails] = useState(false);
+  const [selectedClubDetails, setSelectedClubDetails] = useState<Club | null>(
+    null,
+  );
+  const [detailsLoading, setDetailsLoading] = useState(false);
+  const [detailsError, setDetailsError] = useState<string | null>(null);
+  const detailRequestRef = useRef(0);
+  const [isOwner, setIsOwner] = useState(false);
+
+  const resetSelection = () => {
+    detailRequestRef.current += 1;
+    setShowDetails(false);
+    setSelectedClub(null);
+    setSelectedClubDetails(null);
+    setDetailsLoading(false);
+    setDetailsError(null);
+  };
+
+  const selectClub = (clubId: string) => {
+    detailRequestRef.current += 1;
+    setSelectedClub(clubId);
+    setShowDetails(false);
+    setSelectedClubDetails(null);
+    setDetailsLoading(false);
+    setDetailsError(null);
+  };
+
+  const handleShowDetails = async (clubId: string) => {
+    const fallback = clubs.find((club) => club.id === clubId) ?? null;
+    setShowDetails(true);
+    setDetailsError(null);
+    setSelectedClubDetails(fallback);
+    setDetailsLoading(true);
+    const requestId = ++detailRequestRef.current;
+    try {
+      const detailed = await fetchClubById(clubId, {
+        distanceKm: fallback?.distance,
+        notation: fallback?.notation,
+        members: fallback?.members,
+      });
+      if (detailRequestRef.current !== requestId) return;
+      setSelectedClubDetails(detailed ?? fallback);
+    } catch (err) {
+      if (detailRequestRef.current !== requestId) return;
+      const message = err instanceof Error ? err.message : String(err);
+      setDetailsError(message);
+      setSelectedClubDetails(fallback);
+    } finally {
+      if (detailRequestRef.current === requestId) {
+        setDetailsLoading(false);
+      }
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = mapCenterService.onCenterChange((newCenter) => {
@@ -121,6 +181,32 @@ export default function MapView() {
     }
   }, [userPos, manualCenter]);
 
+  useEffect(() => {
+    if (!token) {
+      setIsOwner(false);
+      return;
+    }
+    let cancelled = false;
+    getMe(token)
+      .then((profile) => {
+        if (cancelled) return;
+        setIsOwner(profile?.role?.toUpperCase() === "OWNER");
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setIsOwner(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
+
+  const currentClub =
+    selectedClub !== null
+      ? (clubs.find((club) => club.id === selectedClub) ?? null)
+      : null;
+
   return (
     <Sheet
       sx={{
@@ -150,8 +236,7 @@ export default function MapView() {
         zoom={zoom}
         onClick={() => {
           if (selectedClub !== null) {
-            setShowDetails(false);
-            setSelectedClub(null);
+            resetSelection();
           }
         }}
         onBoundsChanged={({ center, zoom, bounds }) => {
@@ -187,7 +272,9 @@ export default function MapView() {
                   sportType: { id: club.typeIdSport, name: club.typeNameSport },
                   distance: Number(distance.toFixed(2)),
                   notation: club.notation ?? 0,
-                  addresse: `${club.address}${club.city ? ", " + club.city : ""}`,
+                  addresse: `${club.address}${
+                    club.city ? ", " + club.city : ""
+                  }`,
                   members: club.memberCount ?? 0,
                   position: clubPosition,
                 };
@@ -244,7 +331,7 @@ export default function MapView() {
                     const expansionZoom = Math.min(baseZoom + 1, 20);
                     setCenter([lat, lng]);
                     setZoom(expansionZoom);
-                    setSelectedClub(null);
+                    resetSelection();
                   }}
                   sx={{
                     width: 32,
@@ -301,7 +388,7 @@ export default function MapView() {
                 color={selectedClub === clubId ? "#eab308" : "#0f172a"}
                 onClick={({ event }) => {
                   event.stopPropagation();
-                  setSelectedClub(clubId);
+                  selectClub(clubId);
                 }}
                 style={{
                   filter:
@@ -358,67 +445,18 @@ export default function MapView() {
         </IconButton>
       )}
 
-      {/* Affichage des coins de la carte */}
-      {/* <Box
-        sx={{
-          position: "absolute",
-          bottom: 8,
-          left: 8,
-          zIndex: 200,
-          background: "rgba(255,255,255,0.85)",
-          borderRadius: 2,
-          p: 1,
-          fontSize: 12,
-          color: "#222",
-          boxShadow: 1,
-        }}
-      >
-        <div>
-          <b>Coin haut-gauche :</b>
-          {mapCorners.topLeft
-            ? ` [lat: ${mapCorners.topLeft[0].toFixed(5)}, lng: ${mapCorners.topLeft[1].toFixed(5)}]`
-            : " -"}
-        </div>
-        <div>
-          <b>Coin bas-droit :</b>
-          {mapCorners.bottomRight
-            ? ` [lat: ${mapCorners.bottomRight[0].toFixed(5)}, lng: ${mapCorners.bottomRight[1].toFixed(5)}]`
-            : " -"}
-        </div>
-        <div>
-          <div>
-            <b>Rayon estimé :</b>
-            {mapCorners.topLeft && center
-              ? (() => {
-                  // Vérification de l'ordre : [latitude, longitude]
-                  const topLeftLatLng: [number, number] = [
-                    mapCorners.topLeft[0],
-                    mapCorners.topLeft[1],
-                  ];
-                  // Debug : afficher les valeurs utilisées
-
-                  return ` ${estimateMapRadius(mapCorners.bottomRight!, topLeftLatLng).toFixed(2)} km`;
-                })()
-              : " -"}
-          </div>
-        </div>
-      </Box> */}
-
       <BottomSheet
         open={selectedClub !== null}
-        onClose={() => {
-          setShowDetails(false);
-          setSelectedClub(null);
-        }}
+        onClose={resetSelection}
         initialHeight={showDetails ? 560 : 420}
       >
-        {selectedClub && !showDetails && (
+        {selectedClub && !showDetails && currentClub && (
           <ClubCard
-            {...clubs.find((c) => c.id === selectedClub)!}
-            onDetails={() => setShowDetails(true)}
-            {...clubs.find((club) => club.id === selectedClub)!}
+            {...currentClub}
+            disableJoin={isOwner}
+            onDetails={() => handleShowDetails(currentClub.id)}
             onJoin={async () => {
-              if (!selectedClub) return;
+              if (!selectedClub || isOwner) return;
               if (!token) {
                 navigate("/login");
                 return;
@@ -452,9 +490,65 @@ export default function MapView() {
             }}
           />
         )}
-        {selectedClub && showDetails && (
-          <ClubDetails club={clubs.find((c) => c.id === selectedClub)!} />
-        )}
+
+        {selectedClub &&
+          showDetails &&
+          ((selectedClubDetails ?? currentClub) ? (
+            <Box
+              sx={{
+                background:
+                  theme.palette.mode === "dark"
+                    ? "linear-gradient(180deg, rgba(15,23,42,0.9), rgba(15,23,42,0.7))"
+                    : "linear-gradient(180deg, #f7f9fc, #edf1f7)",
+                borderRadius: 16,
+                boxShadow:
+                  theme.palette.mode === "dark"
+                    ? "0 20px 40px rgba(0,0,0,0.4)"
+                    : "0 24px 45px rgba(15,23,42,0.12)",
+                p: { xs: 1.5, sm: 2 },
+              }}
+            >
+              <ClubDetails
+                club={(selectedClubDetails ?? currentClub)!}
+                disableJoin={isOwner}
+              />
+            </Box>
+          ) : (
+            <Sheet
+              variant="outlined"
+              sx={{
+                borderRadius: 16,
+                p: 4,
+                textAlign: "center",
+                minHeight: 200,
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                gap: 2,
+                bgcolor:
+                  theme.palette.mode === "dark"
+                    ? "neutral.900"
+                    : "background.body",
+              }}
+            >
+              <Typography
+                level="body-md"
+                sx={{ color: theme.palette.text.primary }}
+              >
+                {detailsError ??
+                  (detailsLoading
+                    ? "Chargement du club..."
+                    : "Club introuvable.")}
+              </Typography>
+              {detailsLoading && (
+                <LinearProgress
+                  variant="soft"
+                  color="primary"
+                  sx={{ borderRadius: 8 }}
+                />
+              )}
+            </Sheet>
+          ))}
       </BottomSheet>
     </Sheet>
   );

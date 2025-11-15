@@ -9,9 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.time.LocalDate;
 import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,8 +35,7 @@ public class ForcedUnSubscribeMemberServiceIntegrationTest {
     }
 
     @Test
-    void forcedUnsubscription_shouldDeactivateMember_andDeleteIt() {
-        // Arrange : créer un membre dans la DB
+    void forcedUnsubscription_shouldDeactivateMember_andKeepHistory() {
         ClubMember member = new ClubMember();
         member.setClubId(UUID.randomUUID());
         member.setUserId(UUID.randomUUID());
@@ -47,16 +44,15 @@ public class ForcedUnSubscribeMemberServiceIntegrationTest {
         member.setDateSubscription(OffsetDateTime.now());
         clubMemberCatalog.save(member);
 
-        // Act
         int result = forcedUnSubscribeMemberService.forcedUnsubscription(
                 member.getClubId(), member.getUserId());
 
-        // Assert
-        assertThat(result).isEqualTo(1); // 1 ligne affectée
+        assertThat(result).isEqualTo(1);
         ClubMember updatedMember = clubMemberCatalog.findByClubIdAndUserId(member.getClubId(), member.getUserId());
         assertThat(updatedMember).isNotNull();
         assertThat(updatedMember.getIsActif()).isFalse();
         assertThat(updatedMember.getHimself()).isFalse();
         assertThat(updatedMember.getDateSubscription()).isNull();
+        assertThat(updatedMember.getDateUnsubscription()).isNotNull();
     }
 }

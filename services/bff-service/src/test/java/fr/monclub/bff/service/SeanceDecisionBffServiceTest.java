@@ -112,7 +112,8 @@ class SeanceDecisionBffServiceTest {
             0F,
             null,
             null,
-            null
+            null,
+                true
         );
     }
 }

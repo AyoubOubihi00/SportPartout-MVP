@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.*;
 
@@ -46,7 +45,6 @@ public class ClubMember {
     private OffsetDateTime clubCreatedAt;
     private OffsetDateTime clubUpdatedAt;
     private OffsetDateTime clubDeletedAt;
-
     private Boolean isActif = true;
     private OffsetDateTime dateSubscription = OffsetDateTime.now();
     private OffsetDateTime dateUnsubscription;

@@ -1,3 +1,5 @@
+import { API_BASE_URL } from "../config";
+
 export type GraphQLErrorLocation = {
   line: number;
   column: number;
@@ -18,19 +20,25 @@ export function getGraphqlEndpoint(): string {
       ? base
       : `${base.replace(/\/$/, "")}/graphql`;
   }
-  // Default to same-origin /graphql and rely on Vite dev proxy
-  return "/graphql";
+  const normalized = API_BASE_URL.replace(/\/$/, "");
+  return `${normalized}/club/graphql`;
 }
 
 export async function graphqlFetch<T>(
   query: string,
   variables?: Record<string, string>,
 ): Promise<T> {
+  const headers: Record<string, string> = {
+    "content-type": "application/json",
+  };
+  const token = getAuthToken();
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
   const resp = await fetch(getGraphqlEndpoint(), {
     method: "POST",
-    headers: {
-      "content-type": "application/json",
-    },
+    headers,
     body: JSON.stringify({ query, variables }),
   });
   if (!resp.ok) {
@@ -43,4 +51,15 @@ export async function graphqlFetch<T>(
     throw new Error(json.errors.map((e: GraphQLError) => e.message).join("; "));
   }
   return json.data as T;
+}
+
+function getAuthToken(): string | null {
+  if (typeof localStorage === "undefined") {
+    return null;
+  }
+  try {
+    return localStorage.getItem("authToken");
+  } catch {
+    return null;
+  }
 }

@@ -11,7 +11,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -36,7 +35,7 @@ class UnSunbscribeMemberServiceTest {
         clubId = UUID.randomUUID();
         userId = UUID.randomUUID();
 
-        // Création d'un ClubMember simulé
+        // Cr?ation d'un ClubMember simul?
         clubMember = new ClubMember();
         clubMember.setId(UUID.randomUUID());
         clubMember.setIsActif(true);
@@ -48,13 +47,10 @@ class UnSunbscribeMemberServiceTest {
         clubMember.setClubId(clubId);
         clubMember.setUserId(userId);
         clubMember.setDateSubscription(OffsetDateTime.now());
-
-
     }
 
     @Test
     void unsubscribe_shouldDeactivateClubMemberAndReturn1() {
-        // Mock du comportement du catalogue
         when(clubMemberCatalog.findByClubIdAndUserId(clubId, userId))
                 .thenReturn(clubMember);
         when(clubMemberCatalog.deactivateClubMemberById(clubMember.getId()))
@@ -74,8 +70,6 @@ class UnSunbscribeMemberServiceTest {
 
     @Test
     void unsubscribe_shouldReturn0IfMemberNotFound() {
-        // Mock du comportement du catalogue
-
         UUID unknownUserId = UUID.randomUUID();
         when(clubMemberCatalog.findByClubIdAndUserId(clubId, unknownUserId)).thenReturn(null);
 
@@ -83,6 +77,6 @@ class UnSunbscribeMemberServiceTest {
 
         assertThat(result).isEqualTo(0);
         verify(clubMemberCatalog).findByClubIdAndUserId(clubId, unknownUserId);
-        verify(clubMemberCatalog, never()).deactivateClubMemberById(any());
+        verify(clubMemberCatalog, never()).save(any());
     }
 }

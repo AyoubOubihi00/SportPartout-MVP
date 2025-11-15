@@ -41,4 +41,32 @@ public class SubscribeMemberServiceIntegrationTest {
         assertThat(saved).isNotNull();
         assertThat(saved.getFirstName()).isEqualTo("John");
     }
+
+    @Test
+    void subscribe_shouldReactivateInactiveMember() {
+        UUID clubId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        UserInput userInput = new UserInput();
+        userInput.setUserId(userId);
+        userInput.setFirstName("Jane");
+        userInput.setLastName("Doe");
+        userInput.setEmail("jane@example.com");
+
+        ClubMember existing = new ClubMember();
+        existing.setClubId(clubId);
+        existing.setUserId(userId);
+        existing.setIsActif(false);
+        existing.setFirstName("Old");
+        existing.setEmail("old@example.com");
+        clubMemberRepository.save(existing);
+
+        ClubMember result = subscribeMemberService.subscribe(clubId, userInput);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getIsActif()).isTrue();
+        assertThat(result.getDateSubscription()).isNotNull();
+        assertThat(result.getDateUnsubscription()).isNull();
+        ClubMember reloaded = clubMemberRepository.findById(result.getId()).orElseThrow();
+        assertThat(reloaded.getEmail()).isEqualTo("jane@example.com");
+    }
 }

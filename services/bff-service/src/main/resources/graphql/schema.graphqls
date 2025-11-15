@@ -25,6 +25,7 @@ type Club {
   createdAt: DateTime
   updatedAt: DateTime
   deletedAt: DateTime
+    isActive: Boolean
 }
 
 type SeanceDecision {
@@ -35,8 +36,6 @@ type SeanceDecision {
 }
 
 type Query {
-  _empty: String
-  salut: String
   myClubs(userId: UUID!): [MemberWithClub!]!
   managedClubs(ownerId: UUID!): [Club!]!
   clubMembersByClubId(clubId: UUID!): [MemberWithClub!]!
@@ -60,6 +59,7 @@ type Mutation {
   updateClub(id: UUID!, data: UpdateClubInput!, ownerId: UUID!): Club
   disableClub(id: UUID!, ownerId: UUID!): Boolean
   reactivateClub(id: UUID!, ownerId: UUID!): Boolean
+  unsubscribeFromClub(clubId: UUID!, memberId: UUID!): Boolean!
 
 }
 

@@ -31,14 +31,30 @@ export default function useClubs(userPos?: [number, number] | null) {
     fetchClubs()
       .then((gqlClubs) => {
         if (cancelled) return;
-        const list = gqlClubs.map((c) => {
-          const distance = haversineKm(userPos, [c.latitude, c.longitude]);
-          return toUiClub(c, distance);
-        });
+
+        const list = gqlClubs
+          // On ne garde que les clubs avec latitude/longitude valides
+          .filter(
+            (c): c is typeof c & { latitude: number; longitude: number } =>
+              typeof c.latitude === "number" && typeof c.longitude === "number",
+          )
+          .map((c) => {
+            const distance = haversineKm(userPos, [c.latitude, c.longitude]);
+            return toUiClub(c, distance);
+          });
+
         setClubs(list);
       })
-      .catch((e) => !cancelled && setError(e?.message || String(e)))
-      .finally(() => !cancelled && setLoading(false));
+      .catch((e) => {
+        if (!cancelled) {
+          setError(e?.message || String(e));
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      });
 
     return () => {
       cancelled = true;

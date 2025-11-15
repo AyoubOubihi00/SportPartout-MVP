@@ -42,6 +42,7 @@ public class ClubGateway {
                 createdAt
                 updatedAt
                 deletedAt
+                isActive
               }
             }
             """;
@@ -67,7 +68,8 @@ public class ClubGateway {
                     n.hasNonNull("longitude") ? n.get("longitude").floatValue() : null,
                     readOdt(n, "createdAt"),
                     readOdt(n, "updatedAt"),
-                    readOdt(n, "deletedAt")
+                    readOdt(n, "deletedAt"),
+                    n.path("isActive").isBoolean() ? n.get("isActive").asBoolean() : null
                 );
         } catch (GraphQlClientException ex) {
             // club-service currently classifies missing clubs as DataFetchingException; handle both
@@ -100,6 +102,7 @@ public class ClubGateway {
                 createdAt
                 updatedAt
                 deletedAt
+                isActive
               }
             }
             """;
@@ -130,7 +133,8 @@ public class ClubGateway {
                     n.hasNonNull("longitude") ? n.get("longitude").floatValue() : null,
                     readOdt(n, "createdAt"),
                     readOdt(n, "updatedAt"),
-                    readOdt(n, "deletedAt")
+                    readOdt(n, "deletedAt"),
+                    n.path("isActive").isBoolean() ? n.get("isActive").asBoolean() : null
             );
         } catch (GraphQlClientException ex) {
             if (ex.hasClassification("NOT_FOUND") || ex.hasClassification("DataFetchingException")) {
@@ -199,6 +203,7 @@ public class ClubGateway {
             email
             latitude
             longitude
+            isActive
           }
         }
         """;
@@ -224,7 +229,9 @@ public class ClubGateway {
                             n.hasNonNull("longitude") ? (float) n.get("longitude").asDouble() : null,
                             null,
                             null,
-                            null
+                            null,
+                            n.path("isActive").isBoolean() ? n.get("isActive").asBoolean() : null
+
                         ));
                 }
             }
@@ -258,7 +265,8 @@ public class ClubGateway {
             Float longitude,
             OffsetDateTime createdAt,
             OffsetDateTime updatedAt,
-            OffsetDateTime deletedAt
+            OffsetDateTime deletedAt,
+            Boolean isActive
     ) {}
 
     private static OffsetDateTime readOdt(JsonNode node, String field) {

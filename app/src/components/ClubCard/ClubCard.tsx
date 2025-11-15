@@ -28,6 +28,7 @@ type ClubCardProps = Club & {
   onDetails: () => void;
   closing?: boolean;
   onCloseComplete?: () => void;
+  disableJoin?: boolean;
 };
 
 export default function ClubCard({
@@ -41,6 +42,7 @@ export default function ClubCard({
   onDetails,
   closing,
   onCloseComplete,
+  disableJoin = false,
 }: ClubCardProps) {
   const theme = useTheme();
 
@@ -178,7 +180,20 @@ export default function ClubCard({
           </Typography>
         </Box>
         <Box sx={{ display: "flex", gap: 2, mt: 1 }}>
-          <Button variant="solid" color="primary" size="sm" onClick={onJoin}>
+          <Button
+            variant="solid"
+            color="primary"
+            size="sm"
+            disabled={disableJoin}
+            onClick={() => {
+              if (disableJoin) return;
+              onJoin();
+            }}
+            sx={{
+              opacity: disableJoin ? 0.5 : 1,
+              pointerEvents: disableJoin ? "none" : "auto",
+            }}
+          >
             Rejoindre
           </Button>
           <Button
