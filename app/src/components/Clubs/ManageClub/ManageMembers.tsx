@@ -232,7 +232,7 @@ export default function ManageMembers() {
             variant="solid"
             color="neutral"
             size="md"
-            onClick={() => navigate(`/clubs/manage`, { state: { clubId: id } })}
+            onClick={() => navigate("/clubs/manage", { state: { clubId: id } })}
             aria-label="Retour"
             sx={{
               bgcolor:

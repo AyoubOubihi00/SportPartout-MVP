@@ -8,7 +8,7 @@ export interface Club {
 }
 
 export async function getAllClubs(token: string | null): Promise<Club[]> {
-  const query = `query { clubs { name city } }`;
+  const query = "query { clubs { name city } }";
   const response = await fetch(`${API_BASE_URL}/graphql`, {
     method: "POST",
     headers: {
@@ -29,7 +29,8 @@ export async function getClubsNear(
   longitude: number,
   radiusKm: number,
 ): Promise<ClubNear[]> {
-  const query = `query ClubsNear($latitude: Float!, $longitude: Float!, $radiusKm: Float!) {\n  clubsNear(latitude: $latitude, longitude: $longitude, radiusKm: $radiusKm) {\n   id  name   city notation memberCount address country postalCode phoneNumber email typeIdSport typeNameSport longitude latitude  distanceKm\n  }\n}`;
+  const query =
+    "query ClubsNear($latitude: Float!, $longitude: Float!, $radiusKm: Float!) {\n  clubsNear(latitude: $latitude, longitude: $longitude, radiusKm: $radiusKm) {\n   id  name   city notation memberCount address country postalCode phoneNumber email typeIdSport typeNameSport longitude latitude  distanceKm\n  }\n}";
   const variables = { latitude, longitude, radiusKm };
   const response = await fetch(`${API_BASE_URL}/findclub/graphql`, {
     method: "POST",
@@ -69,7 +70,8 @@ export async function getFullClub(
   id: string,
   token?: string | null,
 ): Promise<FullClub> {
-  const query = `query FullClub($id: UUID!) {\n  clubById(id: $id) {\n    id name typeId typeName city address country phoneNumber postalCode email latitude longitude ownerId createdAt updatedAt deletedAt\n  }\n}`;
+  const query =
+    "query FullClub($id: UUID!) {\n  clubById(id: $id) {\n    id name typeId typeName city address country phoneNumber postalCode email latitude longitude ownerId createdAt updatedAt deletedAt\n  }\n}";
   const variables = { id };
   const response = await fetch(`${BFF_BASE_URL}/graphql`, {
     method: "POST",
@@ -112,7 +114,8 @@ export async function updateFullClub(
   ownerId: string,
   token?: string | null,
 ): Promise<FullClub> {
-  const mutation = `mutation UpdateClub($id: UUID!, $data: UpdateClubInput!, $ownerId: UUID!) {\n  updateClub(id: $id, data: $data, ownerId: $ownerId) {\n    id name typeId typeName city address country phoneNumber postalCode email latitude longitude ownerId createdAt updatedAt deletedAt\n  }\n}`;
+  const mutation =
+    "mutation UpdateClub($id: UUID!, $data: UpdateClubInput!, $ownerId: UUID!) {\n  updateClub(id: $id, data: $data, ownerId: $ownerId) {\n    id name typeId typeName city address country phoneNumber postalCode email latitude longitude ownerId createdAt updatedAt deletedAt\n  }\n}";
   console.log("data : ", data);
   let sportName: string | null = null;
   if (data.typeId) {
@@ -157,7 +160,8 @@ export async function disableClub(
   ownerId: string,
   token?: string | null,
 ): Promise<boolean> {
-  const mutation = `mutation DisableClub($id: UUID!, $ownerId: UUID!) {\n  disableClub(id: $id, ownerId: $ownerId)\n}`;
+  const mutation =
+    "mutation DisableClub($id: UUID!, $ownerId: UUID!) {\n  disableClub(id: $id, ownerId: $ownerId)\n}";
   const variables = { id, ownerId };
   const response = await fetch(`${BFF_BASE_URL}/graphql`, {
     method: "POST",
@@ -178,7 +182,8 @@ export async function reactivateClub(
   ownerId: string,
   token?: string | null,
 ): Promise<boolean> {
-  const mutation = `mutation ReactivateClub($id: UUID!, $ownerId: UUID!) {\n  reactivateClub(id: $id, ownerId: $ownerId)\n}`;
+  const mutation =
+    "mutation ReactivateClub($id: UUID!, $ownerId: UUID!) {\n  reactivateClub(id: $id, ownerId: $ownerId)\n}";
   const variables = { id, ownerId };
   const response = await fetch(`${BFF_BASE_URL}/graphql`, {
     method: "POST",

@@ -511,7 +511,7 @@ export default function FullCalendarSchedule({
           const status: SlotStatus = (
             arg.event.extendedProps as unknown as { status: SlotStatus }
           ).status;
-          return [`fc-slot`, `fc-slot-${status}`];
+          return ["fc-slot", `fc-slot-${status}`];
         }}
       />
 

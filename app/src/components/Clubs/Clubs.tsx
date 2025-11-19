@@ -348,7 +348,7 @@ export default function Clubs() {
                 key={club.id}
                 club={club}
                 onViewDetails={() =>
-                  navigate(`/clubs/manage`, { state: { clubId: club.id } })
+                  navigate("/clubs/manage", { state: { clubId: club.id } })
                 }
               />
             ))}

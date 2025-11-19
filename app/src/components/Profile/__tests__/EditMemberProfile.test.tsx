@@ -4,7 +4,7 @@ import { MemoryRouter } from "react-router-dom";
 import { BubbleProvider } from "../../shared/SuccessBubbleContext";
 import { Provider } from "react-redux";
 import { configureStore } from "@reduxjs/toolkit";
-import rolesReducer from "../../../store/rolesSlice";
+import rolesReducer, { type RolesState } from "../../../store/rolesSlice";
 
 // Mock getMe to control fetched user data
 const getMeMock = jest.fn();
@@ -37,6 +37,16 @@ import { EditMemberProfile } from "../MemberProfile/EditMemberProfile";
 import { useNavigate } from "react-router-dom";
 
 describe("EditMemberProfile (unit)", () => {
+  function createTestStore() {
+    const preloadedState: { roles: RolesState } = {
+      roles: { roles: ["USER"], viewMode: "USER" },
+    };
+    return configureStore({
+      reducer: { roles: rolesReducer },
+      preloadedState,
+    });
+  }
+
   beforeEach(() => {
     (useNavigate as unknown as jest.Mock).mockReturnValue(jest.fn());
     getMeMock.mockReset();
@@ -55,10 +65,7 @@ describe("EditMemberProfile (unit)", () => {
     };
     getMeMock.mockResolvedValue(fakeUser);
 
-    const store = (configureStore as any)({
-      reducer: { roles: rolesReducer },
-      preloadedState: { roles: { roles: ["USER"], viewMode: "USER" } } as any,
-    });
+    const store = createTestStore();
 
     render(
       <Provider store={store}>
@@ -100,10 +107,7 @@ describe("EditMemberProfile (unit)", () => {
     };
     getMeMock.mockResolvedValue(fakeUser);
 
-    const store = (configureStore as any)({
-      reducer: { roles: rolesReducer },
-      preloadedState: { roles: { roles: ["USER"], viewMode: "USER" } } as any,
-    });
+    const store = createTestStore();
 
     render(
       <Provider store={store}>
@@ -146,10 +150,7 @@ describe("EditMemberProfile (unit)", () => {
     };
     getMeMock.mockResolvedValue(fakeUser);
 
-    const store = (configureStore as any)({
-      reducer: { roles: rolesReducer },
-      preloadedState: { roles: { roles: ["USER"], viewMode: "USER" } } as any,
-    });
+    const store = createTestStore();
 
     render(
       <Provider store={store}>

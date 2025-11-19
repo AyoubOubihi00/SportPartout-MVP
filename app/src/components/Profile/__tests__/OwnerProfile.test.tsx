@@ -47,7 +47,6 @@ describe("OwnerProfile (unit)", () => {
     getMeMock.mockReset();
   });
 
-
   it("navigue vers /editmemberprofile en cliquant sur 'Modifier'", async () => {
     const navigateMock = jest.fn();
     (useNavigate as unknown as jest.Mock).mockReturnValue(navigateMock);

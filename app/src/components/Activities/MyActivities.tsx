@@ -219,7 +219,7 @@ export default function MyActivities() {
     let mounted = true;
     // Sélection minimale/transformation vers ActivityDto
     fetchMySeances<SeanceWithAvailability>(
-      `id idClub idTerrain idCoach startTime endTime durationMinutes capacite capaSeance remainingPlaces full idSport nameSport description status createdBy`,
+      "id idClub idTerrain idCoach startTime endTime durationMinutes capacite capaSeance remainingPlaces full idSport nameSport description status createdBy",
       null,
       null,
     )

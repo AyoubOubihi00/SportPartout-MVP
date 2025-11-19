@@ -19,7 +19,6 @@ import {
   useTheme,
 } from "@mui/joy";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import PlaceIcon from "@mui/icons-material/Place";
 import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
 import CategoryIcon from "@mui/icons-material/Category";
@@ -35,6 +34,8 @@ import {
 import { useAuth } from "../../shared/useAuth";
 import adminService from "../../../services/adminService";
 import { getSportById } from "../../../services/sportService";
+import { fetchAddress } from "../../../services/cityApiService";
+import { City } from "../../../model/City";
 
 // Simple date formatter
 function formatDate(iso?: string | null) {
@@ -68,8 +69,10 @@ export default function ManageClub() {
   const [editMode, setEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<UpdateClubInput>({});
-  // Sport types available (remote, fallback to local mock)
   const [availableSportTypes, setAvailableSportTypes] = useState<Sport[]>([]);
+  const [addressSuggestions, setAddressSuggestions] = useState<City[]>([]);
+  const [addressQuery, setAddressQuery] = useState("");
+  const [addressValid, setAddressValid] = useState(true);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [disabling, setDisabling] = useState(false);
   const [reactivating, setReactivating] = useState(false);
@@ -160,8 +163,61 @@ export default function ManageClub() {
         longitude: club.longitude,
         typeId: club.typeId!,
       });
+      const hasCoordinates =
+        club.latitude !== null &&
+        club.latitude !== undefined &&
+        club.longitude !== null &&
+        club.longitude !== undefined;
+      setAddressValid(Boolean(club.address) && hasCoordinates);
     }
   }, [club, editMode]);
+
+  // Watch addressQuery and fetch suggestions (debounced)
+  useEffect(() => {
+    if (!editMode) return;
+    const q = addressQuery.trim();
+    if (q.length < 2) {
+      setAddressSuggestions([]);
+      return;
+    }
+    const id = setTimeout(async () => {
+      try {
+        const results = await fetchAddress(q);
+        setAddressSuggestions(results || []);
+      } catch {
+        setAddressSuggestions([]);
+      }
+    }, 300);
+    return () => clearTimeout(id);
+  }, [addressQuery, editMode]);
+
+  const isNameValid = useMemo(
+    () => typeof form.name === "string" && form.name.trim().length > 0,
+    [form.name],
+  );
+
+  const areMandatoryFieldsFilled = useMemo(() => {
+    const requiredValues = [
+      form.address,
+      form.city,
+      form.postalCode,
+      form.country,
+      form.email,
+      form.phoneNumber,
+    ];
+    return requiredValues.every(
+      (value) => typeof value === "string" && value.trim().length > 0,
+    );
+  }, [
+    form.address,
+    form.city,
+    form.postalCode,
+    form.country,
+    form.email,
+    form.phoneNumber,
+  ]);
+
+  const isFormComplete = isNameValid && areMandatoryFieldsFilled;
 
   function handleChange<K extends keyof UpdateClubInput>(
     key: K,
@@ -201,12 +257,62 @@ export default function ManageClub() {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
+  function applyAddressSelection(suggestion: City) {
+    handleChange("address", suggestion.name);
+    handleChange("city", suggestion.city ?? club?.city ?? undefined);
+    handleChange(
+      "postalCode",
+      suggestion.postalCode ?? club?.postalCode ?? undefined,
+    );
+    handleChange("country", suggestion.country ?? club?.country ?? undefined);
+    if (suggestion.coordinates) {
+      const [latitude, longitude] = suggestion.coordinates;
+      handleChange("latitude", latitude);
+      handleChange("longitude", longitude);
+    }
+    // Keep UI in sync before persisting changes.
+    setClub((prev) =>
+      prev
+        ? {
+            ...prev,
+            address: suggestion.name,
+            city: suggestion.city ?? prev.city,
+            postalCode: suggestion.postalCode ?? prev.postalCode,
+            country: suggestion.country ?? prev.country,
+            latitude: suggestion.coordinates?.[0] ?? prev.latitude,
+            longitude: suggestion.coordinates?.[1] ?? prev.longitude,
+          }
+        : prev,
+    );
+    setAddressSuggestions([]);
+    setAddressQuery("");
+    setAddressValid(true);
+  }
+
   async function handleSave() {
     if (!club || !token) return;
     setSaving(true);
     setError(null);
     setSaveMessage(null);
     try {
+      const trimmedAddress = (form.address ?? "").trim();
+      if (!isNameValid) {
+        setError("Le nom du club est obligatoire.");
+        setSaving(false);
+        return;
+      }
+      if (!trimmedAddress || !addressValid) {
+        setError(
+          "Veuillez sélectionner une adresse valide parmi les suggestions.",
+        );
+        setSaving(false);
+        return;
+      }
+      if (!areMandatoryFieldsFilled) {
+        setError("Merci de remplir tous les champs obligatoires.");
+        setSaving(false);
+        return;
+      }
       // Ensure we have a typeName for the selected typeId before saving.
       const formToSave: UpdateClubInput = { ...form };
       if (formToSave.typeId && !formToSave.typeName) {
@@ -218,9 +324,15 @@ export default function ManageClub() {
         }
       }
 
+
+      const payload: UpdateClubInput = {
+        ...form,
+        latitude: form.latitude ?? club.latitude,
+        longitude: form.longitude ?? club.longitude,
+      };
       const updated = await updateFullClub(
         club.id,
-        formToSave,
+        payload,
         club.ownerId,
         token,
       );
@@ -387,27 +499,35 @@ export default function ManageClub() {
                     }}
                   >
                     {editMode ? (
-                      <Input
-                        value={form.name ?? ""}
-                        onChange={(e) => handleChange("name", e.target.value)}
-                        placeholder="Nom du club"
-                        size="lg"
-                        variant="soft"
-                        color="neutral"
-                        sx={{
-                          fontWeight: 600,
-                          fontSize: "clamp(1.4rem, 3.5vw, 2.2rem)",
-                          borderRadius: "md",
-                          color: mainColor,
-                          bgcolor:
-                            theme.palette.mode === "dark"
-                              ? "neutral.800"
-                              : "neutral.100",
-                          "--Input-focusedThickness": "2px",
-                          "--Input-focusedHighlight":
-                            theme.palette.primary.outlinedBorder,
-                        }}
-                      />
+                      <Stack gap={0.5}>
+                        <Input
+                          value={form.name ?? ""}
+                          onChange={(e) => handleChange("name", e.target.value)}
+                          placeholder="Nom du club"
+                          size="lg"
+                          variant="soft"
+                          color={isNameValid ? "neutral" : "danger"}
+                          aria-invalid={!isNameValid}
+                          sx={{
+                            fontWeight: 600,
+                            fontSize: "clamp(1.4rem, 3.5vw, 2.2rem)",
+                            borderRadius: "md",
+                            color: mainColor,
+                            bgcolor:
+                              theme.palette.mode === "dark"
+                                ? "neutral.800"
+                                : "neutral.100",
+                            "--Input-focusedThickness": "2px",
+                            "--Input-focusedHighlight":
+                              theme.palette.primary.outlinedBorder,
+                          }}
+                        />
+                        {!isNameValid && (
+                          <Typography level="body-sm" color="danger">
+                            Le nom du club est obligatoire.
+                          </Typography>
+                        )}
+                      </Stack>
                     ) : (
                       club.name
                     )}
@@ -448,23 +568,7 @@ export default function ManageClub() {
                         </Chip>
                       )
                     )}
-                    {editMode ? (
-                      <Input
-                        value={form.city ?? ""}
-                        onChange={(e) => handleChange("city", e.target.value)}
-                        placeholder="Ville"
-                        size="md"
-                        startDecorator={<PlaceIcon fontSize="small" />}
-                      />
-                    ) : (
-                      <Chip
-                        variant="soft"
-                        color="neutral"
-                        startDecorator={<PlaceIcon fontSize="small" />}
-                      >
-                        {club.city}
-                      </Chip>
-                    )}
+                    {/* City chip removed; location shown in details section */}
                   </Stack>
                 </Stack>
               </Stack>
@@ -475,71 +579,92 @@ export default function ManageClub() {
                     <Typography level="title-sm" sx={{ opacity: 0.8 }}>
                       Localisation
                     </Typography>
-                    {editMode ? (
-                      <textarea
-                        value={form.address ?? ""}
-                        onChange={(e) =>
-                          handleChange("address", e.target.value)
-                        }
-                        placeholder="Adresse"
-                        style={{
-                          background: "transparent",
-                          border:
-                            "1px solid var(--joy-palette-neutral-outlinedBorder)",
-                          borderRadius: 8,
-                          padding: "6px 8px",
-                          resize: "vertical",
-                          minHeight: 60,
-                          color:
-                            theme.palette.mode === "dark" ? "#fff" : "#000",
-                        }}
-                      />
-                    ) : (
-                      <Typography>{club.address}</Typography>
-                    )}
-                    {editMode ? (
-                      <Stack direction="row" gap={1} flexWrap="wrap">
-                        <input
-                          value={form.postalCode ?? ""}
-                          onChange={(e) =>
-                            handleChange("postalCode", e.target.value)
-                          }
-                          placeholder="Code postal"
+                    {editMode && (
+                      <div style={{ position: "relative" }}>
+                        <textarea
+                          value={form.address ?? ""}
+                          onChange={(e) => {
+                            handleChange("address", e.target.value);
+                            setAddressQuery(e.target.value);
+                            setAddressValid(false);
+                          }}
+                          placeholder="Adresse"
                           style={{
                             background: "transparent",
                             border:
                               "1px solid var(--joy-palette-neutral-outlinedBorder)",
                             borderRadius: 8,
-                            padding: "4px 8px",
-                            width: 140,
+                            padding: "6px 8px",
+                            resize: "vertical",
+                            minHeight: 60,
                             color:
                               theme.palette.mode === "dark" ? "#fff" : "#000",
                           }}
                         />
-                        <input
-                          value={form.country ?? ""}
-                          onChange={(e) =>
-                            handleChange("country", e.target.value)
-                          }
-                          placeholder="Pays"
-                          style={{
-                            background: "transparent",
-                            border:
-                              "1px solid var(--joy-palette-neutral-outlinedBorder)",
-                            borderRadius: 8,
-                            padding: "4px 8px",
-                            minWidth: 160,
-                            color:
-                              theme.palette.mode === "dark" ? "#fff" : "#000",
-                          }}
-                        />
-                      </Stack>
-                    ) : (
-                      <Typography>
-                        {club.postalCode ? `${club.postalCode} ` : ""}
-                        {club.country}
-                      </Typography>
+                        {addressSuggestions.length > 0 && (
+                          <div
+                            style={{
+                              position: "absolute",
+                              left: 8,
+                              right: 8,
+                              top: "100%",
+                              zIndex: 40,
+                              background:
+                                theme.palette.mode === "dark"
+                                  ? "rgba(15,23,42,0.9)"
+                                  : "#fff",
+                              border:
+                                "1px solid var(--joy-palette-neutral-outlinedBorder)",
+                              borderRadius: 8,
+                              marginTop: 6,
+                              maxHeight: 200,
+                              overflow: "auto",
+                            }}
+                          >
+                            {addressSuggestions.map((s) => (
+                              <button
+                                key={s.id}
+                                type="button"
+                                onClick={() => applyAddressSelection(s)}
+                                style={{
+                                  display: "block",
+                                  width: "100%",
+                                  textAlign: "left",
+                                  padding: "8px 10px",
+                                  border: "none",
+                                  background: "transparent",
+                                  cursor: "pointer",
+                                }}
+                              >
+                                {`${s.name}${s.city ? ` — ${s.city}` : ""}${s.postalCode ? ` (${s.postalCode})` : ""}`}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        {!addressValid && (
+                          <Typography
+                            level="body-sm"
+                            color="danger"
+                            sx={{ mt: 1 }}
+                          >
+                            Merci de choisir une adresse dans la liste pour
+                            valider la localisation.
+                          </Typography>
+                        )}
+                      </div>
                     )}
+                    <Typography>
+                      {(editMode ? form.address : club.address) || "—"}
+                    </Typography>
+                    <Typography>
+                      {(editMode ? form.city : club.city) || "—"}
+                    </Typography>
+                    {/* Postal code & country now always read-only (show form values when editing) */}
+                    <Typography>
+                      {editMode
+                        ? `${form.postalCode ?? club.postalCode ?? ""} ${form.country ?? club.country ?? ""}`.trim()
+                        : `${club.postalCode ? `${club.postalCode} ` : ""}${club.country}`}
+                    </Typography>
                   </Stack>
                 </Grid>
                 <Grid xs={12} md={6}>
@@ -639,7 +764,7 @@ export default function ManageClub() {
                   variant="solid"
                   onClick={() =>
                     club &&
-                    navigate(`/clubs/manage/members`, {
+                    navigate("/clubs/manage/members", {
                       state: { clubId: club.id },
                     })
                   }
@@ -675,7 +800,7 @@ export default function ManageClub() {
                   </Button>
                   <Button
                     variant="solid"
-                    disabled={saving}
+                    disabled={saving || !addressValid || !isFormComplete}
                     onClick={handleSave}
                     sx={{
                       backgroundColor: mainColor,

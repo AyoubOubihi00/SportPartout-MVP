@@ -3,4 +3,6 @@ export type City = {
   name: string;
   postalCode: string;
   coordinates?: [number, number];
+  city?: string;
+  country?: string;
 };

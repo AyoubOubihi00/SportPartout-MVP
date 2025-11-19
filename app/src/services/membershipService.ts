@@ -337,7 +337,8 @@ export async function forcedUnsubscribe(
   }
 
   console.log("[BFF] forcedUnsubscribe clubId=", clubId, "memberId=", memberId);
-  const mutation = `mutation ForcedUnsubscribe($clubId: UUID!, $memberId: UUID!) {\n  forcedUnsubscribe(clubId: $clubId, memberId: $memberId)\n}`;
+  const mutation =
+    "mutation ForcedUnsubscribe($clubId: UUID!, $memberId: UUID!) {\n  forcedUnsubscribe(clubId: $clubId, memberId: $memberId)\n}";
   const response = await fetch(`${BFF_BASE_URL}/graphql`, {
     method: "POST",
     headers: {

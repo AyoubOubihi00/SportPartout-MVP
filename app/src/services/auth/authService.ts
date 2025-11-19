@@ -10,7 +10,8 @@ export interface UserProfile {
 }
 
 export async function getMe(token: string): Promise<UserProfile | null> {
-  const query = `query Me { me { id email createdAt role firstName lastName birthDate phone } }`;
+  const query =
+    "query Me { me { id email createdAt role firstName lastName birthDate phone } }";
   try {
     const response = await fetch(`${API_BASE_URL}/auth/graphql`, {
       method: "POST",
@@ -42,7 +43,8 @@ export interface LoginResponse {
 }
 
 export async function login(payload: LoginPayload): Promise<LoginResponse> {
-  const query = `mutation Login($input: LoginInput!) {\n  login(input: $input) {\n    token\n     }\n}`;
+  const query =
+    "mutation Login($input: LoginInput!) {\n  login(input: $input) {\n    token\n     }\n}";
   const variables = {
     input: {
       email: payload.email,
@@ -109,7 +111,8 @@ export interface RegisterResponse {
 export async function register(
   payload: RegisterPayload,
 ): Promise<RegisterResponse> {
-  const query = `mutation Register($input: RegisterInput!) {\n  register(input: $input) {\n    message\n  }\n}`;
+  const query =
+    "mutation Register($input: RegisterInput!) {\n  register(input: $input) {\n    message\n  }\n}";
   const variables = {
     input: {
       email: payload.email,
@@ -182,7 +185,8 @@ export async function updateUser(
     return { message: "Utilisateur non authentifié" };
   }
 
-  const query = `mutation UpdateUser($input: UpdateUserInput!) {\n  updateUser(input: $input) {\n  message\n   }\n}`;
+  const query =
+    "mutation UpdateUser($input: UpdateUserInput!) {\n  updateUser(input: $input) {\n  message\n   }\n}";
 
   const variables = { input };
 
