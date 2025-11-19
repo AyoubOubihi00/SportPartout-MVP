@@ -50,8 +50,8 @@ export default function ClubDetails({
   club,
   disableJoin = false,
 }: ClubDetailsProps) {
-    const { token } = useAuth();
-    const navigate = useNavigate();
+  const { token } = useAuth();
+  const navigate = useNavigate();
   const phoneHref = club.phoneNumber ? `tel:${club.phoneNumber}` : undefined;
   const mailHref = club.email ? `mailto:${club.email}` : undefined;
   const fullAddress = `${club.addresse}${club.city ? `, ${club.city}` : ""}${club.postalCode ? ` ${club.postalCode}` : ""}${club.country ? `, ${club.country}` : ""}`;
@@ -456,9 +456,9 @@ export default function ClubDetails({
                 opacity: disableJoin ? 0.5 : 1,
               }}
               onClick={async () => {
-                  if (disableJoin) return;
+                if (disableJoin) return;
 
-                  if (!token) {
+                if (!token) {
                   navigate("/login");
                   return;
                 }

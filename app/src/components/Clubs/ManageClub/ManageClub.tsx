@@ -33,7 +33,8 @@ import {
   reactivateClub,
 } from "../../../services/clubService";
 import { useAuth } from "../../shared/useAuth";
-import { sportTypes } from "../../../mock/sportType";
+import adminService from "../../../services/adminService";
+import { getSportById } from "../../../services/sportService";
 
 // Simple date formatter
 function formatDate(iso?: string | null) {
@@ -67,6 +68,8 @@ export default function ManageClub() {
   const [editMode, setEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<UpdateClubInput>({});
+  // Sport types available (remote, fallback to local mock)
+  const [availableSportTypes, setAvailableSportTypes] = useState<Sport[]>([]);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [disabling, setDisabling] = useState(false);
   const [reactivating, setReactivating] = useState(false);
@@ -104,55 +107,36 @@ export default function ManageClub() {
 
   const isDeleted = !!club?.deletedAt;
 
-  // Initialize form when entering edit mode or club changes
-  function resolveSportTypeId(
-    fromId?: string | null,
-    fromName?: string | null,
-  ): string | undefined {
-    // Always prefer backend id if provided, even if it's not in our local list
-    if (fromId) return fromId;
-    // Otherwise, try by name (case-/accent-insensitive) with synonyms
-    const normalize = (s: string) =>
-      s
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/\p{Diacritic}/gu, "")
-        .replace(/[^a-z0-9]/g, "");
-    // Map common english/french synonyms to our labels
-    const synonyms: Record<string, string> = {
-      football: "football",
-      basketball: "basketball",
-      tennis: "tennis",
-      rugby: "rugby",
-      handball: "handball",
-      volleyball: "volleyball",
-      volley: "volley",
-      baseball: "base-ball",
-      golf: "golf",
-      cycling: "cyclisme",
-      swimming: "natation",
-      natation: "natation",
-      athletism: "athletisme",
-      athletisme: "athletisme",
-      judo: "judo",
+  // Fetch sport types from admin service (fallback to mock kept)
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const types = await adminService.fetchSportTypes();
+        if (!cancelled && types && types.length > 0) {
+          setAvailableSportTypes(
+            types.map((t) => ({ id: t.id, name: t.name, icon: "" }) as Sport),
+          );
+        }
+      } catch (err) {
+        // keep mock fallback; log in dev
+        if (process.env.NODE_ENV !== "production") {
+          console.warn("[ManageClub] fetchSportTypes failed:", err);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
     };
-
-    if (fromName) {
-      const key = normalize(fromName);
-      const label = synonyms[key] ?? fromName;
-      // find any sportType whose name normalized matches
-      const byName = sportTypes.find(
-        (s) => normalize(s.name) === normalize(label),
-      );
-      if (byName) return byName.id;
-    }
-    return undefined;
-  }
+  }, [token]);
 
   // Options for the Select: include backend current type if it's unknown locally so it can be shown/preselected
   const selectSportOptions = useMemo(() => {
-    const base: Sport[] = [...sportTypes];
-    if (club?.typeId && !sportTypes.some((s) => s.id === club.typeId)) {
+    const base: Sport[] = [...availableSportTypes];
+    if (
+      club?.typeId &&
+      !availableSportTypes.some((s) => s.id === club.typeId)
+    ) {
       base.unshift({
         id: club.typeId,
         name: club.typeName || "Type inconnu",
@@ -160,7 +144,7 @@ export default function ManageClub() {
       } as Sport);
     }
     return base;
-  }, [club]);
+  }, [club, availableSportTypes]);
 
   useEffect(() => {
     if (club && editMode) {
@@ -174,7 +158,7 @@ export default function ManageClub() {
         phoneNumber: club.phoneNumber ?? undefined,
         latitude: club.latitude,
         longitude: club.longitude,
-        typeId: resolveSportTypeId(club.typeId, club.typeName),
+        typeId: club.typeId!,
       });
     }
   }, [club, editMode]);
@@ -183,6 +167,37 @@ export default function ManageClub() {
     key: K,
     value: UpdateClubInput[K],
   ) {
+    // Special-case when the sport type is changed: set typeId immediately
+    // and fetch the sport name to populate typeName asynchronously.
+    if (key === "typeId") {
+      const newTypeId = value as unknown as string | undefined;
+      setForm((prev) => ({ ...prev, typeId: newTypeId }));
+      if (newTypeId) {
+        getSportById(newTypeId)
+          .then((sport) => {
+            setForm((prev) => ({
+              ...prev,
+              typeId: newTypeId,
+              typeName: sport?.name ?? undefined,
+            }));
+          })
+          .catch(() => {
+            setForm((prev) => ({
+              ...prev,
+              typeId: newTypeId,
+              typeName: undefined,
+            }));
+          });
+      } else {
+        setForm((prev) => ({
+          ...prev,
+          typeId: undefined,
+          typeName: undefined,
+        }));
+      }
+      return;
+    }
+
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
@@ -192,7 +207,23 @@ export default function ManageClub() {
     setError(null);
     setSaveMessage(null);
     try {
-      const updated = await updateFullClub(club.id, form, club.ownerId, token);
+      // Ensure we have a typeName for the selected typeId before saving.
+      const formToSave: UpdateClubInput = { ...form };
+      if (formToSave.typeId && !formToSave.typeName) {
+        try {
+          const sport = await getSportById(formToSave.typeId);
+          formToSave.typeName = sport?.name ?? undefined;
+        } catch {
+          formToSave.typeName = undefined;
+        }
+      }
+
+      const updated = await updateFullClub(
+        club.id,
+        formToSave,
+        club.ownerId,
+        token,
+      );
       setClub(updated);
       setEditMode(false);
       setSaveMessage("Modifications enregistrées");
@@ -400,7 +431,7 @@ export default function ManageClub() {
                           <Option key={s.id} value={s.id}>
                             {s.icon ? `${s.icon} ${s.name}` : s.name}
                             {club?.typeId === s.id &&
-                            !sportTypes.some((st) => st.id === s.id)
+                            !availableSportTypes.some((st) => st.id === s.id)
                               ? " (actuel)"
                               : ""}
                           </Option>
@@ -673,10 +704,8 @@ export default function ManageClub() {
                           phoneNumber: club.phoneNumber ?? undefined,
                           latitude: club.latitude,
                           longitude: club.longitude,
-                          typeId: resolveSportTypeId(
-                            club.typeId,
-                            club.typeName,
-                          ),
+                          typeId: club.typeId!,
+                          typeName: club.typeName!,
                         });
                       }
                       setEditMode(true);

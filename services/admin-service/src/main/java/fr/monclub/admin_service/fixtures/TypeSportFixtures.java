@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import java.util.UUID;
 
 @Component
-@Profile("dev")
+@Profile("prod")
 @AllArgsConstructor
 public class TypeSportFixtures implements CommandLineRunner {
 

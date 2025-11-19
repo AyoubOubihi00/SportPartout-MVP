@@ -1,12 +1,15 @@
-import { Sport } from "../model/Sport";
-import { sportTypes } from "../mock/sportType";
+import { SportType } from "../model/SportType";
+import adminService from "./adminService";
 
-export function getSportById(id: string): Sport | undefined {
-  return sportTypes.find((sport) => sport.id === id);
+export async function getSportById(id: string): Promise<SportType | undefined> {
+  const types = await adminService.fetchSportTypes();
+  return types.find((t) => t.id === id) ?? undefined;
 }
 
-export function getSportsByName(name: string): Sport[] {
-  return sportTypes.filter((sport) =>
-    sport.name.toLowerCase().includes(name.toLowerCase()),
-  );
+export function getSportsByName(name: string): Promise<SportType[]> {
+  return adminService
+    .fetchSportTypes()
+    .then((types) =>
+      types.filter((t) => t.name.toLowerCase().includes(name.toLowerCase())),
+    );
 }

@@ -2,21 +2,21 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Input, Box, Button, Typography, CircularProgress } from "@mui/joy";
 import { useTheme } from "@mui/joy/styles";
 import { Portal } from "@mui/base";
-import { Sport } from "../../model/Sport";
 import { City } from "../../model/City";
 import * as sportService from "../../services/sportService";
 import { fetchCities } from "../../services/cityApiService";
 import { mapCenterService } from "../../services/mapCenterService";
+import { SportType } from "../../model/SportType";
 
 export function SearchFilter({
   onSportsChange,
 }: {
-  onSportsChange?: (sports: Sport[]) => void;
+  onSportsChange?: (sports: SportType[]) => void;
 }) {
   const theme = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const [selectedSports, setSelectedSports] = useState<Sport[]>([]);
+  const [selectedSports, setSelectedSports] = useState<SportType[]>([]);
   const [selectedCity, setSelectedCity] = useState<City | null>(null);
   const [apiCities, setApiCities] = useState<City[]>([]);
   const [isLoadingCities, setIsLoadingCities] = useState(false);
@@ -60,14 +60,34 @@ export function SearchFilter({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const filteredSports = sportService
-    .getSportsByName(searchValue)
-    .filter(
-      (sport) => !selectedSports.some((selected) => selected.id === sport.id),
-    )
-    .slice(0, 3);
+  const [filteredSports, setFilteredSports] = useState<SportType[]>([]);
 
-  const handleSportSelect = (sport: Sport) => {
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchSports() {
+      const sports = await sportService.getSportsByName(searchValue);
+      if (isMounted) {
+        setFilteredSports(
+          sports
+            .filter(
+              (sport) =>
+                !selectedSports.some((selected) => selected.id === sport.id),
+            )
+            .slice(0, 3),
+        );
+      }
+    }
+    if (searchValue.trim()) {
+      fetchSports();
+    } else {
+      setFilteredSports([]);
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [searchValue, selectedSports]);
+
+  const handleSportSelect = (sport: SportType) => {
     const newSports = [...selectedSports, sport];
     setSelectedSports(newSports);
     if (onSportsChange) onSportsChange(newSports);
@@ -164,7 +184,7 @@ export function SearchFilter({
                           theme.palette.mode === "dark" ? "white" : "black",
                       }}
                     >
-                      <span style={{ marginRight: 8 }}>{sport.icon}</span>
+                      {/* <span style={{ marginRight: 8 }}>{sport.icon}</span> */}
                       {sport.name}
                     </Button>
                   ))}
@@ -241,7 +261,7 @@ export function SearchFilter({
             key={sport.id}
             variant="soft"
             color="primary"
-            startDecorator={<span>{sport.icon}</span>}
+            // startDecorator={<span>{sport.icon}</span>}
             onClick={() => removeSport(sport.id)}
             sx={{
               background:

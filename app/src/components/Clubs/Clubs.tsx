@@ -77,7 +77,7 @@ export default function Clubs() {
           setMemberships(membershipsData);
         }
         if (profile.role?.toUpperCase() === "OWNER") {
-          const managed = await fetchManagedClubs(profile.id);          
+          const managed = await fetchManagedClubs(profile.id);
           if (!cancelled) {
             // Trier par nom pour un ordre stable (les clubs modifiés restent à leur place)
             managed.sort((a, b) => {
@@ -285,13 +285,17 @@ export default function Clubs() {
               level="body-md"
               sx={{ color: mainColor, fontWeight: 600 }}
             >
-              {isOwner ? "Vous ne gerez aucun club pour le moment." : "Vous n'avez rejoint aucun club pour le moment."}
+              {isOwner
+                ? "Vous ne gerez aucun club pour le moment."
+                : "Vous n'avez rejoint aucun club pour le moment."}
             </Typography>
             <Typography
               level="body-sm"
               sx={{ color: labelColor, maxWidth: 360, lineHeight: 1.4 }}
             >
-              {isOwner ? "Ajoutez ou importez un club pour le retrouver ici et acceder rapidement a sa gestion." : "Rejoignez un club pour le retrouver ici et acc�der rapidement � ses informations."}
+              {isOwner
+                ? "Ajoutez ou importez un club pour le retrouver ici et acceder rapidement a sa gestion."
+                : "Rejoignez un club pour le retrouver ici et acc�der rapidement � ses informations."}
             </Typography>
             <Button
               variant="solid"
@@ -317,7 +321,9 @@ export default function Clubs() {
                 key={`${membership.clubId}-${membership.userId}`}
                 membership={membership}
                 onUnsubscribe={() => handleUnsubscribe(membership)}
-                unsubscribing={leavingMemberships.has(membershipKey(membership))}
+                unsubscribing={leavingMemberships.has(
+                  membershipKey(membership),
+                )}
                 onViewDetails={handleViewClubDetails}
               />
             ))}
@@ -408,7 +414,7 @@ export default function Clubs() {
                 sx={{
                   background:
                     theme.palette.mode === "dark"
-                        ? "linear-gradient(180deg, rgba(15,23,42,0.9), rgba(15,23,42,0.7))"
+                      ? "linear-gradient(180deg, rgba(15,23,42,0.9), rgba(15,23,42,0.7))"
                       : "linear-gradient(180deg, #f7f9fc, #edf1f7)",
                   borderRadius: 16,
                   boxShadow:

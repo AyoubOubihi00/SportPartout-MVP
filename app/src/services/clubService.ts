@@ -1,6 +1,6 @@
 import { API_BASE_URL, BFF_BASE_URL } from "../config";
-import { sportTypes } from "../mock/sportType";
 import { ClubNear } from "../model/Club";
+import adminService from "./adminService";
 
 export interface Club {
   name: string;
@@ -114,8 +114,19 @@ export async function updateFullClub(
 ): Promise<FullClub> {
   const mutation = `mutation UpdateClub($id: UUID!, $data: UpdateClubInput!, $ownerId: UUID!) {\n  updateClub(id: $id, data: $data, ownerId: $ownerId) {\n    id name typeId typeName city address country phoneNumber postalCode email latitude longitude ownerId createdAt updatedAt deletedAt\n  }\n}`;
   console.log("data : ", data);
-  const sport = sportTypes.find((s) => s.id === data.typeId);
-  const sportName = sport ? sport.name : null;
+  let sportName: string | null = null;
+  if (data.typeId) {
+    try {
+      const types = await adminService.fetchSportTypes();
+      const found = types.find((t) => t.id === data.typeId);
+      sportName = found?.name ?? null;
+    } catch (err) {
+      console.error("Erreur lors de la récupération des types de sport :", err);
+      sportName = data.typeName ?? null;
+    }
+  } else {
+    sportName = data.typeName ?? null;
+  }
 
   const updatedData = {
     ...data,

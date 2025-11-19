@@ -1,5 +1,6 @@
 import "@testing-library/jest-dom";
 import { render, screen, fireEvent } from "@testing-library/react";
+import { act } from "react";
 import { SearchFilter } from "../SearchFilter";
 
 // Test d'intégration : services réels
@@ -22,7 +23,12 @@ describe("SearchFilter (intégration)", () => {
   it("affiche la ville recherchée et met à jour le centre", async () => {
     render(<SearchFilter />);
     const input = screen.getByRole("textbox");
-    fireEvent.change(input, { target: { value: "Paris" } });
+    // Wrap change in act to ensure state updates are flushed during the test
+    await act(async () => {
+      fireEvent.change(input, { target: { value: "Paris" } });
+      // allow pending microtasks to run
+      await Promise.resolve();
+    });
     // Attendre que la ville apparaisse (si API réelle, peut être lent)
     // expect(await screen.findByText(/Paris/i)).toBeInTheDocument();
     // Ici, on ne vérifie pas le setCenter car on utilise le service réel

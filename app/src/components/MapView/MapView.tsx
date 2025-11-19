@@ -18,7 +18,6 @@ import {
 } from "@mui/joy";
 import { useTheme } from "@mui/joy/styles";
 import Supercluster, { PointFeature } from "supercluster";
-import { Sport } from "../../model/Sport";
 import { Club } from "../../model/Club";
 import { fetchClubById } from "../../api/club";
 import { estimateMapRadius } from "../../services/mapRadiusService";
@@ -32,6 +31,7 @@ import {
   type UserInput,
 } from "../../services/membershipService";
 import { useNavigate } from "react-router-dom";
+import { SportType } from "../../model/SportType";
 
 interface ClubFeatureProperties {
   cluster: boolean;
@@ -52,7 +52,7 @@ export default function MapView() {
   const { showSuccessBubble, showErrorBubble } = useBubble();
   const navigate = useNavigate();
   const [manualCenter, setManualCenter] = useState(false);
-  const [selectedSports, setSelectedSports] = useState<Sport[]>([]);
+  const [selectedSports, setSelectedSports] = useState<SportType[]>([]);
   // State pour les coins de la carte
   const [
     ,

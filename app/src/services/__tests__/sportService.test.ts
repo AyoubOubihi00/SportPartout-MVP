@@ -1,14 +1,17 @@
 import { getSportsByName } from "../sportService";
 import { sportTypes } from "../../mock/sportType";
+import adminService from "../adminService";
+
+jest.spyOn(adminService, "fetchSportTypes").mockResolvedValue(sportTypes as any);
 
 describe("sportService", () => {
-  it("getSportsByName retourne les sports correspondants", () => {
-    const result = getSportsByName("Bas");
+  it("getSportsByName retourne les sports correspondants", async () => {
+    const result = await getSportsByName("Bas");
     expect(result.some((sport) => sport.name === "Basketball")).toBe(true);
   });
 
-  it("getSportsByName retourne un tableau vide si aucun sport ne correspond", () => {
-    const result = getSportsByName("Inexistant");
+  it("getSportsByName retourne un tableau vide si aucun sport ne correspond", async () => {
+    const result = await getSportsByName("Inexistant");
     expect(result).toEqual([]);
   });
 
