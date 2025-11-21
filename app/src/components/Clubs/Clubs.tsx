@@ -238,6 +238,27 @@ export default function Clubs() {
           Mes clubs
         </Typography>
 
+        {isOwner && (
+          <Stack direction="row" justifyContent="center" sx={{ mb: 3 }}>
+            <Button
+              variant="solid"
+              color="primary"
+              onClick={() => navigate("/clubs/create")}
+              endDecorator={<ChevronRight size={16} />}
+              sx={{
+                backgroundColor: mainColor,
+                color: theme.palette.mode === "dark" ? "#121212" : "#fff",
+                fontWeight: 600,
+                px: 3,
+                boxShadow: "none",
+                "&:hover": { backgroundColor: mainColor },
+              }}
+            >
+              Créer un club
+            </Button>
+          </Stack>
+        )}
+
         {loading && (
           <LinearProgress
             variant="soft"

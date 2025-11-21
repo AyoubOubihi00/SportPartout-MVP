@@ -68,4 +68,17 @@ public class RabbitConfig {
                 .to(appEventsExchange)
                 .with("club.reactived");
     }
+
+    @Bean
+    public Queue clubCreatedQueueFindClubService() {
+        return new AnonymousQueue();
+    }
+
+    @Bean
+    public Binding clubCreatedBindingFindClubService(TopicExchange appEventsExchange, Queue clubCreatedQueueFindClubService) {
+        return BindingBuilder
+                .bind(clubCreatedQueueFindClubService)
+                .to(appEventsExchange)
+                .with("club.created");
+    }
 }

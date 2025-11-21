@@ -13,6 +13,7 @@ import MyActivities from "./components/Activities/MyActivities";
 import Clubs from "./components/Clubs/Clubs";
 import ManageClub from "./components/Clubs/ManageClub/ManageClub";
 import ManageMembers from "./components/Clubs/ManageClub/ManageMembers";
+import CreateClub from "./components/Clubs/CreateClub/CreateClub";
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
             <Route path="/clubs" element={<Clubs />} />
             <Route path="/clubs/manage" element={<ManageClub />} />
             <Route path="/clubs/manage/members" element={<ManageMembers />} />
+            <Route path="/clubs/create" element={<CreateClub />} />
           </Routes>
         </Router>
       </BubbleProvider>

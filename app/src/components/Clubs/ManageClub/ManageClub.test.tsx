@@ -86,8 +86,8 @@ describe("ManageClub", () => {
     renderWithRouter();
     await waitFor(() => screen.getByText(/Modifier/));
     fireEvent.click(screen.getByText(/Modifier/));
-    const textarea = screen.getByPlaceholderText(/Adresse/);
-    fireEvent.change(textarea, { target: { value: "Nouvelle adresse" } });
+    const input = screen.getByPlaceholderText(/Rechercher une adresse.../);
+    fireEvent.change(input, { target: { value: "Nouvelle adresse" } });
     const saveButton = screen.getByRole("button", { name: /Enregistrer/ });
     await waitFor(() => expect(saveButton).toBeDisabled());
     expect(clubService.updateFullClub).not.toHaveBeenCalled();

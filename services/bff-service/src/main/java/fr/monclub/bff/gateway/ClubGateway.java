@@ -81,8 +81,6 @@ public class ClubGateway {
     }
 
     public ClubDto updateClub(UUID id, Map<String, Object> data, UUID ownerId) {
-        // IMPORTANT: Le schema du club-service utilise le scalar UUID, pas ID.
-        // L'erreur "Unknown type 'ID'" provenait de cette définition incorrecte.
         String mutation = """
             mutation($id: UUID!, $data: UpdateClubInput!, $ownerId: UUID!) {
               updateClub(id: $id, data: $data, ownerId: $ownerId) {
@@ -276,5 +274,59 @@ public class ClubGateway {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public ClubDto createClub(Map<String, Object> data, UUID ownerId) {
+        String mutation = """
+            mutation($data: UpdateClubInput!, $ownerId: UUID!) {
+              createClub(data: $data, ownerId: $ownerId) {
+                id
+                name
+                typeId
+                typeName
+                city
+                address
+                country
+                postalCode
+                phoneNumber
+                email
+                latitude
+                longitude
+                ownerId
+                createdAt
+                updatedAt
+                deletedAt
+                isActive
+              }
+            }
+            """;
+        Map<String, Object> variables = Map.of(
+                "data", data,
+                "ownerId", ownerId != null ? ownerId.toString() : null
+        );
+        JsonNode resp = clubGraphQlClient.execute(mutation, variables);
+        JsonNode n = resp != null ? resp.get("createClub") : null;
+        if (n == null || n.isNull()) {
+            throw new ResourceNotFoundException("Club introuvable après création");
+        }
+        return new ClubDto(
+                readUuid(n, "id"),
+                readUuid(n, "ownerId"),
+                n.path("name").asText(null),
+                readUuid(n, "typeId"),
+                n.path("typeName").asText(null),
+                n.path("city").asText(null),
+                n.path("address").asText(null),
+                n.path("country").asText(null),
+                n.path("postalCode").asText(null),
+                n.path("phoneNumber").asText(null),
+                n.path("email").asText(null),
+                n.hasNonNull("latitude") ? n.get("latitude").floatValue() : null,
+                n.hasNonNull("longitude") ? n.get("longitude").floatValue() : null,
+                readOdt(n, "createdAt"),
+                readOdt(n, "updatedAt"),
+                readOdt(n, "deletedAt"),
+                n.path("isActive").isBoolean() ? n.get("isActive").asBoolean() : null
+        );
     }
 }

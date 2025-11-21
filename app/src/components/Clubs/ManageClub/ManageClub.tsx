@@ -169,6 +169,7 @@ export default function ManageClub() {
         club.longitude !== null &&
         club.longitude !== undefined;
       setAddressValid(Boolean(club.address) && hasCoordinates);
+      setAddressQuery(club.address || "");
     }
   }, [club, editMode]);
 
@@ -323,7 +324,6 @@ export default function ManageClub() {
           formToSave.typeName = undefined;
         }
       }
-
 
       const payload: UpdateClubInput = {
         ...form,
@@ -581,74 +581,49 @@ export default function ManageClub() {
                     </Typography>
                     {editMode && (
                       <div style={{ position: "relative" }}>
-                        <textarea
-                          value={form.address ?? ""}
+                        <Input
+                          placeholder="Rechercher une adresse..."
+                          value={addressQuery}
                           onChange={(e) => {
-                            handleChange("address", e.target.value);
                             setAddressQuery(e.target.value);
                             setAddressValid(false);
                           }}
-                          placeholder="Adresse"
-                          style={{
-                            background: "transparent",
-                            border:
-                              "1px solid var(--joy-palette-neutral-outlinedBorder)",
-                            borderRadius: 8,
-                            padding: "6px 8px",
-                            resize: "vertical",
-                            minHeight: 60,
-                            color:
-                              theme.palette.mode === "dark" ? "#fff" : "#000",
-                          }}
                         />
                         {addressSuggestions.length > 0 && (
-                          <div
-                            style={{
+                          <Sheet
+                            sx={{
                               position: "absolute",
-                              left: 8,
-                              right: 8,
-                              top: "100%",
-                              zIndex: 40,
-                              background:
-                                theme.palette.mode === "dark"
-                                  ? "rgba(15,23,42,0.9)"
-                                  : "#fff",
-                              border:
-                                "1px solid var(--joy-palette-neutral-outlinedBorder)",
-                              borderRadius: 8,
-                              marginTop: 6,
+                              zIndex: 10,
+                              width: "100%",
                               maxHeight: 200,
                               overflow: "auto",
+                              mt: 1,
+                              p: 1,
+                              boxShadow: "md",
+                              borderRadius: "sm",
+                              border: "1px solid",
+                              borderColor: "neutral.outlinedBorder",
                             }}
                           >
                             {addressSuggestions.map((s) => (
-                              <button
+                              <Button
                                 key={s.id}
-                                type="button"
-                                onClick={() => applyAddressSelection(s)}
-                                style={{
-                                  display: "block",
-                                  width: "100%",
+                                variant="plain"
+                                fullWidth
+                                sx={{
+                                  justifyContent: "flex-start",
                                   textAlign: "left",
-                                  padding: "8px 10px",
-                                  border: "none",
-                                  background: "transparent",
-                                  cursor: "pointer",
                                 }}
+                                onClick={() => applyAddressSelection(s)}
                               >
-                                {`${s.name}${s.city ? ` — ${s.city}` : ""}${s.postalCode ? ` (${s.postalCode})` : ""}`}
-                              </button>
+                                {s.name} {s.city ? ` — ${s.city}` : ""}
+                              </Button>
                             ))}
-                          </div>
+                          </Sheet>
                         )}
-                        {!addressValid && (
-                          <Typography
-                            level="body-sm"
-                            color="danger"
-                            sx={{ mt: 1 }}
-                          >
-                            Merci de choisir une adresse dans la liste pour
-                            valider la localisation.
+                        {!addressValid && addressQuery.length > 0 && (
+                          <Typography level="body-sm" color="danger">
+                            Veuillez sélectionner une adresse dans la liste.
                           </Typography>
                         )}
                       </div>

@@ -65,5 +65,15 @@ public class ClubGraphQlController {
         return clubGateway.reactivateClub(id, ownerId);
     }
 
+    @MutationMapping
+    public ClubGateway.ClubDto createClub(@Argument UpdateClubInput data,
+                                         @Argument UUID ownerId) {
+        if (data == null) {
+            throw new BadRequestException("Le parametre data est obligatoire");
+        }
+        Map<String, Object> vars = data.toGraphqlMap();
+        System.out.println("Creating club with data: " + vars + " for ownerId: " + ownerId);
+        return clubGateway.createClub(vars, ownerId);
+    }
 
 }

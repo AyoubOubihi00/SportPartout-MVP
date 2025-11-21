@@ -6,6 +6,7 @@ import fr.monclub.club_service.club.model.Club;
 import fr.monclub.club_service.club.model.UpdateClubInput;
 import fr.monclub.club_service.club.service.AddClubService;
 import fr.monclub.club_service.club.validators.UpdateClubValidator;
+import fr.monclub.club_service.config.RabbitMQ.Publisher.ClubEventPublisher;
 import fr.monclub.club_service.core.exception.ValidationException;
 import fr.monclub.club_service.fixtures.ClubFixtures;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,9 +37,12 @@ class AddClubServiceTest {
     @Autowired
     private UpdateClubValidator validator;
 
+    @Mock
+    private ClubEventPublisher clubEventPublisher;
+
     @BeforeEach
     void setUp() {
-        addClubService = new AddClubService(clubCatalog, mapper, validator);
+        addClubService = new AddClubService(clubCatalog, mapper, validator, clubEventPublisher);
     }
 
     @Test

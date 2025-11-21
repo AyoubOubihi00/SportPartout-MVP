@@ -103,9 +103,9 @@ export interface UpdateClubInput {
   phoneNumber?: string | null;
   postalCode?: string | null;
   email?: string | null;
-  latitude?: number;
-  longitude?: number;
-  updatedAt?: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  updatedAt?: string | null;
 }
 
 export async function updateFullClub(
@@ -197,4 +197,49 @@ export async function reactivateClub(
   if (result.errors)
     throw new Error(result.errors[0]?.message || "Erreur API reactivateClub");
   return Boolean(result.data?.reactivateClub);
+}
+
+export async function createClub(
+  data: UpdateClubInput,
+  ownerId: string,
+  token: string,
+): Promise<FullClub> {
+  const mutation =
+    "mutation CreateClub($data: UpdateClubInput!, $ownerId: UUID!) {\n  createClub(data: $data, ownerId: $ownerId) {\n    id name typeId typeName city address country phoneNumber postalCode email latitude longitude ownerId createdAt updatedAt deletedAt\n  }\n}";
+
+  let sportName: string | null = null;
+  if (data.typeId) {
+    try {
+      const types = await adminService.fetchSportTypes();
+      const found = types.find((t) => t.id === data.typeId);
+      sportName = found?.name ?? null;
+    } catch (err) {
+      console.error("Erreur lors de la récupération des types de sport :", err);
+      sportName = data.typeName ?? null;
+    }
+  } else {
+    sportName = data.typeName ?? null;
+  }
+
+  const inputData = {
+    ...data,
+    typeName: sportName,
+  };
+
+  const variables = { data: inputData, ownerId };
+
+  const response = await fetch(`${BFF_BASE_URL}/graphql`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ query: mutation, variables }),
+  });
+  const result = await response.json();
+  if (result.errors)
+    throw new Error(result.errors[0]?.message || "Erreur API createClub");
+  const club: FullClub | undefined = result.data?.createClub;
+  if (!club) throw new Error("Erreur lors de la création du club");
+  return club;
 }

@@ -56,11 +56,11 @@ type Mutation {
   refusePendingSeance(seanceId: UUID!, userId: UUID!, reason: String!): SeanceDecision!
   subscribeToClub(clubId: UUID!, newMember: UserInput!): MemberWithClub
   forcedUnsubscribe(clubId: UUID!, memberId: UUID!): Int
-  updateClub(id: UUID!, data: UpdateClubInput!, ownerId: UUID!): Club
+  updateClub(id: UUID!, data: UpdateClubInput!, ownerId: UUID!): FullClub
   disableClub(id: UUID!, ownerId: UUID!): Boolean
   reactivateClub(id: UUID!, ownerId: UUID!): Boolean
   unsubscribeFromClub(clubId: UUID!, memberId: UUID!): Boolean!
-
+  createClub(data: UpdateClubInput!, ownerId: UUID!): FullClub
 }
 
 
@@ -95,3 +95,23 @@ input UpdateClubInput {
   updatedAt: DateTime
 }
 
+type FullClub {
+  id: UUID!
+  name: String!
+  typeId: UUID
+  typeName: String
+  city: String!
+  address: String!
+  country: String!
+  phoneNumber: String
+  postalCode: String
+  email: String
+  latitude: Float!
+  longitude: Float!
+  ownerId: UUID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  deletedAt: DateTime
+  isActive: Boolean!
+
+}
