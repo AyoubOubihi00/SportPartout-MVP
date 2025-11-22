@@ -34,6 +34,11 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db-club:5432/club_db
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
         
     depends_on:
       - rabbitmq
@@ -280,6 +285,48 @@ services:
     networks:
       - monclub-net
 
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    ports:
+      - "3100:3100"
+    user: "0" 
+    command: ["-config.file=/etc/loki/config.yml"]
+    volumes:
+      - ./loki-config.yml:/etc/loki/config.yml
+      - loki_data:/loki
+    networks:
+      - monclub-net
+
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: promtail
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./promtail-config.yml:/etc/promtail/config.yml:ro
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - monclub-net
+    # Promtail doit être démarré après Loki, et avoir accès au socket Docker pour lire les logs
+    depends_on:
+      - loki
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+    networks:
+      - monclub-net
+    depends_on:
+      - loki
+
 
 
 networks:
@@ -294,3 +341,6 @@ volumes:
   db_authentification_data:
   db_membership_data:
   pwa_node_modules:
+  loki_data:
+  grafana_data:
+
