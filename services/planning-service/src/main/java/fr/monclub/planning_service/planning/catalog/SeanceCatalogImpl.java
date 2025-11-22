@@ -197,4 +197,16 @@ public class SeanceCatalogImpl implements SeanceCatalog {
             }
         }
     }
+
+    @Override
+    public List<Seance> findByClubId(UUID clubId) {
+        return repo.findAllByIdClub(clubId);
+    }
+
+    @Override
+    public void saveAll(List<Seance> seances) {
+        repo.saveAll(seances);
+    }
+
+
 }

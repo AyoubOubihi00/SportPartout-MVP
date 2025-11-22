@@ -32,4 +32,9 @@ public interface SeanceCatalog {
     Seance leave(UUID seanceId);
 
     List<Seance> findByUserId(UUID userId, OffsetDateTime start, OffsetDateTime end);
+
+    List<Seance> findByClubId(UUID clubId);
+
+
+    void saveAll(List<Seance> seances);
 }

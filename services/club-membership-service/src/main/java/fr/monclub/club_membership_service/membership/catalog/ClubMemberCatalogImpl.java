@@ -2,6 +2,7 @@
 package fr.monclub.club_membership_service.membership.catalog;
 import fr.monclub.club_membership_service.RabbitMQ.ClubDisabledEvent;
 import fr.monclub.club_membership_service.RabbitMQ.ClubReactivedEvent;
+import fr.monclub.club_membership_service.RabbitMQ.UserUpdatedEvent;
 import fr.monclub.club_membership_service.membership.catalog.ClubMemberCatalog;
 
 import fr.monclub.club_membership_service.membership.model.ClubMember;
@@ -147,5 +148,21 @@ public class ClubMemberCatalogImpl implements ClubMemberCatalog {
         return this.clubMemberRepository.deactivateClubMemberById(memberId);
     }
 
+    @Override
+    public boolean updateUser(UserUpdatedEvent userUpdatedEvent) {
+        List<ClubMember> members = clubMemberRepository.findAllByUserId(userUpdatedEvent.getUuid());
+
+        for (ClubMember member : members) {
+            member.setFirstName(userUpdatedEvent.getFirstName());
+            member.setLastName(userUpdatedEvent.getLastName());
+            member.setEmail(userUpdatedEvent.getEmail());
+            member.setPhoneNumber(userUpdatedEvent.getPhone());
+            member.setBirthDate(userUpdatedEvent.getBirthDate());
+        }
+
+        this.clubMemberRepository.saveAll(members);
+        return true;
+
+    }
 
 }

@@ -2,6 +2,7 @@ package fr.monclub.club_membership_service.membership.catalog;
 
 import fr.monclub.club_membership_service.RabbitMQ.ClubDisabledEvent;
 import fr.monclub.club_membership_service.RabbitMQ.ClubReactivedEvent;
+import fr.monclub.club_membership_service.RabbitMQ.UserUpdatedEvent;
 import fr.monclub.club_membership_service.membership.model.ClubMember;
 import org.springframework.stereotype.Component;
 
@@ -33,4 +34,5 @@ public interface ClubMemberCatalog {
 
     public boolean reactiveClub(ClubReactivedEvent clubReactivedEvent);
     int deactivateClubMemberById(UUID memberId);
+    boolean updateUser(UserUpdatedEvent userUpdatedEvent);
 }

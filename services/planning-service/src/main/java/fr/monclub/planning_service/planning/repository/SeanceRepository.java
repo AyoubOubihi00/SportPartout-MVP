@@ -91,4 +91,6 @@ public interface SeanceRepository extends JpaRepository<Seance, UUID>, SeanceRep
     List<Seance> findAllByParticipantsContains(UUID userId);
 
     List<Seance> findAllByParticipantsContainsAndStartTimeBetween(UUID userId, OffsetDateTime startTimeAfter, OffsetDateTime startTimeBefore);
+
+    List<Seance> findAllByIdClub(UUID idClub);
 }

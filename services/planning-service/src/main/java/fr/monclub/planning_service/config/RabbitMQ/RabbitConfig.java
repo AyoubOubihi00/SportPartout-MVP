@@ -18,6 +18,7 @@ public class RabbitConfig {
 
     public static final String EXCHANGE_NAME = "monclub.events";
     public static final String SPORT_TYPE_ROUTING_KEY = "sporttype.updated";
+    public static final String CLUB_UPDATED_ROUTING_KEY = "club.updated";
 
     @Bean
     public TopicExchange appEventsExchange() {
@@ -49,5 +50,19 @@ public class RabbitConfig {
                 .bind(sportTypeQueuePlanningService)
                 .to(appEventsExchange)
                 .with(SPORT_TYPE_ROUTING_KEY);
+    }
+
+    public Queue clubUpdatedQueuePlanningService() {
+        return new AnonymousQueue();
+    }
+
+    @Bean
+    public Binding clubUpdatedBindingPlanningService(TopicExchange appEventsExchange,Queue clubUpdatedQueuePlanningService) {
+
+        return BindingBuilder
+                .bind(clubUpdatedQueuePlanningService)
+                .to(appEventsExchange)
+                .with(CLUB_UPDATED_ROUTING_KEY);
+
     }
 }

@@ -64,10 +64,25 @@ public class RabbitConfig {
     }
 
     @Bean
-    public Binding clubReactivedBinding(TopicExchange appEventsExchange, Queue clubDisabledQueue) {
+    public Binding clubReactivedBinding(TopicExchange appEventsExchange, Queue clubReactived) {
         return BindingBuilder
-                .bind(clubDisabledQueue)
+                .bind(clubReactived)
                 .to(appEventsExchange)
                 .with("club.reactived");
     }
+
+    @Bean
+    public Queue userUpdatedQueue() {
+        return new AnonymousQueue();
+    }
+
+    @Bean
+    public Binding userUpdatedBinding(TopicExchange appEventsExchange, Queue userUpdatedQueue) {
+        return BindingBuilder
+                .bind(userUpdatedQueue)
+                .to(appEventsExchange)
+                .with("user.updated");
+    }
+
 }
+
