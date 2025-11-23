@@ -21,7 +21,9 @@ jobs:
       matrix:
         include:
           - service: admin-service
-            image: monclub-admin-service
+            image: monclub-admin-service  
+          - service: auth-service
+            image: monclub-auth-service
           - service: club-service
             image: monclub-club-service
           - service: findClub-service
