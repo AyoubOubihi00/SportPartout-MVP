@@ -118,7 +118,7 @@ public class ClubFixtures implements CommandLineRunner {
                     "Tennis",
                     "Metz",
                     "France",
-                    "12 Rue de la Chèvre",
+                    "12 Rue de la Chevre",
                     "57000",
                     "0387551234",
                     "tennismetz@example.com",
@@ -199,7 +199,7 @@ public class ClubFixtures implements CommandLineRunner {
 
             findClubRepository.save(new Club(
                     UUID.fromString("37323ae1-3875-4fec-a648-80aaad25fe9c"),
-                    "Metz Judo Académie",
+                    "Metz Judo Academie",
                     4.6,
                     7,
                     UUID_JUDO,
@@ -336,7 +336,7 @@ public class ClubFixtures implements CommandLineRunner {
                     "Tennis",
                     "Strasbourg",
                     "France",
-                    "2 Allée du Printemps",
+                    "2 Allee du Printemps",
                     "67000",
                     "0388251111",
                     "tennisstrasbourg@example.com",
@@ -417,14 +417,14 @@ public class ClubFixtures implements CommandLineRunner {
 
             findClubRepository.save(new Club(
                     UUID.fromString("07d16769-4ff3-4195-b65f-6b22a31a03ac"),
-                    "Strasbourg Judo Académie",
+                    "Strasbourg Judo Acad??mie",
                     1.9,
                     20,
                     UUID_JUDO,
                     "Judo",
                     "Strasbourg",
                     "France",
-                    "10 Rue du Dôme",
+                    "10 Rue du Dome",
                     "67000",
                     "0388275555",
                     "judostrasbourg@example.com",
