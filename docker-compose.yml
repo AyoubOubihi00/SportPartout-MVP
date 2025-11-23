@@ -115,17 +115,16 @@ services:
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
 
     depends_on:
-      db-findclub:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_started
+      - rabbitmq
+      - db-findclub
+      
     ports:
       - "8083:8080"
     networks:
       - monclub-net
 
   db-planning:
-    image: postgis/postgis:16-3.4-alpine
+    image: postgres:16
     container_name: monclub-db-planning
     env_file:
       - ./services/planning-service/.env
@@ -153,17 +152,16 @@ services:
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
 
     depends_on:
-      db-planning:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_started
+      - db-planning
+      - rabbitmq
+
     ports:
       - "8085:8080"
     networks:
       - monclub-net
 
   db-authentification:
-    image: postgis/postgis:16-3.4-alpine
+    image: postgres:16
     container_name: monclub-db-authentification
     env_file:
       - ./services/auth-service/.env
@@ -254,7 +252,7 @@ services:
       - monclub-net
 
   db-membership:
-    image: postgis/postgis:16-3.4-alpine
+    image: postgres:16
     container_name: monclub-db-membership
     env_file:
       - ./services/club-membership-service/.env
@@ -271,19 +269,21 @@ services:
       retries: 20
 
   pwa-app:
-    image: node:18-slim
+    build:
+      context: ./app
+      dockerfile: Dockerfile
     container_name: monclub-pwa-app
-    working_dir: /usr/src/app
     volumes:
       - ./app:/usr/src/app
-      - pwa_node_modules:/usr/src/app/node_modules  # ✅ fixe le problème
+      - pwa_node_modules:/usr/src/app/node_modules
     environment:
       - CHOKIDAR_USEPOLLING=true
-    command: sh -c "npm install --silent && npm run dev -- --host 0.0.0.0 --port 5173"
     ports:
       - "5173:5173"
     networks:
       - monclub-net
+
+
 
   loki:
     image: grafana/loki:latest

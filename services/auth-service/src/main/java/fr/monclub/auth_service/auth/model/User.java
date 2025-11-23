@@ -21,7 +21,6 @@ import java.util.UUID;
 @EntityListeners(AuditingEntityListener.class)
 public class User {
     @Id
-    @GeneratedValue
     private UUID id;
 
     private String firstName;
@@ -53,6 +52,12 @@ public class User {
 
     private OffsetDateTime birthDate;
 
+    @PrePersist
+    public void ensureIdExists() {
+        if (this.id == null) {
+            this.id = UUID.randomUUID();
+        }
+    }
 
 
 }

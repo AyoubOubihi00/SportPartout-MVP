@@ -32,7 +32,7 @@ public class RabbitConfig {
 
     @Bean
     public Queue clubUpdatedQueueFindClubService() {
-        return new AnonymousQueue();
+        return new Queue("club.updated.findclub ", true);
     }
 
     @Bean
@@ -44,27 +44,27 @@ public class RabbitConfig {
     }
 
     @Bean
-    public Queue clubDisabledQueue() {
+    public Queue clubDisabledQueueFindClubService() {
         return new AnonymousQueue();
     }
 
     @Bean
-    public Binding clubDisabledBinding(TopicExchange appEventsExchange, Queue clubDisabledQueue) {
+    public Binding clubDisabledBinding(TopicExchange appEventsExchange, Queue clubDisabledQueueFindClubService) {
         return BindingBuilder
-                .bind(clubDisabledQueue)
+                .bind(clubDisabledQueueFindClubService)
                 .to(appEventsExchange)
                 .with("club.disabled");
     }
 
     @Bean
-    public Queue clubReactived() {
+    public Queue clubReactivedQueueFindClubService() {
         return new AnonymousQueue();
     }
 
     @Bean
-    public Binding clubReactivedBinding(TopicExchange appEventsExchange, Queue clubDisabledQueue) {
+    public Binding clubReactivedBinding(TopicExchange appEventsExchange, Queue clubReactivedQueueFindClubService) {
         return BindingBuilder
-                .bind(clubDisabledQueue)
+                .bind(clubReactivedQueueFindClubService)
                 .to(appEventsExchange)
                 .with("club.reactived");
     }

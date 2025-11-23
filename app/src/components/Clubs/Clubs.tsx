@@ -20,11 +20,9 @@ import LinearProgress from "@mui/joy/LinearProgress";
 import Alert from "@mui/joy/Alert";
 import Button from "@mui/joy/Button";
 import Box from "@mui/joy/Box";
-import Modal from "@mui/joy/Modal";
-import ModalDialog from "@mui/joy/ModalDialog";
-import ModalClose from "@mui/joy/ModalClose";
 import { ChevronRight } from "lucide-react";
 import ClubDetails from "../ClubDetails";
+import BottomSheet from "../BottomSheet";
 import { fetchClubById } from "../../api/club";
 import type { Club as UiClub } from "../../model/Club";
 
@@ -377,112 +375,62 @@ export default function Clubs() {
         )}
       </div>
 
-      <Modal open={clubDetailsOpen} onClose={closeClubDetails}>
-        <ModalDialog
-          aria-labelledby="club-details-modal-title"
-          sx={{
-            p: 0,
-            maxWidth: 760,
-            width: "min(760px, 96vw)",
-            maxHeight: "90vh",
-            bgcolor: "transparent",
-          }}
-        >
-          <ModalClose
-            variant="plain"
-            onClick={closeClubDetails}
-            sx={{ position: "absolute", top: 8, right: 8, zIndex: 1 }}
-          />
+      <BottomSheet
+        open={clubDetailsOpen}
+        onClose={closeClubDetails}
+        initialHeight={450}
+      >
+        {clubDetails ? (
           <Box
             sx={{
-              width: "100%",
-              pt: 3,
-              maxHeight: "90vh",
-              overflowY: "auto",
-              pr: 1,
+              background:
+                theme.palette.mode === "dark"
+                  ? "linear-gradient(180deg, rgba(15,23,42,0.9), rgba(15,23,42,0.7))"
+                  : "linear-gradient(180deg, #f7f9fc, #edf1f7)",
+              borderRadius: 16,
+              boxShadow:
+                theme.palette.mode === "dark"
+                  ? "0 20px 40px rgba(0,0,0,0.4)"
+                  : "0 24px 45px rgba(15,23,42,0.12)",
+              p: { xs: 1.5, sm: 2 },
             }}
           >
-            <Box
-              sx={{
-                width: "100%",
-                display: "flex",
-                justifyContent: "center",
-                mb: 2,
-                position: "sticky",
-                top: 0,
-                zIndex: 2,
-                pointerEvents: "none",
-              }}
-            >
-              <Box
-                sx={{
-                  width: 60,
-                  height: 5,
-                  borderRadius: 999,
-                  backgroundColor:
-                    theme.palette.mode === "dark"
-                      ? "neutral.700"
-                      : "neutral.400",
-                  boxShadow:
-                    theme.palette.mode === "dark"
-                      ? "0 1px 3px rgba(0,0,0,0.4)"
-                      : "0 1px 3px rgba(0,0,0,0.15)",
-                }}
-              />
-            </Box>
-            {clubDetails ? (
-              <Box
-                sx={{
-                  background:
-                    theme.palette.mode === "dark"
-                      ? "linear-gradient(180deg, rgba(15,23,42,0.9), rgba(15,23,42,0.7))"
-                      : "linear-gradient(180deg, #f7f9fc, #edf1f7)",
-                  borderRadius: 16,
-                  boxShadow:
-                    theme.palette.mode === "dark"
-                      ? "0 20px 40px rgba(0,0,0,0.4)"
-                      : "0 24px 45px rgba(15,23,42,0.12)",
-                  p: { xs: 1.5, sm: 2 },
-                }}
-              >
-                <ClubDetails club={clubDetails} disableJoin={isOwner} />
-              </Box>
-            ) : (
-              <Sheet
-                variant="outlined"
-                sx={{
-                  borderRadius: 16,
-                  p: 4,
-                  textAlign: "center",
-                  minHeight: 200,
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  gap: 2,
-                  bgcolor:
-                    theme.palette.mode === "dark"
-                      ? "neutral.900"
-                      : "background.body",
-                }}
-              >
-                <Typography level="body-md" sx={{ color: mainColor }}>
-                  {clubDetailsError ??
-                    (clubDetailsLoading
-                      ? "Chargement du club..."
-                      : "Club introuvable.")}
-                </Typography>
-                {clubDetailsLoading && (
-                  <LinearProgress
-                    variant="soft"
-                    color="primary"
-                    sx={{ borderRadius: 8 }}
-                  />
-                )}
-              </Sheet>
-            )}
+            <ClubDetails club={clubDetails} disableJoin={isOwner} />
           </Box>
-        </ModalDialog>
-      </Modal>
+        ) : (
+          <Sheet
+            variant="outlined"
+            sx={{
+              borderRadius: 16,
+              p: 4,
+              textAlign: "center",
+              minHeight: 200,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              gap: 2,
+              bgcolor:
+                theme.palette.mode === "dark"
+                  ? "neutral.900"
+                  : "background.body",
+            }}
+          >
+            <Typography level="body-md" sx={{ color: mainColor }}>
+              {clubDetailsError ??
+                (clubDetailsLoading
+                  ? "Chargement du club..."
+                  : "Club introuvable.")}
+            </Typography>
+            {clubDetailsLoading && (
+              <LinearProgress
+                variant="soft"
+                color="primary"
+                sx={{ borderRadius: 8 }}
+              />
+            )}
+          </Sheet>
+        )}
+      </BottomSheet>
     </BaseLayout>
   );
 }

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 public class ClubReactivedEventListener {
     private final FindClubCatalog findClubCatalog;
 
-    @RabbitListener(queues = "#{clubDisabledQueue.name}")
+    @RabbitListener(queues = "#{clubReactivedQueueFindClubService.name}")
     public void handleClubDisabledEvent(ClubReactivedEvent event) {
         System.out.println("ClubReactived reçu : " + event.getClubId());
         findClubCatalog.reactiveClub(event);

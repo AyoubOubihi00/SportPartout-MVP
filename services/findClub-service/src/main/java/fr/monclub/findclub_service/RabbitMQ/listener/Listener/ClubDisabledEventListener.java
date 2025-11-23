@@ -13,7 +13,7 @@ public class ClubDisabledEventListener {
 
     private final FindClubCatalog findClubCatalog;
 
-    @RabbitListener(queues = "#{clubDisabledQueue.name}")
+    @RabbitListener(queues = "#{clubDisabledQueueFindClubService.name}")
     public void handleClubDisabledEvent(ClubDisabledEvent event) {
         System.out.println("ClubDisabledEvent reçu : " + event.getClubId());
         findClubCatalog.disableClub(event);

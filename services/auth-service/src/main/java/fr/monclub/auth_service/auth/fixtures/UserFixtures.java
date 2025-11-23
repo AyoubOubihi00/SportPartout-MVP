@@ -19,8 +19,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserFixtures implements CommandLineRunner {
 
-    @Value("${auth.fixture.default-password:ChangeMe#local}")
-    private String defaultPassword;
+    private static final String defaultPassword = "password1234";
 
     public static final UUID OWNER_PARIS = UUID.fromString("3eb49b4e-762d-5022-b61c-c52c2dc414db");
     public static final UUID OWNER_LYON = UUID.fromString("d505d902-5519-53cf-8ab6-535b3c2e8d4b");
@@ -43,7 +42,7 @@ public class UserFixtures implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        OWNER_ACCOUNTS.forEach(seed -> userCatalog.findByEmail(seed.email())
+        OWNER_ACCOUNTS.forEach(seed -> userCatalog.findById(seed.ownerId())
                 .orElseGet(() -> userCatalog.save(seed.toUser(passwordEncoder, defaultPassword))));
     }
 

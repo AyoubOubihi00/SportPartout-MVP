@@ -20,7 +20,6 @@ public class ClubReactivedEventPublisher {
 
 
     public void publishReactivated(UUID clubId, boolean active) {
-        System.out.println("here");
         ClubReactivedEvent event = new ClubReactivedEvent(
                 clubId,
                 active

@@ -52,8 +52,9 @@ public class RabbitConfig {
                 .with(SPORT_TYPE_ROUTING_KEY);
     }
 
+    @Bean
     public Queue clubUpdatedQueuePlanningService() {
-        return new AnonymousQueue();
+        return new Queue("club.updated.planning", true);
     }
 
     @Bean
