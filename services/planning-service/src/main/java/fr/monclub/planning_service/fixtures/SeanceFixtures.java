@@ -18,13 +18,13 @@ public class SeanceFixtures implements CommandLineRunner {
 
     public static final UUID CLUB_PARIS = UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1");
     public static final UUID CLUB_LYON = UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa2");
-    // IDs alignes sur les comptes gerants seedes dans auth-service (UserFixtures)
-    public static final UUID USER_PARIS = UUID.fromString("666e2278-77e2-48e6-b724-af3e4727ed7f");
-    public static final UUID USER_LYON = UUID.fromString("d505d902-5519-53cf-8ab6-535b3c2e8d4b");
-    public static final UUID USER_MARSEILLE = UUID.fromString("22222222-2222-2222-2222-222222222222");
-    public static final UUID USER_METZ = UUID.fromString("3dc50597-863b-45fe-a442-6dbdcde4ddaf");
-    public static final UUID USER_NANCY = UUID.fromString("3dc50597-863b-45fe-a442-6dbdcde4ddaf");
-    public static final UUID USER_STRASBOURG = UUID.fromString("d349cfd1-a1f3-4226-bc36-36b72d9a43e0");
+    // IDs alignes sur les comptes demo seedes dans auth-service (UserFixtures)
+    public static final UUID USER_PARIS = UUID.fromString("11111111-2222-3333-4444-555555555555");
+    public static final UUID USER_LYON = UUID.fromString("22222222-3333-4444-5555-666666666666");
+    public static final UUID USER_MARSEILLE = UUID.fromString("1e0cd442-27b2-5e5d-a7a1-e55a72c2b704");
+    public static final UUID USER_METZ = UUID.fromString("33333333-4444-5555-6666-777777777777");
+    public static final UUID USER_NANCY = UUID.fromString("44444444-5555-6666-7777-888888888888");
+    public static final UUID USER_STRASBOURG = UUID.fromString("55555555-6666-7777-8888-999999999999");
     public static final UUID TERRAIN_1 = UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb1");
     public static final String TERRAIN_NAME_1 = "Terrain Salle Europe";
     public static final UUID TERRAIN_2 = UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb2");

@@ -37,6 +37,14 @@ public class Fixture implements CommandLineRunner {
     private static final UUID OWNER_NANCY = UUID.fromString("95fb5d0a-a8f3-573a-93b3-4b9eb6bae808");
     private static final UUID OWNER_STRASBOURG = UUID.fromString("5c69ecdd-85e9-5f65-9b1c-6487808ee449");
 
+    private static final UUID CLUB_PARIS_ID = UUID.fromString("0f609278-76d5-4a27-81d5-d2a7a63594f0");
+
+    private static final UUID USER_PARIS = UUID.fromString("11111111-2222-3333-4444-555555555555");
+    private static final UUID USER_LYON = UUID.fromString("22222222-3333-4444-5555-666666666666");
+    private static final UUID USER_METZ = UUID.fromString("33333333-4444-5555-6666-777777777777");
+    private static final UUID USER_NANCY = UUID.fromString("44444444-5555-6666-7777-888888888888");
+    private static final UUID USER_STRASBOURG = UUID.fromString("55555555-6666-7777-8888-999999999999");
+
     private static final Map<String, UUID> OWNER_BY_CITY = Map.ofEntries(
             Map.entry("paris", OWNER_PARIS),
             Map.entry("lyon", OWNER_LYON),
@@ -399,6 +407,15 @@ public class Fixture implements CommandLineRunner {
                 seeds.add(createMemberSeed(club, clubIndex, memberIndex));
             }
         }
+        // Membres demo alignes sur les users seeds dans auth-service
+        seeds.add(new MemberSeed(USER_PARIS, "Pierre", "Durand", birthDate(1992, 3, 10), "pierre.demo@monclub.fr", "+33 6 11 22 33 44", CLUB_PARIS_ID, true, 30));
+        seeds.add(new MemberSeed(USER_LYON, "Paul", "Martin", birthDate(1991, 5, 8), "paul.demo@monclub.fr", "+33 6 22 33 44 55", UUID.fromString("76f392b1-ed0f-4ad3-ae6b-631574d634b1"), true, 40));
+        seeds.add(new MemberSeed(USER_METZ, "Jacques", "Bernier", birthDate(1993, 7, 2), "jacques.demo@monclub.fr", "+33 6 33 44 55 66", UUID.fromString("89a23eef-7f22-4b46-bf8f-47d5cbec8013"), true, 25));
+        seeds.add(new MemberSeed(USER_METZ, "Jacques", "Bernier", birthDate(1993, 7, 2), "jacques.demo@monclub.fr", "+33 6 33 44 55 66", UUID.fromString("2c4e6f8a-3b5d-4c9e-9f1a-7e2b8c9d5f4e"), true, 20));
+        seeds.add(new MemberSeed(USER_NANCY, "Marie", "Lemoine", birthDate(1994, 9, 18), "marie.demo@monclub.fr", "+33 6 44 55 66 77", UUID.fromString("0fa59129-3bc4-427e-93f1-f95cf0f8edec"), true, 35));
+        seeds.add(new MemberSeed(USER_NANCY, "Marie", "Lemoine", birthDate(1994, 9, 18), "marie.demo@monclub.fr", "+33 6 44 55 66 77", UUID.fromString("3517ebf3-51e1-436a-9a09-0e78f51cce70"), true, 28));
+        seeds.add(new MemberSeed(USER_STRASBOURG, "Sophie", "Weber", birthDate(1990, 12, 4), "sophie.demo@monclub.fr", "+33 6 55 66 77 88", UUID.fromString("defb7a66-7ef3-47a3-b205-bee13c580619"), true, 22));
+        seeds.add(new MemberSeed(USER_STRASBOURG, "Sophie", "Weber", birthDate(1990, 12, 4), "sophie.demo@monclub.fr", "+33 6 55 66 77 88", UUID.fromString("77101f86-7da5-48f0-ae85-b3920b1a91cf"), true, 18));
         return List.copyOf(seeds);
     }
 
