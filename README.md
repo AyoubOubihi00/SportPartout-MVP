@@ -1,50 +1,58 @@
-# Variables d’environnement
-Ce dépôt contient un front (Vite/React dans `app/`) et des services lancés via Docker Compose. Voici les variables d’environnement à connaître et comment les renseigner.
+# Sport Partout
 
-## Front (`app/`)
+## Description
 
-- `VITE_CLUB_SERVICE_URL` (obligatoire en dev)
-  - URL du service GraphQL « club ».
-  - Accepte une URL avec ou sans suffixe `/graphql`.
-  - Exemple: `http://localhost:8081/graphql` ou `http://localhost:8081`.
-  - Effet:
-    - Si défini: Vite crée un proxy dev sur `/graphql` vers cette URL.
-    - Si non défini: aucun proxy n’est créé. Le code du front appellera `/graphql` sur la même origine. Cela marchera seulement si un reverse‑proxy/serveur répond sur le même domaine.
+**Sport Partout** est une application mobile permettant de mettre en relation les passionnés de sport. L’écosystème repose sur plusieurs services communiquant entre eux via RabbitMQ et utilisant PostgreSQL pour le stockage des données.
 
-Créer le fichier `app/.env` et y ajouter:
+## Variables d'environnement
+
+Chaque service nécessite son propre fichier `.env` pour définir les variables d'environnement spécifiques. Assurez-vous de créer ces fichiers avant de démarrer les services.
 
 ```
-VITE_CLUB_SERVICE_URL=http://localhost:8081
+RABBITMQ_HOST=rabbitmq
+RABBITMQ_PORT=5672
+RABBITMQ_DEFAULT_USER=guest
+RABBITMQ_DEFAULT_PASS=guest
+
+POSTGRES_DB=admin_db
+POSTGRES_USER=club_user
+POSTGRES_PASSWORD=club_password
 ```
 
-Ou, si votre endpoint inclut déjà le chemin GraphQL:
+
+## Configuration spécifique
+
+Pour le service auth-service, vous devez définir une clé JWT :
+  
+```
+JWT_SECRET=your_jwt_secret_key
+```
+
+## Clés pour la génération des tokens
+L’authentification repose sur une paire de clés privée et publique (RSA).
+Ces fichiers doivent être présents dans le répertoire :
 
 ```
-VITE_CLUB_SERVICE_URL=http://localhost:8081/graphql
+environment:
+  - KEYS_PATH=/app/keys
+
+volumes:
+  - ./keys:/app/keys
+
+
 ```
 
-## Docker Compose (racine)
+Assurez-vous que les fichiers `private_key.pem` et `public_key.pem` sont placés dans le dossier `keys` à la racine du projet avant de démarrer les services.
 
-Copiez `./.env.dist` en `./.env` puis complétez les valeurs:
 
-- `RABBITMQ_DEFAULT_USER`, `RABBITMQ_DEFAULT_PASS`
-- `RABBITMQ_PORT`, `RABBITMQ_MANAGEMENT_PORT`
-- `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`
+## Démarrage des services
+Utilisez Docker Compose pour démarrer tous les services :
 
-Ces variables sont lues par `docker-compose.yml` pour exposer les ports et configurer RabbitMQ et PostgreSQL.
+```bash
+docker-compose up --build
+```
 
-## Récapitulatif fichiers
-
-- Front: `app/.env` → variables `VITE_*` (utilisées par Vite et accessibles à l’application).
-- Infrastructure: `./.env` → variables pour Docker Compose.
-
-## Démarrage rapide
-
-1) Backend/infra (optionnel si vous avez déjà un backend):
-- Copier `.env.dist` → `.env` et remplir.
-- `docker-compose up -d`
-
-2) Front:
-- Créer `app/.env` avec `VITE_CLUB_SERVICE_URL`.
-- `cd app && npm install && npm run dev`
-
+## Accès aux services
+- **API Gateway** : http://localhost:8080
+- **RabbitMQ Management** : http://localhost:15672 (utilisateur : guest, mot de passe : guest)
+- **Frontend** : http://localhost:5173

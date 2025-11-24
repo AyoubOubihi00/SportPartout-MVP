@@ -383,16 +383,9 @@ export default function Clubs() {
         {clubDetails ? (
           <Box
             sx={{
-              background:
-                theme.palette.mode === "dark"
-                  ? "linear-gradient(180deg, rgba(15,23,42,0.9), rgba(15,23,42,0.7))"
-                  : "linear-gradient(180deg, #f7f9fc, #edf1f7)",
+            
               borderRadius: 16,
-              boxShadow:
-                theme.palette.mode === "dark"
-                  ? "0 20px 40px rgba(0,0,0,0.4)"
-                  : "0 24px 45px rgba(15,23,42,0.12)",
-              p: { xs: 1.5, sm: 2 },
+             
             }}
           >
             <ClubDetails club={clubDetails} disableJoin={isOwner} />
@@ -409,10 +402,7 @@ export default function Clubs() {
               flexDirection: "column",
               justifyContent: "center",
               gap: 2,
-              bgcolor:
-                theme.palette.mode === "dark"
-                  ? "neutral.900"
-                  : "background.body",
+              bgcolor: "transparent"
             }}
           >
             <Typography level="body-md" sx={{ color: mainColor }}>

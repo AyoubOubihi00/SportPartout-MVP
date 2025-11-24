@@ -2,16 +2,17 @@ package fr.monclub.auth_service.config.JWT;
 
 import fr.monclub.auth_service.auth.model.User;
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
-import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -22,17 +23,37 @@ import java.util.Date;
 @Component
 public class JwtUtils {
 
+    private final ResourceLoader resourceLoader;
+
     @Value("${jwt.issuer}")
     private String issuer;
 
-    @Value("classpath:keys/private.pem")
-    private Resource privateKeyResource;
+    @Value("${path.key}")
+    private String keysPath;
 
-    @Value("classpath:keys/public.pem")
-    private Resource publicKeyResource;
+    public JwtUtils(ResourceLoader resourceLoader) {
+        this.resourceLoader = resourceLoader;
+    }
+
+    private Resource getPrivateKeyResource() {
+
+        return resourceLoader.getResource(keysPath + "/private.pem");
+    }
+
+    private Resource getPublicKeyResource() {
+
+        return resourceLoader.getResource(keysPath + "/public.pem");
+    }
+
+    @PostConstruct
+    public void debug() {
+        System.out.println("CHEMIN DES CLEFS PATH = " + keysPath);
+        System.out.println("CHEMIN DES CLEFS = " + getPrivateKeyResource());
+    }
+
 
     private PrivateKey getPrivateKey() {
-        try (InputStream is = privateKeyResource.getInputStream()) {
+        try (InputStream is = getPrivateKeyResource().getInputStream()) {
             String key = new String(is.readAllBytes(), StandardCharsets.UTF_8)
                     .replaceAll("-----BEGIN (.*)-----", "")
                     .replaceAll("-----END (.*)-----", "")
@@ -47,7 +68,7 @@ public class JwtUtils {
     }
 
     private PublicKey getPublicKey() {
-        try (InputStream is = publicKeyResource.getInputStream()) {
+        try (InputStream is = getPublicKeyResource().getInputStream()) {
             String key = new String(is.readAllBytes(), StandardCharsets.UTF_8)
                     .replaceAll("-----BEGIN (.*)-----", "")
                     .replaceAll("-----END (.*)-----", "")

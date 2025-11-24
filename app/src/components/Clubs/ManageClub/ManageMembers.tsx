@@ -439,16 +439,16 @@ export default function ManageMembers() {
                 >
                   <thead>
                     <tr>
-                      <th style={{ width: "28%" }}>Membre</th>
+                      <th style={{ width: "20%" }}>Membre</th>
                       <th style={{ width: "24%" }}>Contact</th>
                       <th style={{ width: "14%" }}>Statut</th>
-                      <th style={{ width: "14%" }}>Désinscrit par</th>
+                      {/* <th style={{ width: "14%" }}>Désinscrit par</th>
                       <th style={{ width: "12%" }}>
                         {filterStatus === "inactive"
                           ? "Date désinscription"
                           : "Date inscription"}
-                      </th>
-                      <th style={{ width: "8%", textAlign: "center" }}>
+                      </th> */}
+                      <th style={{ width: "15%", textAlign: "center" }}>
                         Actions
                       </th>
                     </tr>
@@ -457,23 +457,20 @@ export default function ManageMembers() {
                     {filteredMembers.map((member) => (
                       <tr key={`${member.userId}-${member.clubId}`}>
                         <td>
-                          <Stack direction="row" gap={1.5} alignItems="center">
+                          <Stack direction="row" gap={0.5} alignItems="center">
                             <PersonIcon
                               fontSize="small"
                               sx={{ opacity: 0.6 }}
                             />
-                            <Stack gap={0.25}>
+                            <Stack gap={0.15}>
                               <Typography
                                 level="body-sm"
                                 sx={{ fontWeight: 600 }}
                               >
-                                {member.firstName} {member.lastName}
+                                {member.firstName} <br></br>
+                                {member.lastName}
                               </Typography>
-                              {member.himself && (
-                                <Chip size="sm" variant="soft" color="primary">
-                                  Vous
-                                </Chip>
-                              )}
+
                             </Stack>
                           </Stack>
                         </td>
@@ -525,7 +522,7 @@ export default function ManageMembers() {
                             {member.isActif ? "Actif" : "Inactif"}
                           </Chip>
                         </td>
-                        <td>
+                        {/* <td>
                           <Typography level="body-sm">
                             {member.isActif
                               ? "—"
@@ -542,7 +539,7 @@ export default function ManageMembers() {
                                 : getUnsubDate(member),
                             )}
                           </Typography>
-                        </td>
+                        </td> */}
                         <td style={{ textAlign: "center" }}>
                           <Button
                             size="sm"
